@@ -94,6 +94,40 @@ function lifeStats(birthDate: string, lifeExpectancy: number) {
   return { daysToLive, percentage };
 }
 
+function calculateDaysToNextPayday(payday: number): number {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+
+  let paydayDate = new Date(year, month, payday);
+
+  if (day > payday) {
+    // If payday this month has already passed, get next month's
+    paydayDate = new Date(year, month + 1, payday);
+  }
+
+  const diffTime = paydayDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
+
+export function getSalaryDayCountdown() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  const day = now.getDate();
+
+  return {
+    endOfMonth: lastDayOfMonth - day,
+    day5: calculateDaysToNextPayday(5),
+    day10: calculateDaysToNextPayday(10),
+    day15: calculateDaysToNextPayday(15),
+    day20: calculateDaysToNextPayday(20),
+  }
+}
+
 export const { daysToLive, percentage } = lifeStats('1994-11-08', 70);
 
 export const getTime = () => {
@@ -110,12 +144,6 @@ export const getTime = () => {
   const passhours = Math.floor(
     (+new Date() - +new Date(year, 0, 0)) / (1000 * 60 * 60),
   );
-  const salaryday1 = lastDayOfMonth - day;
-  const salaryday5 = day <= 5 ? 5 - day : lastDayOfMonth - day + 5;
-  const salaryday10 = day <= 10 ? 10 - day : lastDayOfMonth - day + 10;
-  const salaryday12 = day <= 12 ? 12 - day : lastDayOfMonth - day + 12;
-  const salaryday15 = day <= 15 ? 15 - day : lastDayOfMonth - day + 15;
-  const salaryday20 = day <= 20 ? 20 - day : lastDayOfMonth - day + 20;
   const day_to_weekend = 6 - new Date().getDay();
   return {
     year,
@@ -124,12 +152,6 @@ export const getTime = () => {
     weekday,
     passdays,
     passhours,
-    salaryday1,
-    salaryday5,
-    salaryday12,
-    salaryday10,
-    salaryday15,
-    salaryday20,
     day_to_weekend,
   };
 };

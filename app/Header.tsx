@@ -6,14 +6,12 @@ import { Button } from '../src/components/ui/button';
 import { Separator } from '../src/components/ui/separator';
 import { LayoutGrid, Github } from 'lucide-react'; // 新增导入
 import { usePathname } from 'next/navigation';
-import { Apps, Links } from './RouterConfig';
+import { Apps } from './RouterConfig';
 import Link from 'next/link';
-import { usePermission } from '../src/hooks/usePermission';
-import { cn } from "@/lib/utils"
 import { ScrollToTop } from '../src/components/ScrollToTop';
 import { ArrowUpToLine } from 'lucide-react';
+import { cn } from '../src/lib/utils';
 export default function Header() {
-  usePermission();
   const router = usePathname();
   const currentApp = Apps.find((app) => app.url === router);
   useEffect(() => {
@@ -53,24 +51,6 @@ export default function Header() {
                       {Icon && <Icon className="mb-2 h-6 w-6" />}
                       <span className="text-xs">{app.name}</span>
                     </Link>
-                  );
-                })}
-              </div>
-              <Separator className="my-4" />
-              <div className="grid grid-cols-3 gap-4">
-                {Links.map((app) => {
-                  const Icon = app.icon;
-                  return (
-                    <a
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key={app.name}
-                      className="flex flex-col items-center justify-center rounded-md border p-2 hover:bg-accent"
-                    >
-                      {Icon && <Icon className="mb-2 h-6 w-6" />}
-                      <span className="text-xs">{app.name}</span>
-                    </a>
                   );
                 })}
               </div>

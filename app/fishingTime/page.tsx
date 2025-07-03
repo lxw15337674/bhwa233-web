@@ -1,73 +1,39 @@
-'use client';
+import FishingTimeView from './FishingTimeView';
 
-import React, { useMemo } from 'react';
-import Countdown from './Countdown';
-import { Progress } from "@/components/ui/progress"
-import {
-  daysUntilEndOfWeek,
-  percentageCompletedOfWeek,
-  daysUntilEndOfMonth,
-  percentageCompletedOfMonth,
-  daysUntilEndOfYear,
-  percentageCompletedOfYear,
-  daysToLive,
-  percentage,
-  calculateDaysDifference,
-  calculateRestDays,
-  getTime,
-} from '@/utils/time';
+interface Holiday {
+  holiday: string;
+  name: string;
+  start?: string;
+  end?: string;
+}
 
-const Chat = () => {
+interface HolidayResponse {
+  vacation: Holiday[]
+}
 
-  const fishingTime = useMemo(() => getTime(), []);
-  return (
-    <div className='p-2'>
-      <div className="[&_>p]:text-base">
-        <div className="m-2">
-          <h1 className="text-lg">【摸鱼办】提醒您:</h1>
-          <p>
-            今天是 {fishingTime.year}年{fishingTime.month}月{fishingTime.day}
-            日, 星期{fishingTime.weekday}。
-          </p>
-        </div>
-        <div className="m-2">
-          <h1 className="text-lg">【下班】</h1>
-          <ul>
-            <li>
-              距离【6点下班】：
-              <Countdown />
-            </li>
-          </ul>
-        </div>
-        <div className="m-2">
-          <h1 className="text-lg">【工资】</h1>
-          <ul>
-            <li>距离【15号发工资】: {fishingTime.salaryday15} 天</li>
-          </ul>
-        </div>
-        <div className="m-2">
-          <h1 className="text-lg">【倒计时】</h1>
-          <ul>
-            <div className="w-100">
-              <li>距离【本周结束】还有 {daysUntilEndOfWeek} 天</li>
-              <Progress value={percentageCompletedOfWeek} />
-              <li>距离【本月结束】还有 {daysUntilEndOfMonth} 天</li>
-              <Progress value={percentageCompletedOfMonth} />
-              <li>距离【本年结束】还有 {daysUntilEndOfYear} 天</li>
-              <Progress value={percentageCompletedOfYear} />
-              <li>距离【70岁结束】还有 {daysToLive} 天</li>
-              <Progress value={percentage} />
-            </div>
-          </ul>
-        </div>
-        <div className="m-2">
-          <h1 className="text-lg">【假期】</h1>
-          <ul>
-            <li>距离【周六】还有 {fishingTime.day_to_weekend} 天</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+async function getHolidays(): Promise<Holiday[] | undefined> {
+  try {
+    const res = await fetch('https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json', {
+      next: { revalidate: 86400 } // Revalidate every 24 hours
+    });
+
+    if (!res.ok) {
+      console.error('Failed to fetch holidays');
+      return undefined;
+    }
+
+    const data: HolidayResponse = await res.json();
+    return data.vacation;
+  } catch (error) {
+    console.error('Error fetching holidays:', error);
+    return undefined;
+  }
+}
+
+
+const Page = async () => {
+  const nextHolidayData = await getHolidays();
+
+  return <FishingTimeView nextHolidayData={nextHolidayData} />;
 };
-export default Chat;
+export default Page;
