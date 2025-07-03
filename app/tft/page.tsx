@@ -1,8 +1,9 @@
-export default async function Page() {
+import { getVersionConfig } from '@/api/tft';
+import { redirect } from 'next/navigation';
 
-  return (
-    <div className="p-3  ">
-      <p>TFT functionality has been temporarily removed.</p>
-    </div>
-  );
+export default async function TftRedirectPage() {
+  const versionData = await getVersionConfig();
+  const latestVersion = versionData[0]; // 假设第一个是最新版本
+
+  redirect(`/tft/${latestVersion.idSeason}`);
 }
