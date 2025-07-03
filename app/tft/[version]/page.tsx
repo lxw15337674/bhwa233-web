@@ -18,6 +18,7 @@ import {
 import RaceJob from '../components/RaceJob';
 import RaceJobChessItem from '../components/RaceJobChessItem';
 import VersionSelect from '../components/VersionSelect';
+import FetterGrid from '../components/FetterGrid';
 
 type Params = { version: string };
 
@@ -66,58 +67,13 @@ export default async function Page({
       <Typography variant="h5" gutterBottom>
         羁绊公式
       </Typography>
-      <div className="flex flex-col mt-3 border border-gray-950">
-        {items?.map((rows, rowIndex) => {
-          return (
-            <div key={rowIndex} className="flex">
-              {rows?.map((item, colIndex) => {
-                if (rowIndex === 0 && colIndex === 0) {
-                  return (
-                    <span
-                      className="card border-gray-950 min-w-[10rem]"
-                      key={colIndex + colIndex}
-                    ></span>
-                  );
-                }
-                if (rowIndex === 0) {
-                  return (
-                    <span
-                      className="card border-l border-gray-950 min-w-[6rem]"
-                      key={colIndex + colIndex}
-                    >
-                      <RaceJob raceJob={item as TFTCard} />
-                    </span>
-                  );
-                }
-                if (colIndex === 0) {
-                  return (
-                    <span
-                      className="card border-t border-gray-950 min-w-[10rem]"
-                      key={colIndex + colIndex}
-                    >
-                      <RaceJob raceJob={item as TFTCard} />
-                    </span>
-                  );
-                }
-                return (
-                  <span
-                    className="card border-l border-t border-gray-950 min-w-[6rem]"
-                    key={colIndex + colIndex}
-                  >
-                    {currentVersion && (
-                      <RaceJobChessItem
-                        version={currentVersion}
-                        races={races}
-                        jobs={jobs}
-                        chesses={item as TFTChess[]}
-                      />
-                    )}
-                  </span>
-                );
-              })}
-            </div>
-          );
-        })}
+      <div className="mt-3">
+        <FetterGrid
+          items={items}
+          currentVersion={currentVersion}
+          races={races}
+          jobs={jobs}
+        />
       </div>
       <div className="mt-2">
         <Typography variant="h5" gutterBottom>

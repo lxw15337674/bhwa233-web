@@ -11,6 +11,95 @@
 }
 
 @layer components {
+  /* 羁绊表格容器 */
+  .fetter-grid {
+    display: grid;
+    gap: 1px;
+    background-color: rgb(3 7 18); /* border color */
+    border: 1px solid rgb(3 7 18);
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* 羁绊表格单元格 */
+  .fetter-cell {
+    background-color: #2f2f2f;
+    min-height: 3rem;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* 表头单元格（第一行第一列的空白） */
+  .fetter-cell-header-corner {
+    background-color: #1f1f1f;
+  }
+
+  /* 行标题单元格 */
+  .fetter-cell-row-header {
+    background-color: #252525;
+    min-width: 8rem;
+  }
+
+  /* 列标题单元格 */
+  .fetter-cell-col-header {
+    background-color: #252525;
+    min-width: 6rem;
+  }
+
+  /* 内容单元格 */
+  .fetter-cell-content {
+    min-width: 6rem;
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 1200px) {
+    .fetter-cell {
+      min-height: 2.5rem;
+      padding: 0.25rem;
+    }
+    .fetter-cell-row-header {
+      min-width: 7rem;
+    }
+    .fetter-cell-col-header,
+    .fetter-cell-content {
+      min-width: 5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .fetter-cell {
+      min-height: 2rem;
+      padding: 0.125rem;
+    }
+    .fetter-cell-row-header {
+      min-width: 6rem;
+    }
+    .fetter-cell-col-header,
+    .fetter-cell-content {
+      min-width: 4rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .fetter-grid {
+      font-size: 0.875rem;
+    }
+    .fetter-cell {
+      min-height: 1.75rem;
+    }
+    .fetter-cell-row-header {
+      min-width: 5rem;
+    }
+    .fetter-cell-col-header,
+    .fetter-cell-content {
+      min-width: 3.5rem;
+    }
+  }
+
+  /* 保留原有 card 样式用于其他地方 */
   .card {
     background-color: #2f2f2f;
     height: 3rem;

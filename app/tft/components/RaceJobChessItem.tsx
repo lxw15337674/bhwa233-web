@@ -40,7 +40,8 @@ const RaceJobChessItem: React.FC<Props> = ({
 
 
   return (
-    <div className="flex flex-wrap justify-center">
+    <div className="flex flex-wrap justify-center items-center gap-1 w-full h-full p-1
+                    sm:gap-0.5 sm:p-0.5 md:gap-1 md:p-1">
       {chesses?.map((chess) => {
         const borderColor = getBorderColor(chess.price);
         const raceJobs: TFTCard[] = [];
@@ -62,7 +63,8 @@ const RaceJobChessItem: React.FC<Props> = ({
             <HoverCard>
               <HoverCardTrigger>
                 <Avatar
-                  className={`cursor-pointer ml-1 rounded-none border-2 `}
+                  className={`cursor-pointer rounded-none border-2 flex-shrink-0
+                            w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9`}
                   style={{
                     borderColor
                   }}
