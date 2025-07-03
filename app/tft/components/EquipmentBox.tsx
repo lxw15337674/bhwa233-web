@@ -8,9 +8,10 @@ import Equipment from './Equipment';
 
 interface Props {
   equipsByType: EquipsByType;
+  allEquips?: TFTEquip[];
 }
 
-const EquipmentBox = ({ equipsByType }:Props) => {
+const EquipmentBox = ({ equipsByType, allEquips = [] }: Props) => {
   const generateEquipmentArray = (equipsByType: EquipsByType) => {
     if (!equipsByType) return [[]];
     const basic = equipsByType.get(EquipmentType['basic']) || [];
@@ -44,12 +45,12 @@ const EquipmentBox = ({ equipsByType }:Props) => {
   const equipmentArray = generateEquipmentArray(equipsByType);
 
   return (
-    <div className="inline-block">
+    <div className="equipment-grid">
       {equipmentArray.map((row, rowIndex) => (
-        <div key={rowIndex}>
+        <div key={rowIndex} className="equipment-row">
           {row.map((equip, colIndex) => (
-            <div className="inline-block" key={colIndex}>
-              <Equipment equip={equip} />
+            <div className="equipment-cell" key={colIndex}>
+              <Equipment equip={equip} allEquips={allEquips} />
             </div>
           ))}
         </div>

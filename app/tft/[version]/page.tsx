@@ -79,7 +79,14 @@ export default async function Page({
         <Typography variant="h5" gutterBottom>
           装备公式
         </Typography>
-        <EquipmentBox equipsByType={equips} />
+        <div className="equipment-container">
+          <EquipmentBox equipsByType={equips} allEquips={equipData} />
+        </div>
+        <div className="text-xs text-gray-500 mt-2 flex items-center justify-center md:hidden">
+          <span className="inline-flex items-center gap-1">
+            👈� 左右滑动查看完整装备合成表
+          </span>
+        </div>
       </div>
       {equips.get(EquipmentType['ink']) && (
         <div className="mt-2">
@@ -87,7 +94,7 @@ export default async function Page({
             额外装备
           </Typography>
           {equips.get(EquipmentType['ink'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} />;
+            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
         </div>
       )}
@@ -97,7 +104,7 @@ export default async function Page({
             无法合成的特殊转职纹章
           </Typography>
           {equips.get(EquipmentType['job'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} />;
+            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
         </div>
       )}
@@ -107,7 +114,7 @@ export default async function Page({
             奥恩神器
           </Typography>
           {equips.get(EquipmentType['ornn'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} />;
+            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
         </div>
       )}
@@ -117,7 +124,7 @@ export default async function Page({
             金鳞龙装备
           </Typography>
           {equips.get(EquipmentType['golden'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} />;
+            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
         </div>
       )}
@@ -127,7 +134,7 @@ export default async function Page({
             辅助装备
           </Typography>
           {equips.get(EquipmentType['support'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} />;
+            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
         </div>
       )}
