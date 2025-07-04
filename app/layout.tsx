@@ -6,6 +6,8 @@ import { ClientProviders } from '../src/components/client-providers';
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
+import { getLocale, getTranslations } from '../src/lib/i18n'
+import { TranslationProvider } from '../src/components/TranslationProvider'
 
 export const metadata: Metadata = {
   title: {
@@ -60,13 +62,16 @@ export const metadata: Metadata = {
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale()
+  const translations = await getTranslations(locale)
+
   return (
-    <html suppressHydrationWarning lang="en">
+    <html suppressHydrationWarning lang={locale}>
       <body>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-LDWSSHPH6W"
@@ -80,15 +85,17 @@ export default function RootLayout({
             gtag('config', 'G-LDWSSHPH6W');
           `}
         </Script>
-        <ClientProviders>
-          <main className='min-h-screen h-full w-screen'>
-            <Header />
-            {children}
-            <Toaster />
-            <SpeedInsights />
-            <Analytics />
-          </main>
-        </ClientProviders>
+        <TranslationProvider locale={locale} translations={translations}>
+          <ClientProviders>
+            <main className='min-h-screen h-full w-screen'>
+              <Header />
+              {children}
+              <Toaster />
+              <SpeedInsights />
+              <Analytics />
+            </main>
+          </ClientProviders>
+        </TranslationProvider>
       </body>
     </html>
   );
