@@ -1,5 +1,11 @@
 'use client';
-import { Select, FormControl, InputLabel, MenuItem } from '@mui/material';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { redirect } from 'next/navigation';
 import { ISeasonInfo } from '../../../src/api/tft';
 
@@ -9,24 +15,25 @@ interface Props {
 }
 const VersionSelect = ({ versionData, currentVersion }: Props) => {
   return (
-    <FormControl fullWidth>
-      <Select
-        value={currentVersion.idSeason}
-        label="版本"
-        onChange={(e) => {
-          redirect(`/tft/${e.target.value}`);
-        }}
-        className="border-[1px] mb-2"
-      >
+    <Select
+      value={currentVersion.idSeason}
+      onValueChange={(value) => {
+        redirect(`/tft/${value}`);
+      }}
+    >
+      <SelectTrigger className="w-full border-[1px] mb-2">
+        <SelectValue placeholder="选择版本" />
+      </SelectTrigger>
+      <SelectContent>
         {versionData?.map((item) => {
           return (
-            <MenuItem value={item.idSeason} key={item.idSeason}>
+            <SelectItem value={item.idSeason} key={item.idSeason}>
               {item.stringName}
-            </MenuItem>
+            </SelectItem>
           );
         })}
-      </Select>
-    </FormControl>
+      </SelectContent>
+    </Select>
   );
 };
 

@@ -6,7 +6,6 @@ import {
   getVersionConfig,
 } from '@/api/tft';
 import EquipmentBox from '../components/EquipmentBox';
-import { Typography } from '@mui/material';
 import { getFetter } from '@/utils/tftf';
 import { TFTCard, TFTChess } from '@/api/tft/type';
 import Equipment from '../components/Equipment';
@@ -64,9 +63,9 @@ export default async function Page({
         currentVersion={currentVersion}
         versionData={versionData}
       />
-      <Typography variant="h5" gutterBottom>
+      <h2 className="text-xl font-semibold mb-4">
         羁绊公式
-      </Typography>
+      </h2>
       <div className="mt-3">
         <FetterGrid
           items={items}
@@ -76,9 +75,9 @@ export default async function Page({
         />
       </div>
       <div className="mt-2">
-        <Typography variant="h5" gutterBottom>
+        <h2 className="text-xl font-semibold mb-4">
           装备公式
-        </Typography>
+        </h2>
         <div className="equipment-container">
           <EquipmentBox equipsByType={equips} allEquips={equipData} />
         </div>
@@ -90,9 +89,9 @@ export default async function Page({
       </div>
       {equips.get(EquipmentType['ink']) && (
         <div className="mt-2">
-          <Typography variant="h5" gutterBottom>
+          <h2 className="text-xl font-semibold mb-4">
             额外装备
-          </Typography>
+          </h2>
           {equips.get(EquipmentType['ink'])?.map((equip: TFTEquip) => {
             return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
@@ -100,9 +99,9 @@ export default async function Page({
       )}
       {equips.get(EquipmentType['job']) && (
         <div className="mt-2">
-          <Typography variant="h5" gutterBottom>
+          <h2 className="text-xl font-semibold mb-4">
             无法合成的特殊转职纹章
-          </Typography>
+          </h2>
           {equips.get(EquipmentType['job'])?.map((equip: TFTEquip) => {
             return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
@@ -110,9 +109,9 @@ export default async function Page({
       )}
       {equips.get(EquipmentType['ornn']) && (
         <div className="mt-2">
-          <Typography variant="h5" gutterBottom>
+          <h2 className="text-xl font-semibold mb-4">
             奥恩神器
-          </Typography>
+          </h2>
           {equips.get(EquipmentType['ornn'])?.map((equip: TFTEquip) => {
             return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
@@ -120,9 +119,9 @@ export default async function Page({
       )}
       {equips.get(EquipmentType['golden']) && (
         <div className="mt-2">
-          <Typography variant="h5" gutterBottom>
+          <h2 className="text-xl font-semibold mb-4">
             金鳞龙装备
-          </Typography>
+          </h2>
           {equips.get(EquipmentType['golden'])?.map((equip: TFTEquip) => {
             return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}
@@ -130,9 +129,9 @@ export default async function Page({
       )}
       {equips.get(EquipmentType['support']) && (
         <div className="mt-2">
-          <Typography variant="h5" gutterBottom>
+          <h2 className="text-xl font-semibold mb-4">
             辅助装备
-          </Typography>
+          </h2>
           {equips.get(EquipmentType['support'])?.map((equip: TFTEquip) => {
             return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
           })}

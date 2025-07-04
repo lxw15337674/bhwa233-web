@@ -5,6 +5,7 @@ const withSerwist = withSerwistInit({
   // use something else that works, such as "service-worker/index.ts".
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === 'development',
 });
 
 const nextConfig = withSerwist({
@@ -34,10 +35,6 @@ const nextConfig = withSerwist({
   },
   rewrites: async () => {
     return [
-      {
-        source: '/englishToday',
-        destination: 'https://apiv3.shanbay.com/weapps/dailyquote/quote/',
-      },
       {
         source: '/jiaqi',
         destination:

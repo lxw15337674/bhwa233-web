@@ -97,7 +97,7 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
 
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger >
         <Avatar className={`equipment-avatar cursor-pointer rounded-none inline-block`}>
           <AvatarImage src={equip?.imagePath} />
           <AvatarFallback className="text-xs sm:text-sm">{equip?.name}</AvatarFallback>

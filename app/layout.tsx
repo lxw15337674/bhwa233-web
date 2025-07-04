@@ -1,9 +1,5 @@
 'use client';
 import './global.css';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import theme from '../src/theme';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
 import { ThemeProvider as NextThemeProvider } from "@/components/theme-provider"
 import Header from './Header';
 import { SidebarProvider } from '../src/components/ui/sidebar';
@@ -21,22 +17,17 @@ export default function RootLayout({
     <html suppressHydrationWarning>
       <body>
         <SidebarProvider>
-          <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-            <ThemeProvider theme={theme} defaultMode="dark" >
-              <NextThemeProvider
-                attribute="class"
-                defaultTheme="dark"
-              >
-                <CssBaseline enableColorScheme />
-                <main className='min-h-screen h-full w-screen'>
-                  <Header />
-                  {children}
-                  <Toaster />
-                  <SpeedInsights />
-                </main>
-              </NextThemeProvider>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
+          <NextThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+          >
+            <main className='min-h-screen h-full w-screen'>
+              <Header />
+              {children}
+              <Toaster />
+              <SpeedInsights />
+            </main>
+          </NextThemeProvider>
         </SidebarProvider>
       </body>
     </html>
