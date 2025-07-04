@@ -5,13 +5,20 @@ import axios from "axios";
 
 export async function uploadToGalleryServer(
     file: File,
-): Promise<string | null> {
+    onProgress?: (progress: number) => void
+): Promise<string> {
     try {
         const formData = new FormData();
         formData.append('file', file);
 
         const response = await axios.post(`/telegraph-upload`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress: (progressEvent) => {
+                if (progressEvent.total && onProgress) {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    onProgress(progress);
+                }
+            }
         });
 
         if (!response.data[0]?.src) {
@@ -23,8 +30,8 @@ export async function uploadToGalleryServer(
     } catch (error: any) {
         console.error(`File upload failed: ${error.message}`);
         if (error.response?.status === 403) {
-            console.error('CORS error: Access forbidden');
+            throw new Error('上传失败：访问被拒绝，可能是CORS问题');
         }
-        return null;
+        throw new Error(`上传失败：${error.message || '未知错误'}`);
     }
 }
