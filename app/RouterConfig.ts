@@ -2,7 +2,8 @@ import {
   Fish,
   Gamepad2,
   MessageCircle,
-  Upload
+  Upload,
+  Music
 } from 'lucide-react';
 
 interface MenuItem {
@@ -16,6 +17,11 @@ export const Apps: MenuItem[] = [
     name: '文件上传',
     url: '/upload',
     icon: Upload
+  },
+  {
+    name: '音频转换',
+    url: '/audio-converter',
+    icon: Music
   },
   // {
   //   name : '图床',
