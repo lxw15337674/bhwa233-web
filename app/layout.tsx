@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Toaster } from '../src/components/ui/toaster';
 import { ClientProviders } from '../src/components/client-providers';
 import type { Metadata } from 'next';
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: {
@@ -72,6 +73,7 @@ export default function RootLayout({
             {children}
             <Toaster />
             <SpeedInsights />
+            <Analytics />
           </main>
         </ClientProviders>
       </body>

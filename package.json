@@ -36,6 +36,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@serwist/next": "^9.0.15",
     "@tanstack/react-table": "^8.21.3",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "ahooks": "^3.9.0",
     "axios": "^1.10.0",
