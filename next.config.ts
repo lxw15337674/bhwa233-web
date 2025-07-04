@@ -9,11 +9,6 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig = withSerwist({
-  i18n: {
-    locales: ['en', 'zh', 'zh-tw'], // 支持的语言
-    defaultLocale: 'en',            // 默认语言(英文)
-    localeDetection: false,         // 禁用自动检测，使用默认语言
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
