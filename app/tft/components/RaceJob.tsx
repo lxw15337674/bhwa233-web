@@ -2,10 +2,10 @@
 import React from 'react';
 import { TFTCard } from '@/api/tft/type';
 import {
-  Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { HoverClickPopover } from '@/components/ui/hover-click-popover';
 import {
   getRaceJobLevelBorderColor,
   getRaceJobLevelColor,
@@ -17,17 +17,13 @@ interface Props {
 }
 
 const RaceJob = ({ raceJob }: Props) => {
-  const [open, setOpen] = React.useState(false);
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <HoverClickPopover>
       <PopoverTrigger asChild>
         <div
           className={`flex flex-col items-center cursor-pointer justify-center 
                      w-full h-full min-h-0 p-1
                      sm:p-0.5 md:p-1 lg:p-1.5`}
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
         >
           <div className="flex items-center justify-center flex-wrap gap-1 min-w-0">
             <Image
@@ -36,6 +32,7 @@ const RaceJob = ({ raceJob }: Props) => {
               alt={raceJob.name}
               width={16}
               height={16}
+              loading="lazy"
             />
             <span className="text-xs sm:text-sm md:text-base font-bold text-white 
                            truncate max-w-full text-center leading-tight">
@@ -79,7 +76,7 @@ const RaceJob = ({ raceJob }: Props) => {
           })}
         </div>
       </PopoverContent>
-    </Popover>
+    </HoverClickPopover>
   );
 };
 

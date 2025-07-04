@@ -18,6 +18,7 @@ import RaceJob from '../components/RaceJob';
 import RaceJobChessItem from '../components/RaceJobChessItem';
 import VersionSelect from '../components/VersionSelect';
 import FetterGrid from '../components/FetterGrid';
+import { TftImagePreloader } from '../components/TftClientComponents';
 
 type Params = { version: string };
 
@@ -51,9 +52,12 @@ export default async function Page({
   );
 
   const items = getFetter(jobs, races, chesses);
-  
+
   return (
     <div className="p-3  ">
+      {/* 图片预加载组件 */}
+      <TftImagePreloader equipsByType={equips} />
+
       <VersionSelect
         currentVersion={currentVersion}
         versionData={versionData}

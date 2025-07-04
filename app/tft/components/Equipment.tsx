@@ -1,22 +1,40 @@
-import React from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
 import { Desc } from './Desc';
 import { TFTEquip } from '@/api/tft/model/Equipment';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HoverClickPopover } from '@/components/ui/hover-click-popover';
 import { parseEquipmentRecipe } from '@/utils/equipmentRecipe';
 import { ChevronRight, Plus } from 'lucide-react';
+import Image from 'next/image';
 
 interface Props {
   equip: TFTEquip | null;
   allEquips?: TFTEquip[];
+  // 可选的预处理配方映射，用于性能优化
+  recipeMap?: Map<string, any>;
 }
 
-const Equipment = ({ equip, allEquips = [] }: Props) => {
-  const recipeInfo = equip && allEquips.length > 0
-    ? parseEquipmentRecipe(equip, allEquips)
-    : null;
+const Equipment = ({ equip, allEquips = [], recipeMap }: Props) => {
+  // 使用 useMemo 缓存配方计算，优先使用预处理的配方映射
+  const recipeInfo = useMemo(() => {
+    if (!equip) return null;
 
-  const renderRecipe = () => {
+    // 如果有预处理的配方映射，直接使用 O(1) 查找
+    if (recipeMap && equip.equipId) {
+      return recipeMap.get(equip.equipId) || null;
+    }
+
+    // 否则使用原来的计算方法
+    return allEquips.length > 0
+      ? parseEquipmentRecipe(equip, allEquips)
+      : null;
+  }, [equip, allEquips, recipeMap]);
+
+  // 使用 useMemo 缓存渲染函数，减少重复计算
+  const renderRecipe = useMemo(() => {
     if (!recipeInfo || !recipeInfo.canCraft) {
       return null;
     }
@@ -28,7 +46,10 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
           {/* 第一个材料 */}
           <div className="flex flex-col items-center">
             <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
-              <AvatarImage src={recipeInfo.materials[0]?.imagePath} />
+              <AvatarImage
+                src={recipeInfo.materials[0]?.imagePath}
+                alt={recipeInfo.materials[0]?.name}
+              />
               <AvatarFallback className="text-xs">
                 {recipeInfo.materials[0]?.name}
               </AvatarFallback>
@@ -44,7 +65,10 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
           {/* 第二个材料 */}
           <div className="flex flex-col items-center">
             <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
-              <AvatarImage src={recipeInfo.materials[1]?.imagePath} />
+              <AvatarImage
+                src={recipeInfo.materials[1]?.imagePath}
+                alt={recipeInfo.materials[1]?.name}
+              />
               <AvatarFallback className="text-xs">
                 {recipeInfo.materials[1]?.name}
               </AvatarFallback>
@@ -60,7 +84,10 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
           {/* 成品 */}
           <div className="flex flex-col items-center">
             <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
-              <AvatarImage src={equip?.imagePath} />
+              <AvatarImage
+                src={equip?.imagePath}
+                alt={equip?.name}
+              />
               <AvatarFallback className="text-xs">
                 {equip?.name}
               </AvatarFallback>
@@ -72,9 +99,9 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
         </div>
       </div>
     );
-  };
+  }, [recipeInfo, equip]);
 
-  const renderCard = () => {
+  const renderCard = useMemo(() => {
     if (!equip) {
       return null;
     }
@@ -82,7 +109,10 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
       <div className="min-w-64 max-w-80 sm:min-w-72 sm:max-w-none">
         <div className="flex items-center">
           <Avatar className="w-8 h-8 sm:w-12 sm:h-12">
-            <AvatarImage src={equip.imagePath} />
+            <AvatarImage
+              src={equip.imagePath}
+              alt={equip.name}
+            />
             <AvatarFallback>{equip.name}</AvatarFallback>
           </Avatar>
           <div className="ml-2 text-base sm:text-lg font-bold">{equip.name}</div>
@@ -90,26 +120,29 @@ const Equipment = ({ equip, allEquips = [] }: Props) => {
         <div className="mt-2">
           <Desc text={equip.effect} />
         </div>
-        {renderRecipe()}
+        {renderRecipe}
       </div>
     );
-  };
+  }, [equip, renderRecipe]);
 
   return (
-    <Popover>
+    <HoverClickPopover>
       <PopoverTrigger className='h-[40px]'>
         <Avatar className={`equipment-avatar cursor-pointer rounded-none inline-block `}>
-          <AvatarImage src={equip?.imagePath} />
+          <AvatarImage
+            src={equip?.imagePath}
+            alt={equip?.name}
+          />
           <AvatarFallback className="text-xs sm:text-sm">{equip?.name}</AvatarFallback>
         </Avatar>
       </PopoverTrigger >
       <PopoverContent className="w-auto" >
         {
-          !equip ? <div>Empty</div> : renderCard()
+          !equip ? <div>Empty</div> : renderCard
         }
       </PopoverContent>
-    </Popover>
+    </HoverClickPopover>
   );
 };
 
-export default Equipment;
+export default React.memo(Equipment);

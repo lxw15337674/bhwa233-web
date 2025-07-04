@@ -9,7 +9,8 @@ import { ISeasonInfo } from '@/api/tft';
 import { Desc } from './Desc';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HoverClickPopover } from '@/components/ui/hover-click-popover';
 
 interface Props {
   races: TFTCard[];
@@ -59,7 +60,7 @@ const RaceJobChessItem: React.FC<Props> = ({
         }
         return (
           <Fragment key={chess.TFTID}>
-            <Popover>
+            <HoverClickPopover>
               <PopoverTrigger>
                 <Avatar
                   className={`cursor-pointer rounded-none border-2 flex-shrink-0
@@ -68,7 +69,11 @@ const RaceJobChessItem: React.FC<Props> = ({
                     borderColor
                   }}
                 >
-                  <AvatarImage src={getChessImage(version.idSeason, chess.TFTID, ChessImageType.head)} />
+                  <AvatarImage
+                    src={getChessImage(version.idSeason, chess.TFTID, ChessImageType.head)}
+                    alt={chess.displayName}
+                    loading="lazy"
+                  />
                   <AvatarFallback>
                     {chess.displayName}
                   </AvatarFallback>
@@ -77,7 +82,16 @@ const RaceJobChessItem: React.FC<Props> = ({
               <PopoverContent className={`p-0 w-[${imageWidth}px]`}>
                 <div className="flex flex-col rounded-lg" style={{ width: imageWidth }}>
                   <div className="relative w-full aspect-[624/318]">
-                    <Image src={getChessImage(version.idSeason, chess.TFTID, ChessImageType.full)} alt={`${chess.displayName}`} width={imageWidth} height={210} />
+                    <Image
+                      src={getChessImage(version.idSeason, chess.TFTID, ChessImageType.full)}
+                      alt={`${chess.displayName}`}
+                      width={imageWidth}
+                      height={210}
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIi8+PC9zdmc+"
+                      className="rounded-t-lg"
+                    />
                     <div className="absolute left-5 bottom-4 flex flex-col">
                       {raceJobs.map((raceJob) => (
                         <div className="flex items-center mt-1" key={raceJob.id}>
@@ -87,6 +101,7 @@ const RaceJobChessItem: React.FC<Props> = ({
                             alt={raceJob.name}
                             width={16}
                             height={16}
+                            loading="lazy"
                           />
                           <span className="text-sm">{raceJob.name}</span>
                         </div>
@@ -107,7 +122,11 @@ const RaceJobChessItem: React.FC<Props> = ({
                   <div className="flex flex-col px-4 mb-4">
                     <div className="flex items-center mb-1.5">
                       <Avatar className="mr-2">
-                        <AvatarImage src={chess.skillImage} />
+                        <AvatarImage
+                          src={chess.skillImage}
+                          alt={`${chess.skillName}技能图片`}
+                          loading="lazy"
+                        />
                         <AvatarFallback>技能图片</AvatarFallback>
                       </Avatar>
                       <span className="text-lg font-bold">{chess.skillName}</span>
@@ -118,7 +137,7 @@ const RaceJobChessItem: React.FC<Props> = ({
                   </div>
                 </div>
               </PopoverContent>
-            </Popover>
+            </HoverClickPopover>
           </Fragment>
         );
       })}
