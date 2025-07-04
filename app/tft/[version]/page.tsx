@@ -21,13 +21,8 @@ import FetterGrid from '../components/FetterGrid';
 
 type Params = { version: string };
 
-// 为静态生成预构建所有版本页面
-export async function generateStaticParams(): Promise<Params[]> {
-  const versionData = await getVersionConfig();
-  return versionData.map((version) => ({
-    version: version.idSeason,
-  }));
-}
+// ISR配置：12小时重新验证一次
+export const revalidate = 43200;
 
 export default async function Page({
   params,
