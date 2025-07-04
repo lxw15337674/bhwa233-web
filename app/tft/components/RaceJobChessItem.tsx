@@ -4,13 +4,12 @@ import {
   getBorderColor,
   getChessImage,
 } from '../../../src/api/tft/model/Chess';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TFTChess, TFTCard } from '@/api/tft/type';
 import { ISeasonInfo } from '@/api/tft';
 import { Desc } from './Desc';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Props {
   races: TFTCard[];
@@ -60,8 +59,8 @@ const RaceJobChessItem: React.FC<Props> = ({
         }
         return (
           <Fragment key={chess.TFTID}>
-            <HoverCard>
-              <HoverCardTrigger>
+            <Popover>
+              <PopoverTrigger>
                 <Avatar
                   className={`cursor-pointer rounded-none border-2 flex-shrink-0
                             w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9`}
@@ -74,8 +73,8 @@ const RaceJobChessItem: React.FC<Props> = ({
                     {chess.displayName}
                   </AvatarFallback>
                 </Avatar>
-              </HoverCardTrigger>
-              <HoverCardContent className={`p-0 w-[${imageWidth}px]`}>
+              </PopoverTrigger>
+              <PopoverContent className={`p-0 w-[${imageWidth}px]`}>
                 <div className="flex flex-col rounded-lg" style={{ width: imageWidth }}>
                   <div className="relative w-full aspect-[624/318]">
                     <Image src={getChessImage(version.idSeason, chess.TFTID, ChessImageType.full)} alt={`${chess.displayName}`} width={imageWidth} height={210} />
@@ -118,8 +117,8 @@ const RaceJobChessItem: React.FC<Props> = ({
                     </span>
                   </div>
                 </div>
-              </HoverCardContent>
-            </HoverCard>
+              </PopoverContent>
+            </Popover>
           </Fragment>
         );
       })}
