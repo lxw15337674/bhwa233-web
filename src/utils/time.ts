@@ -22,6 +22,9 @@ function daysAndPercentageRemaining(): {
   percentageCompletedOfMonth: number;
   daysUntilEndOfYear: number;
   percentageCompletedOfYear: number;
+  daysPassedInWeek: number;
+  daysPassedInMonth: number;
+  daysPassedInYear: number;
 } {
   // 获取当前日期
   const now = new Date();
@@ -65,6 +68,12 @@ function daysAndPercentageRemaining(): {
   const percentageCompletedOfYear = Math.round(
     ((daysInYear - daysUntilEndOfYear) / daysInYear) * 100,
   );
+
+  // 计算已过去的天数
+  const daysPassedInWeek = 7 - daysUntilEndOfWeek - 1; // 减1是因为当天不算完整过去
+  const daysPassedInMonth = endOfMonth.getDate() - daysUntilEndOfMonth - 1;
+  const daysPassedInYear = daysInYear - daysUntilEndOfYear - 1;
+
   return {
     daysUntilEndOfWeek,
     percentageCompletedOfWeek,
@@ -72,6 +81,9 @@ function daysAndPercentageRemaining(): {
     percentageCompletedOfMonth,
     daysUntilEndOfYear,
     percentageCompletedOfYear,
+    daysPassedInWeek,
+    daysPassedInMonth,
+    daysPassedInYear,
   };
 }
 function lifeStats(birthDate: string, lifeExpectancy: number) {
@@ -163,6 +175,9 @@ export const {
   percentageCompletedOfMonth,
   daysUntilEndOfYear,
   percentageCompletedOfYear,
+  daysPassedInWeek,
+  daysPassedInMonth,
+  daysPassedInYear,
 } = daysAndPercentageRemaining();
 
 // 计算距离下一个假期的间隔天数, 传入假期日期,如果假期已经过去, 返回-1，否则返回间隔天数

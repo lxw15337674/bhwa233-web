@@ -9,6 +9,9 @@ import {
   percentageCompletedOfMonth,
   daysUntilEndOfYear,
   percentageCompletedOfYear,
+  daysPassedInWeek,
+  daysPassedInMonth,
+  daysPassedInYear,
   calculateDaysDifference,
   calculateRestDays,
   getTime,
@@ -55,11 +58,11 @@ const FishingTimeView = ({ nextHolidayData }: FishingTimeViewProps) => {
           <h1 className="text-lg">【倒计时】</h1>
           <ul>
             <div className="w-100">
-              <li>距离【本周结束】还有 {daysUntilEndOfWeek} 天</li>
+              <li>距离【本周结束】还有 {daysUntilEndOfWeek} 天 (已过去 {daysPassedInWeek} 天)</li>
               <Progress value={percentageCompletedOfWeek} />
-              <li>距离【本月结束】还有 {daysUntilEndOfMonth} 天</li>
+              <li>距离【本月结束】还有 {daysUntilEndOfMonth} 天 (已过去 {daysPassedInMonth} 天)</li>
               <Progress value={percentageCompletedOfMonth} />
-              <li>距离【本年结束】还有 {daysUntilEndOfYear} 天</li>
+              <li>距离【本年结束】还有 {daysUntilEndOfYear} 天 (已过去 {daysPassedInYear} 天)</li>
               <Progress value={percentageCompletedOfYear} />
             </div>
           </ul>
