@@ -45,7 +45,7 @@ const Equipment = ({ equip, allEquips = [], recipeMap }: Props) => {
         <div className="flex items-center justify-center gap-1 sm:gap-2">
           {/* 第一个材料 */}
           <div className="flex flex-col items-center">
-            <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
+            <Avatar className="equipment-avatar rounded-none">
               <AvatarImage
                 src={recipeInfo.materials[0]?.imagePath}
                 alt={recipeInfo.materials[0]?.name}
@@ -64,7 +64,7 @@ const Equipment = ({ equip, allEquips = [], recipeMap }: Props) => {
 
           {/* 第二个材料 */}
           <div className="flex flex-col items-center">
-            <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
+            <Avatar className="equipment-avatar rounded-none">
               <AvatarImage
                 src={recipeInfo.materials[1]?.imagePath}
                 alt={recipeInfo.materials[1]?.name}
@@ -83,7 +83,7 @@ const Equipment = ({ equip, allEquips = [], recipeMap }: Props) => {
 
           {/* 成品 */}
           <div className="flex flex-col items-center">
-            <Avatar className="w-6 h-6 sm:w-8 sm:h-8 rounded-none">
+            <Avatar className="equipment-avatar rounded-none">
               <AvatarImage
                 src={equip?.imagePath}
                 alt={equip?.name}
@@ -108,7 +108,7 @@ const Equipment = ({ equip, allEquips = [], recipeMap }: Props) => {
     return (
       <div className="min-w-64 max-w-80 sm:min-w-72 sm:max-w-none">
         <div className="flex items-center">
-          <Avatar className="w-8 h-8 sm:w-12 sm:h-12">
+          <Avatar className="equipment-avatar rounded-none">
             <AvatarImage
               src={equip.imagePath}
               alt={equip.name}

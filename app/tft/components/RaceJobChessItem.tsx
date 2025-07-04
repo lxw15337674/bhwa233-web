@@ -63,8 +63,7 @@ const RaceJobChessItem: React.FC<Props> = ({
             <HoverClickPopover>
               <PopoverTrigger>
                 <Avatar
-                  className={`cursor-pointer rounded-none border-2 flex-shrink-0
-                            w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9`}
+                  className="equipment-avatar cursor-pointer rounded-none border-2 flex-shrink-0"
                   style={{
                     borderColor
                   }}
@@ -121,7 +120,7 @@ const RaceJobChessItem: React.FC<Props> = ({
                   </div>
                   <div className="flex flex-col px-4 mb-4">
                     <div className="flex items-center mb-1.5">
-                      <Avatar className="mr-2">
+                      <Avatar className="equipment-avatar rounded-none mr-2">
                         <AvatarImage
                           src={chess.skillImage}
                           alt={`${chess.skillName}技能图片`}

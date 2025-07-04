@@ -91,9 +91,15 @@ export default async function Page({
           <h2 className="text-xl font-semibold mb-4">
             额外装备
           </h2>
-          {equips.get(EquipmentType['ink'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
-          })}
+          <div className="equipment-grid-wrap">
+            <div className="equipment-row-wrap">
+              {equips.get(EquipmentType['ink'])?.map((equip: TFTEquip) => (
+                <div className="equipment-cell" key={equip.equipId}>
+                  <Equipment equip={equip} allEquips={equipData} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {equips.get(EquipmentType['job']) && (
@@ -101,9 +107,15 @@ export default async function Page({
           <h2 className="text-xl font-semibold mb-4">
             无法合成的特殊转职纹章
           </h2>
-          {equips.get(EquipmentType['job'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
-          })}
+          <div className="equipment-grid-wrap">
+            <div className="equipment-row-wrap">
+              {equips.get(EquipmentType['job'])?.map((equip: TFTEquip) => (
+                <div className="equipment-cell" key={equip.equipId}>
+                  <Equipment equip={equip} allEquips={equipData} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {equips.get(EquipmentType['ornn']) && (
@@ -111,9 +123,15 @@ export default async function Page({
           <h2 className="text-xl font-semibold mb-4">
             奥恩神器
           </h2>
-          {equips.get(EquipmentType['ornn'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
-          })}
+          <div className="equipment-grid-wrap">
+            <div className="equipment-row-wrap">
+              {equips.get(EquipmentType['ornn'])?.map((equip: TFTEquip) => (
+                <div className="equipment-cell" key={equip.equipId}>
+                  <Equipment equip={equip} allEquips={equipData} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {equips.get(EquipmentType['golden']) && (
@@ -121,9 +139,15 @@ export default async function Page({
           <h2 className="text-xl font-semibold mb-4">
             金鳞龙装备
           </h2>
-          {equips.get(EquipmentType['golden'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
-          })}
+          <div className="equipment-grid-wrap">
+            <div className="equipment-row-wrap">
+              {equips.get(EquipmentType['golden'])?.map((equip: TFTEquip) => (
+                <div className="equipment-cell" key={equip.equipId}>
+                  <Equipment equip={equip} allEquips={equipData} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {equips.get(EquipmentType['support']) && (
@@ -131,9 +155,15 @@ export default async function Page({
           <h2 className="text-xl font-semibold mb-4">
             辅助装备
           </h2>
-          {equips.get(EquipmentType['support'])?.map((equip: TFTEquip) => {
-            return <Equipment equip={equip} key={equip.equipId} allEquips={equipData} />;
-          })}
+          <div className="equipment-grid-wrap">
+            <div className="equipment-row-wrap">
+              {equips.get(EquipmentType['support'])?.map((equip: TFTEquip) => (
+                <div className="equipment-cell" key={equip.equipId}>
+                  <Equipment equip={equip} allEquips={equipData} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

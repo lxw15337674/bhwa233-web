@@ -109,6 +109,15 @@
     white-space: nowrap;
   }
 
+  /* 特殊装备网格容器（允许换行） */
+  .equipment-grid-wrap {
+    display: block;
+    background-color: rgb(3 7 18); /* border color */
+    border: 1px solid rgb(3 7 18);
+    border-radius: 4px;
+    width: 100%;
+  }
+
   /* 装备公式外层滚动容器 */
   .equipment-container {
     overflow-x: auto;
@@ -143,6 +152,13 @@
     flex-wrap: nowrap;
     min-width: max-content;
     white-space: nowrap;
+  }
+
+  /* 特殊装备行（允许换行） */
+  .equipment-row-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
   }
 
   /* 装备单元格 */
