@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://bhwa233-web.vercel.app'
+    const baseUrl = 'https://233tools.vercel.app'
 
     return [
         {

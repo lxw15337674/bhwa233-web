@@ -46,7 +46,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${versionName} 云顶之弈攻略 - 装备合成表·羁绊搭配一图流`,
       description: `${versionName} 云顶之弈最新攻略，装备合成、羁绊搭配、阵容推荐一应俱全`,
-      url: `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+      url: `https://233tools.vercel.app/zh/tft/${version}`,
       siteName: '工具箱',
       locale: 'zh_CN',
       type: 'website',
@@ -66,9 +66,9 @@ export async function generateMetadata({
       images: ['/icons/icon-256.png'],
     },
     alternates: {
-      canonical: `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+      canonical: `https://233tools.vercel.app/zh/tft/${version}`,
       languages: {
-        'zh-CN': `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+        'zh-CN': `https://233tools.vercel.app/zh/tft/${version}`,
       },
     },
     robots: {

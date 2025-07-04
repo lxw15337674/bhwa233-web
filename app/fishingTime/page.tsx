@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '摸鱼办 - 上班族专属假期工资倒计时工具',
     description: '实时查看下个假期还有多少天，工资还有几天到账，让摸鱼更有意思！包含所有法定假日倒计时。',
-    url: 'https://bhwa233-web.vercel.app/zh/fishingTime',
+    url: 'https://233tools.vercel.app/zh/fishingTime',
     siteName: '工具箱',
     locale: 'zh_CN',
     type: 'website',
@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     images: ['/icons/icon-256.png'],
   },
   alternates: {
-    canonical: 'https://bhwa233-web.vercel.app/zh/fishingTime',
+    canonical: 'https://233tools.vercel.app/zh/fishingTime',
     languages: {
-      'zh-CN': 'https://bhwa233-web.vercel.app/zh/fishingTime',
+      'zh-CN': 'https://233tools.vercel.app/zh/fishingTime',
     },
   },
   other: {
@@ -102,7 +102,7 @@ const Page = async () => {
             '@type': 'WebApplication',
             name: '摸鱼办',
             description: '专为上班族打造的假期工资倒计时工具，实时显示法定假日倒计时、工资倒计时、调休安排',
-            url: 'https://bhwa233-web.vercel.app/zh/fishingTime',
+            url: 'https://233tools.vercel.app/zh/fishingTime',
             applicationCategory: 'UtilityApplication',
             operatingSystem: 'Any',
             inLanguage: 'zh-CN',
@@ -139,7 +139,7 @@ const Page = async () => {
             provider: {
               '@type': 'Organization',
               name: '工具箱',
-              url: 'https://bhwa233-web.vercel.app',
+              url: 'https://233tools.vercel.app',
             },
             about: [
               {

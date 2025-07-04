@@ -23,7 +23,7 @@ export default function TftLayout({
                         '@type': 'WebApplication',
                         name: '云顶之弈攻略助手',
                         description: '云顶之弈装备合成表与羁绊搭配指南，提供最新TFT攻略、阵容推荐、装备公式',
-                        url: 'https://bhwa233-web.vercel.app/zh/tft',
+                        url: 'https://233tools.vercel.app/zh/tft',
                         applicationCategory: 'GameApplication',
                         operatingSystem: 'Any',
                         inLanguage: 'zh-CN',
@@ -62,7 +62,7 @@ export default function TftLayout({
                         provider: {
                             '@type': 'Organization',
                             name: '工具箱',
-                            url: 'https://bhwa233-web.vercel.app',
+                            url: 'https://233tools.vercel.app',
                         },
                         about: {
                             '@type': 'VideoGame',

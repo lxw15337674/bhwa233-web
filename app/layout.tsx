@@ -10,6 +10,7 @@ import { getLocale, getTranslations } from '../src/lib/i18n'
 import { TranslationProvider } from '../src/components/TranslationProvider'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://233tools.vercel.app'),
   title: {
     default: 'Toolbox - Online Productivity Tools Collection',
     template: '%s | Toolbox'
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://bhwa233-web.vercel.app',
+    url: 'https://233tools.vercel.app',
     siteName: 'Toolbox',
     title: 'Toolbox - Online Productivity Tools Collection',
     description: 'Integrated TFT guides, fishing tools, file upload and other multi-functional online toolbox with Chinese workplace tools',
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
     google: 'fc9f0f35f747acd0',
   },
   alternates: {
-    canonical: 'https://bhwa233-web.vercel.app',
+    canonical: 'https://233tools.vercel.app',
   },
 };
 

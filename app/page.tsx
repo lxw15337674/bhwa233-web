@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '工具箱 - 在线生产力工具集合',
     description: '集成云顶之弈攻略助手、摸鱼办热榜、在线聊天等多功能工具',
-    url: 'https://bhwa233-web.vercel.app',
+    url: 'https://233tools.vercel.app',
     type: 'website',
   },
 }

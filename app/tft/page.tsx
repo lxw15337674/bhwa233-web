@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '云顶之弈攻略大全 - 最新装备合成与羁绊搭配指南',
     description: '云顶之弈一图流攻略，装备合成表、羁绊搭配、阵容推荐应有尽有，助您快速上分！',
-    url: 'https://bhwa233-web.vercel.app/zh/tft',
+    url: 'https://233tools.vercel.app/zh/tft',
     siteName: '工具箱',
     locale: 'zh_CN',
     type: 'website',
@@ -49,9 +49,9 @@ export const metadata: Metadata = {
     images: ['/icons/icon-256.png'],
   },
   alternates: {
-    canonical: 'https://bhwa233-web.vercel.app/zh/tft',
+    canonical: 'https://233tools.vercel.app/zh/tft',
     languages: {
-      'zh-CN': 'https://bhwa233-web.vercel.app/zh/tft',
+      'zh-CN': 'https://233tools.vercel.app/zh/tft',
     },
   },
   other: {

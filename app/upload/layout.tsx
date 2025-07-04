@@ -8,7 +8,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = params?.locale || 'en';
 
-  const baseUrl = 'https://bhwa233-web.vercel.app';
+  const baseUrl = 'https://233tools.vercel.app';
   const path = '/upload';
 
   // 根据语言生成不同的元数据
@@ -102,10 +102,10 @@ export default function UploadLayout({
             '@type': 'WebApplication',
             name: 'File Upload Tool',
             description: 'Free online file upload service, supports any file format, any file size, permanent storage',
-            url: 'https://bhwa233-web.vercel.app/upload',
+            url: 'https://233tools.vercel.app/upload',
             applicationCategory: 'UtilityApplication',
             operatingSystem: 'Any',
-            permissions: 'https://bhwa233-web.vercel.app/upload',
+            permissions: 'https://233tools.vercel.app/upload',
             offers: {
               '@type': 'Offer',
               price: '0',
@@ -131,7 +131,7 @@ export default function UploadLayout({
             provider: {
               '@type': 'Organization',
               name: 'Toolbox',
-              url: 'https://bhwa233-web.vercel.app',
+              url: 'https://233tools.vercel.app',
             },
           }),
         }}

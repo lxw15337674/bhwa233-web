@@ -12,7 +12,7 @@ Disallow: /_next/
 Disallow: /admin/
 
 # 站点地图
-Sitemap: https://bhwa233-web.vercel.app/sitemap.xml
+Sitemap: https://233tools.vercel.app/sitemap.xml
 
 # 抓取延迟（可选）
 Crawl-delay: 1
