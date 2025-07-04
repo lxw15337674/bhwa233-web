@@ -49,7 +49,7 @@ const EquipmentBox = ({ equipsByType, allEquips = [] }: Props) => {
       {equipmentArray.map((row, rowIndex) => (
         <div key={rowIndex} className="equipment-row">
           {row.map((equip, colIndex) => (
-            <div className="equipment-cell" key={colIndex}>
+            <div className="equipment-cell " key={colIndex}>
               <Equipment equip={equip} allEquips={allEquips} />
             </div>
           ))}
