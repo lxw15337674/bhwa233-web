@@ -9,6 +9,11 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig = withSerwist({
+  i18n: {
+    locales: ['en', 'zh', 'zh-tw'], // 支持的语言
+    defaultLocale: 'en',            // 默认语言(英文)
+    localeDetection: false,         // 禁用自动检测，使用默认语言
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -32,6 +37,32 @@ const nextConfig = withSerwist({
         hostname: 'awsl.azureedge.net',
       },
     ],
+  },
+  async redirects() {
+    return [
+      // 英文用户访问中文专属功能，重定向到中文版
+      {
+        source: '/en/fishingTime',
+        destination: '/zh/fishingTime',
+        permanent: true,
+      },
+      {
+        source: '/en/tft/:path*',
+        destination: '/zh/tft/:path*',
+        permanent: true,
+      },
+      // 繁体用户访问，重定向到简体中文（因为内容相同）
+      {
+        source: '/zh-tw/fishingTime',
+        destination: '/zh/fishingTime',
+        permanent: true,
+      },
+      {
+        source: '/zh-tw/tft/:path*',
+        destination: '/zh/tft/:path*',
+        permanent: true,
+      },
+    ];
   },
   rewrites: async () => {
     return [

@@ -1,0 +1,28 @@
+{
+    "upload": {
+        "title": "免費線上檔案上傳工具",
+        "description": "選擇或拖拽檔案進行上傳，支援批次（最多10個），支援任意檔案格式、任意大小，永久保存。",
+        "features": {
+            "free": "免費使用",
+            "anyFormat": "任意格式",
+            "anySize": "任意大小",
+            "permanent": "永久保存",
+            "batch": "批次上傳（最多10個檔案）"
+        },
+        "uploadFiles": "上傳檔案",
+        "dragOrClick": "拖拽檔案到這裡或點擊選擇",
+        "supportAnyFormat": "支援任意格式檔案，單個檔案無大小限制",
+        "selectedFiles": "已選擇 {{count}} 個檔案",
+        "clickToReselect": "點擊重新選擇檔案",
+        "uploading": "上傳中...",
+        "copyLink": "複製連結",
+        "uploadHistory": "上傳歷史記錄",
+        "clearHistory": "清空歷史",
+        "noHistory": "暫無上傳歷史記錄",
+        "errors": {
+            "maxFiles": "一次最多只能上傳10個檔案",
+            "uploadFailed": "上傳失敗",
+            "noUrl": "上傳失敗：伺服器未返回檔案URL"
+        }
+    }
+}

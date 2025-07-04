@@ -66,15 +66,6 @@ export default function Header() {
             <ArrowUpToLine />
           </ScrollToTop>
           <ModeToggle />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => {
-              window.open('https://github.com/lxw15337674/todo-web', '_blank')
-            }}
-          >
-            <Github />
-          </Button>
         </div>
       </div>
     </header>

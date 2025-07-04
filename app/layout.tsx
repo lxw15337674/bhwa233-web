@@ -7,14 +7,14 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: {
-    default: '工具箱 - 在线生产力工具集合',
-    template: '%s | 工具箱'
+    default: 'Toolbox - Online Productivity Tools Collection',
+    template: '%s | Toolbox'
   },
-  description: '集成云顶之弈攻略、摸鱼办、热榜资讯等多功能的在线工具箱，提升您的工作效率和娱乐体验',
-  keywords: ['在线工具', '工具箱', '云顶之弈', 'TFT攻略', '摸鱼办', '热榜', '生产力工具', '装备合成'],
-  authors: [{ name: 'lxw15337674' }],
-  creator: 'lxw15337674',
-  publisher: '工具箱',
+  description: 'Integrated TFT guides, fishing tools, file upload and other multi-functional online toolbox. Features Chinese workplace tools and gaming guides to enhance your productivity and entertainment experience',
+  keywords: ['online tools', 'toolbox', 'TFT guides', 'file upload', 'productivity tools', 'TFT equipment synthesis', '云顶之弈', '摸鱼办', 'Chinese tools'],
+  authors: [{ name: '233tools' }],
+  creator: '233tools',
+  publisher: 'Toolbox',
   robots: {
     index: true,
     follow: true,
@@ -28,24 +28,24 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'zh_CN',
+    locale: 'en_US',
     url: 'https://bhwa233-web.vercel.app',
-    siteName: '工具箱',
-    title: '工具箱 - 在线生产力工具集合',
-    description: '集成云顶之弈攻略、摸鱼办、热榜资讯等多功能的在线工具箱',
+    siteName: 'Toolbox',
+    title: 'Toolbox - Online Productivity Tools Collection',
+    description: 'Integrated TFT guides, fishing tools, file upload and other multi-functional online toolbox with Chinese workplace tools',
     images: [
       {
         url: '/icons/icon-256.png',
         width: 256,
         height: 256,
-        alt: '工具箱 Logo',
+        alt: 'Toolbox Logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '工具箱 - 在线生产力工具集合',
-    description: '集成云顶之弈攻略、摸鱼办、热榜资讯等多功能的在线工具箱',
+    title: 'Toolbox - Online Productivity Tools Collection',
+    description: 'Integrated TFT guides, fishing tools, file upload and other multi-functional online toolbox with Chinese workplace tools',
     images: ['/icons/icon-256.png'],
   },
   verification: {
@@ -64,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="zh-CN">
+    <html suppressHydrationWarning lang="en">
       <body>
         <ClientProviders>
           <main className='min-h-screen h-full w-screen'>

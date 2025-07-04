@@ -19,8 +19,71 @@ import RaceJobChessItem from '../components/RaceJobChessItem';
 import VersionSelect from '../components/VersionSelect';
 import FetterGrid from '../components/FetterGrid';
 import { TftImagePreloader } from '../components/TftClientComponents';
+import type { Metadata } from 'next';
 
 type Params = { version: string };
+
+// 生成动态metadata
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<Metadata> {
+  const { version } = await params;
+  const versionData = await getVersionConfig();
+  const currentVersion = versionData.find((item) => item.idSeason === version) ?? versionData[0];
+
+  const versionName = currentVersion.stringName || `S${version}`;
+
+  return {
+    title: `${versionName} 云顶之弈攻略 - TFT装备合成表·羁绊搭配一图流`,
+    description: `${versionName} 云顶之弈最新攻略，包含装备合成表、羁绊搭配指南、阵容推荐、奥恩神器、金鳞龙装备等。实时更新，助您快速上分！`,
+    keywords: [
+      `${versionName}云顶之弈`, `${versionName}TFT`, `${versionName}装备合成`,
+      `${versionName}羁绊`, `${versionName}阵容`, '云顶之弈攻略', 'TFT攻略',
+      '装备合成表', '羁绊搭配', '阵容推荐', '一图流', '云顶之弈助手'
+    ],
+    openGraph: {
+      title: `${versionName} 云顶之弈攻略 - 装备合成表·羁绊搭配一图流`,
+      description: `${versionName} 云顶之弈最新攻略，装备合成、羁绊搭配、阵容推荐一应俱全`,
+      url: `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+      siteName: '工具箱',
+      locale: 'zh_CN',
+      type: 'website',
+      images: [
+        {
+          url: '/icons/icon-256.png',
+          width: 256,
+          height: 256,
+          alt: `${versionName} 云顶之弈攻略`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${versionName} 云顶之弈攻略 - TFT装备合成表·羁绊搭配`,
+      description: `${versionName} 云顶之弈最新攻略，装备合成、羁绊搭配、阵容推荐`,
+      images: ['/icons/icon-256.png'],
+    },
+    alternates: {
+      canonical: `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+      languages: {
+        'zh-CN': `https://bhwa233-web.vercel.app/zh/tft/${version}`,
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
 
 // ISR配置：12小时重新验证一次
 export const revalidate = 43200;

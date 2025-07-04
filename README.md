@@ -52,14 +52,6 @@ bun start
 
 ## 技术栈
 
-### 前端
-- Bun - JavaScript 运行时和包管理器
-- Next.js
-- [zustand-middleware-computed](https://github.com/lxw15337674/zustand-middleware-computed) - 状态管理
-
-## 项目链接
-- [前端仓库](https://github.com/lxw15337674/todo-web)
-- [后端仓库](https://github.com/lxw15337674/todo-backend)
 
 ## 开发计划
 - 待办事项排序功能

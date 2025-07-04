@@ -1,0 +1,28 @@
+{
+    "upload": {
+        "title": "Free Online File Upload Tool",
+        "description": "Select or drag files to upload, supports batch upload (up to 10 files), any file format, any size, permanent storage.",
+        "features": {
+            "free": "Free to Use",
+            "anyFormat": "Any Format",
+            "anySize": "Any Size",
+            "permanent": "Permanent Storage",
+            "batch": "Batch Upload (up to 10 files)"
+        },
+        "uploadFiles": "Upload Files",
+        "dragOrClick": "Drag files here or click to select",
+        "supportAnyFormat": "Supports any file format, no size limit per file",
+        "selectedFiles": "{{count}} files selected",
+        "clickToReselect": "Click to reselect files",
+        "uploading": "Uploading...",
+        "copyLink": "Copy Link",
+        "uploadHistory": "Upload History",
+        "clearHistory": "Clear History",
+        "noHistory": "No upload history",
+        "errors": {
+            "maxFiles": "Maximum 10 files can be uploaded at once",
+            "uploadFailed": "Upload failed",
+            "noUrl": "Upload failed: Server did not return file URL"
+        }
+    }
+}

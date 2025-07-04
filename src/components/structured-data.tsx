@@ -30,7 +30,7 @@ export const websiteStructuredData = {
     },
     "author": {
         "@type": "Person",
-        "name": "lxw15337674"
+        "name": "233tools"
     },
     "publisher": {
         "@type": "Organization",
@@ -47,7 +47,7 @@ export const tftGuideStructuredData = {
     "url": "https://bhwa233-web.vercel.app/tft",
     "author": {
         "@type": "Person",
-        "name": "lxw15337674"
+        "name": "233tools"
     },
     "publisher": {
         "@type": "Organization",
