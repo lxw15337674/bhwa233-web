@@ -1,19 +1,7 @@
 import { 
-  CheckSquare, 
-  Calendar, 
-  Bookmark, 
-  Calendar as AnniversaryIcon, 
-  Image, 
   Fish,
   Gamepad2,
-  Newspaper,
-  BookOpen,
-  StickyNote,
-  History,
-  Music,
-  MessageCircle,
-  Clipboard,
-  CircleDollarSign
+  MessageCircle
 } from 'lucide-react';
 
 interface MenuItem {
@@ -39,7 +27,5 @@ export const Apps: MenuItem[] = [
     url: '/tft',
     icon: Gamepad2
   },
-  { name: '命令聊天', url: '/chat', icon: MessageCircle },
-
 ];
 

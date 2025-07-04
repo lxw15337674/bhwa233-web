@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# 允许访问重要页面
+Allow: /fishingTime
+Allow: /tft
+Allow: /chat
+
+# 禁止访问 API 路径和私有目录
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# 站点地图
+Sitemap: https://bhwa233-web.vercel.app/sitemap.xml
+
+# 抓取延迟（可选）
+Crawl-delay: 1

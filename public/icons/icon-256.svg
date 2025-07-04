@@ -1,0 +1,12 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 头部 -->
+  <circle cx="128" cy="128" r="96" fill="#2563eb"/>
+  
+  <!-- 眼睛 -->
+  <circle cx="96" cy="104" r="24" fill="white"/>
+  <circle cx="160" cy="104" r="24" fill="white"/>
+  
+  <!-- 高光 -->
+  <circle cx="102.4" cy="97.6" r="6.4" fill="#e5e7eb"/>
+  <circle cx="166.4" cy="97.6" r="6.4" fill="#e5e7eb"/>
+</svg>

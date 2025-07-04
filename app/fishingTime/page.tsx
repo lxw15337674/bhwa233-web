@@ -1,4 +1,17 @@
 import FishingTimeView from './FishingTimeView';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '摸鱼办 - 假期、工资倒计时',
+  description: '实时查看假期、工资倒计时，让摸鱼更有意思',
+  keywords: ['摸鱼办', '假期倒计时', '工资倒计时', '摸鱼工具', '休假提醒'],
+  openGraph: {
+    title: '摸鱼办 - 假期、工资倒计时',
+    description: '实时查看假期、工资倒计时，让摸鱼更有意思',
+    url: 'https://bhwa233-web.vercel.app/fishingTime',
+    type: 'website',
+  },
+};
 
 interface Holiday {
   holiday: string;
