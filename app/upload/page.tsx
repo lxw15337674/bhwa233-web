@@ -19,6 +19,7 @@ interface UploadFileState {
 
 interface UploadHistoryItem {
     url: string;
+    fileName: string;
     time: number;
 }
 
@@ -34,8 +35,18 @@ export default function UploadPage() {
         const raw = localStorage.getItem('uploadHistory');
         if (raw) {
             try {
-                setHistory(JSON.parse(raw));
-            } catch { }
+                const parsed = JSON.parse(raw);
+                // 检查数据结构是否兼容（包含fileName字段）
+                if (Array.isArray(parsed) && parsed.length > 0 && 'fileName' in parsed[0]) {
+                    setHistory(parsed);
+                } else {
+                    // 清空旧格式的历史记录
+                    localStorage.removeItem('uploadHistory');
+                }
+            } catch {
+                // JSON解析失败，清空历史记录
+                localStorage.removeItem('uploadHistory');
+            }
         }
     }, []);
 
@@ -43,7 +54,7 @@ export default function UploadPage() {
     useEffect(() => {
         const newItems = uploadFiles.filter(f => f.success && f.uploadedUrl && !history.some(h => h.url === f.uploadedUrl));
         if (newItems.length > 0) {
-            const newHistory = [...newItems.map(f => ({ url: f.uploadedUrl!, time: Date.now() })), ...history];
+            const newHistory = [...newItems.map(f => ({ url: f.uploadedUrl!, fileName: f.file.name, time: Date.now() })), ...history];
             setHistory(newHistory.slice(0, 100));
             localStorage.setItem('uploadHistory', JSON.stringify(newHistory.slice(0, 100)));
         }
@@ -239,7 +250,7 @@ export default function UploadPage() {
                                 <div key={f.file.name + f.file.size + idx} className="border rounded p-3 bg-background flex flex-col gap-2">
                                     <div className="flex items-center gap-2">
                                         <File className="h-5 w-5 text-green-600" />
-                                        <span className="font-medium text-sm flex-1 truncate">{f.file.name}</span>
+                                        <span className="font-medium text-sm flex-1 truncate" >{f.file.name}</span>
                                         <span className="text-xs text-muted-foreground">{(f.file.size / 1024 / 1024).toFixed(2)} MB</span>
                                     </div>
                                     {f.uploading && (
@@ -258,23 +269,20 @@ export default function UploadPage() {
                                         </Alert>
                                     )}
                                     {f.success && f.uploadedUrl && (
-                                        <Alert className="my-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            <AlertDescription>
+                                        <AlertDescription>
+                                            <div className="space-y-2">
                                                 <div className="flex items-center gap-2">
-                                                    <textarea
+                                                    <input
                                                         value={f.uploadedUrl}
                                                         readOnly
-                                                        rows={2}
-                                                        className="flex-1 px-2 py-1 text-sm border rounded resize-none bg-background"
-                                                        style={{ minHeight: '2.5em' }}
+                                                        className="flex-1 px-2 py-1 text-sm border rounded bg-background"
                                                     />
                                                     <Button size="sm" variant="outline" onClick={() => copyToClipboard(f.uploadedUrl!)}>
-                                                        <Copy className="h-4 w-4" />
+                                                        复制链接
                                                     </Button>
                                                 </div>
-                                            </AlertDescription>
-                                        </Alert>
+                                            </div>
+                                        </AlertDescription>
                                     )}
                                 </div>
                             ))}
@@ -299,24 +307,20 @@ export default function UploadPage() {
                         <ul className="space-y-3">
                             {history.map((item, idx) => (
                                 <li key={item.url + item.time} className="flex items-center gap-2">
-                                    <a
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="truncate flex-1 underline hover:text-primary"
-                                    >
-                                        {item.url}
-                                    </a>
+                                    <File className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium text-sm flex-1 truncate" title={item.fileName}>
+                                        {item.fileName}
+                                    </span>
                                     <span className="text-xs text-muted-foreground whitespace-nowrap">
                                         {new Date(item.time).toLocaleString()}
                                     </span>
                                     <Button
-                                        size="icon"
+                                        size="sm"
                                         variant="outline"
                                         onClick={() => navigator.clipboard.writeText(item.url)}
                                         title="复制链接"
                                     >
-                                        <Copy className="h-4 w-4" />
+                                        复制链接
                                     </Button>
                                 </li>
                             ))}
