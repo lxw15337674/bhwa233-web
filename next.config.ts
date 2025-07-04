@@ -36,6 +36,10 @@ const nextConfig = withSerwist({
   rewrites: async () => {
     return [
       {
+        source: '/telegraph-upload',
+        destination: 'https://telegraph-image-bww.pages.dev/upload',
+      },
+      {
         source: '/jiaqi',
         destination:
           'https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json',
