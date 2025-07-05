@@ -196,7 +196,7 @@ export default function UploadPage() {
                 <div className="flex flex-wrap justify-center gap-2 text-xs">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded">免费使用</span>
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">任意格式</span>
-                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">任意大小</span>
+                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">最大10GB</span>
                     <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">永久保存</span>
                     <span className="bg-red-100 text-red-800 px-2 py-1 rounded">批量上传(一次最多只能上传10个文件)</span>
                 </div>
@@ -233,7 +233,7 @@ export default function UploadPage() {
                             <div className="space-y-2">
                                     <Upload className="h-8 w-8 mx-auto text-gray-400" aria-hidden="true" />
                                 <p className="text-lg font-medium">拖拽文件到这里或点击选择</p>
-                                    <p className="text-sm text-muted-foreground">支持任意格式文件，单个文件无大小限制</p>
+                                    <p className="text-sm text-muted-foreground">支持任意格式文件，单个文件最大10GB</p>
                             </div>
                         )}
                         <input
