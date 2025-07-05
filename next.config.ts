@@ -12,8 +12,17 @@ const nextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
+
+  api: {
+    bodyParser: {
+      sizeLimit: '10gb', // 设置API路由的请求体大小限制为10GB
+    },
+  },
   experimental: {
-    largePageDataBytes: 512 * 100000,
+    largePageDataBytes: 5120 * 100000,
+    serverActions: {
+      bodySizeLimit: '10gb', // 设置Server Actions的请求体大小限制为10GB
+    },
   },
   images: {
     dangerouslyAllowSVG: true,
