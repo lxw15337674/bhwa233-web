@@ -30,6 +30,20 @@ export default function UploadPage() {
     const uploadingCount = useRef(0);
     const queueRef = useRef<UploadFileState[]>([]);
 
+    // 文件大小限制：100MB
+    const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
+    // 验证文件大小
+    const validateFileSizes = (files: File[]) => {
+        const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+        const validFiles = files.filter(file => file.size <= MAX_FILE_SIZE);
+        return {
+            valid: oversizedFiles.length === 0,
+            oversizedFiles,
+            validFiles
+        };
+    };
+
     // 读取历史
     useEffect(() => {
         const raw = localStorage.getItem('uploadHistory');
@@ -76,8 +90,28 @@ export default function UploadPage() {
             setErrorMsg('一次最多只能上传10个文件');
             return;
         }
-        setErrorMsg(null);
-        const states: UploadFileState[] = fileArr.map(file => ({
+
+        // 验证文件大小
+        const validation = validateFileSizes(fileArr);
+
+        // 如果有超大文件，显示警告信息但允许上传其他文件
+        if (!validation.valid) {
+            const oversizedInfo = validation.oversizedFiles.map(file =>
+                `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`
+            ).join('、');
+
+            if (validation.validFiles.length > 0) {
+                setErrorMsg(`以下文件超过100MB限制已被过滤：${oversizedInfo}。其余${validation.validFiles.length}个文件可正常上传。`);
+            } else {
+                setErrorMsg(`所有文件都超过100MB限制：${oversizedInfo}`);
+                return;
+            }
+        } else {
+            setErrorMsg(null);
+        }
+
+        // 只处理符合大小限制的文件
+        const states: UploadFileState[] = validation.validFiles.map(file => ({
             file,
             uploading: false,
             progress: 0,
@@ -87,7 +121,9 @@ export default function UploadPage() {
         }));
         setUploadFiles(states);
         queueRef.current = [...states]; // 创建副本避免引用问题
-        setTimeout(() => startUploadQueue(), 0);
+        if (states.length > 0) {
+            setTimeout(() => startUploadQueue(), 0);
+        }
     };
 
     // 拖拽
@@ -103,8 +139,28 @@ export default function UploadPage() {
             setErrorMsg('一次最多只能上传10个文件');
             return;
         }
-        setErrorMsg(null);
-        const states: UploadFileState[] = fileArr.map(file => ({
+
+        // 验证文件大小
+        const validation = validateFileSizes(fileArr);
+
+        // 如果有超大文件，显示警告信息但允许上传其他文件
+        if (!validation.valid) {
+            const oversizedInfo = validation.oversizedFiles.map(file =>
+                `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`
+            ).join('、');
+
+            if (validation.validFiles.length > 0) {
+                setErrorMsg(`以下文件超过100MB限制已被过滤：${oversizedInfo}。其余${validation.validFiles.length}个文件可正常上传。`);
+            } else {
+                setErrorMsg(`所有文件都超过100MB限制：${oversizedInfo}`);
+                return;
+            }
+        } else {
+            setErrorMsg(null);
+        }
+
+        // 只处理符合大小限制的文件
+        const states: UploadFileState[] = validation.validFiles.map(file => ({
             file,
             uploading: false,
             progress: 0,
@@ -114,7 +170,9 @@ export default function UploadPage() {
         }));
         setUploadFiles(states);
         queueRef.current = [...states]; // 创建副本避免引用问题
-        setTimeout(() => startUploadQueue(), 0);
+        if (states.length > 0) {
+            setTimeout(() => startUploadQueue(), 0);
+        }
     };
 
     // 并发上传队列
@@ -196,7 +254,7 @@ export default function UploadPage() {
                 <div className="flex flex-wrap justify-center gap-2 text-xs">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded">免费使用</span>
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">任意格式</span>
-                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">最大10GB</span>
+                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">最大100MB</span>
                     <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">永久保存</span>
                     <span className="bg-red-100 text-red-800 px-2 py-1 rounded">批量上传(一次最多只能上传10个文件)</span>
                 </div>
@@ -231,9 +289,9 @@ export default function UploadPage() {
                             </div>
                         ) : (
                             <div className="space-y-2">
-                                    <Upload className="h-8 w-8 mx-auto text-gray-400" aria-hidden="true" />
+                                <Upload className="h-8 w-8 mx-auto text-gray-400" aria-hidden="true" />
                                 <p className="text-lg font-medium">拖拽文件到这里或点击选择</p>
-                                    <p className="text-sm text-muted-foreground">支持任意格式文件，单个文件最大10GB</p>
+                                <p className="text-sm text-muted-foreground">支持任意格式文件，单个文件最大100MB</p>
                             </div>
                         )}
                         <input
@@ -335,30 +393,30 @@ export default function UploadPage() {
                             暂无上传历史记录
                         </div>
                     ) : (
-                            <nav aria-label="上传历史文件列表">
-                                <ul className="space-y-3" role="list">
-                                    {history.map((item, idx) => (
-                                        <li key={item.url + item.time} className="flex items-center gap-2">
-                                            <File className="h-4 w-4 text-green-600" aria-hidden="true" />
-                                            <span className="font-medium text-sm flex-1 truncate" title={item.fileName}>
-                                                {item.fileName}
-                                            </span>
-                                            <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={new Date(item.time).toISOString()}>
-                                                {new Date(item.time).toLocaleString()}
-                                            </time>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => navigator.clipboard.writeText(item.url)}
-                                                aria-label={`复制 ${item.fileName} 的文件链接`}
-                                                title={`复制 ${item.fileName} 的文件链接`}
-                                            >
-                                                复制链接
-                                            </Button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </nav>
+                        <nav aria-label="上传历史文件列表">
+                            <ul className="space-y-3" role="list">
+                                {history.map((item, idx) => (
+                                    <li key={item.url + item.time} className="flex items-center gap-2">
+                                        <File className="h-4 w-4 text-green-600" aria-hidden="true" />
+                                        <span className="font-medium text-sm flex-1 truncate" title={item.fileName}>
+                                            {item.fileName}
+                                        </span>
+                                        <time className="text-xs text-muted-foreground whitespace-nowrap" dateTime={new Date(item.time).toISOString()}>
+                                            {new Date(item.time).toLocaleString()}
+                                        </time>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => navigator.clipboard.writeText(item.url)}
+                                            aria-label={`复制 ${item.fileName} 的文件链接`}
+                                            title={`复制 ${item.fileName} 的文件链接`}
+                                        >
+                                            复制链接
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
                     )}
                 </CardContent>
             </Card>
