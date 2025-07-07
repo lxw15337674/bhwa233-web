@@ -63,11 +63,10 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                         <div className="space-y-4">
                             <CheckCircle2 className="h-12 w-12 mx-auto text-green-500" />
                             <div>
-                                <p className="font-medium text-lg">{selectedFile.name}</p>
+                                <p className="font-medium text-lg line-clamp-1 " title={selectedFile.name}>{selectedFile.name}</p>
                                 <p className="text-muted-foreground">
                                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                                 </p>
-                                <p className="text-sm text-green-600 mt-2">已添加到转换列表</p>
                             </div>
                             <Button
                                 variant="outline"

@@ -41,7 +41,7 @@ export const ConversionSettings: React.FC<ConversionSettingsProps> = ({
                                     }`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${isMultiThread ? 'bg-green-500' : 'bg-blue-500'
                                         }`}></span>
-                                    {isMultiThread ? '多线程' : '单线程'}
+                                    {isMultiThread ? '多线程' : '单线程'}模式
                                 </span>
                             )}
                         </div>
