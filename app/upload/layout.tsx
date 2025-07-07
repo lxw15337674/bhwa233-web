@@ -15,21 +15,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metadataMap = {
     en: {
       title: 'File Upload - Free Online File Storage Service',
-      description: 'Free online file upload service, supports any file format, any file size, permanent storage. Batch upload up to 10 files.',
+      description: 'Free online file upload service, supports any file format, up to 10GB file size, permanent storage. Batch upload up to 10 files.',
       keywords: ['file upload', 'online storage', 'free upload', 'batch upload', 'permanent storage'],
       siteName: 'Toolbox',
       locale: 'en_US',
     },
     zh: {
       title: '文件上传 - 免费在线文件存储服务',
-      description: '免费在线文件上传服务，支持任意文件格式、任意大小文件上传，永久保存。批量上传最多10个文件。',
+      description: '免费在线文件上传服务，支持任意文件格式、最大10GB文件上传，永久保存。批量上传最多10个文件。',
       keywords: ['文件上传', '在线存储', '免费上传', '批量上传', '永久保存'],
       siteName: '工具箱',
       locale: 'zh_CN',
     },
     'zh-tw': {
       title: '檔案上傳 - 免費線上檔案儲存服務',
-      description: '免費線上檔案上傳服務，支援任意檔案格式、任意大小檔案上傳，永久保存。批次上傳最多10個檔案。',
+      description: '免費線上檔案上傳服務，支援任意檔案格式、最大10GB檔案上傳，永久保存。批次上傳最多10個檔案。',
       keywords: ['檔案上傳', '線上儲存', '免費上傳', '批次上傳', '永久保存'],
       siteName: '工具箱',
       locale: 'zh_TW',
@@ -101,7 +101,7 @@ export default function UploadLayout({
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
             name: 'File Upload Tool',
-            description: 'Free online file upload service, supports any file format, any file size, permanent storage',
+            description: 'Free online file upload service, supports any file format, up to 10GB file size, permanent storage',
             url: 'https://233tools.vercel.app/upload',
             applicationCategory: 'UtilityApplication',
             operatingSystem: 'Any',
@@ -114,7 +114,7 @@ export default function UploadLayout({
             },
             featureList: [
               'Supports any file format upload',
-              'Supports any file size',
+              'Supports up to 10GB file size',
               'Batch upload up to 10 files',
               'Drag and drop upload',
               'Real-time upload progress',

@@ -1,17 +1,17 @@
 {
     "upload": {
         "title": "免费在线文件上传工具",
-        "description": "选择或拖拽文件进行上传，支持批量（最多10个），支持任意文件格式、任意大小，永久保存。",
+        "description": "选择或拖拽文件进行上传，支持批量（最多10个），支持任意文件格式、最大10GB，永久保存。",
         "features": {
             "free": "免费使用",
             "anyFormat": "任意格式",
-            "anySize": "任意大小",
+            "anySize": "最大10GB",
             "permanent": "永久保存",
             "batch": "批量上传（最多10个文件）"
         },
         "uploadFiles": "上传文件",
         "dragOrClick": "拖拽文件到这里或点击选择",
-        "supportAnyFormat": "支持任意格式文件，单个文件无大小限制",
+        "supportAnyFormat": "支持任意格式文件，单个文件最大10GB",
         "selectedFiles": "已选择 {{count}} 个文件",
         "clickToReselect": "点击重新选择文件",
         "uploading": "上传中...",
