@@ -102,7 +102,7 @@ const AudioConverterView = () => {
             // 动态选择 FFmpeg 版本（多线程 vs 单线程）
             const supportsMultiThread = checkMultiThreadSupport();
             const coreVersion = supportsMultiThread ? 'core-mt' : 'core';
-            const baseURL = `https://unpkg.com/@ffmpeg/${coreVersion}@0.12.6/dist/umd`;
+            const baseURL = `https://unpkg.com/@ffmpeg/${coreVersion}@0.12.10/dist/umd`;
 
             console.log(`使用 FFmpeg ${supportsMultiThread ? '多线程' : '单线程'} 版本: ${baseURL}`);
 
