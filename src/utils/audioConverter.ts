@@ -72,6 +72,7 @@ export interface ConversionState {
     error: string | null;
     outputFile: Blob | null;
     outputFileName: string;
+    remainingTime: string | null;
 }
 
 export interface SizeEstimate {
@@ -103,6 +104,27 @@ export const isValidVideoFile = (filename: string) => {
 
 export const checkMultiThreadSupport = () => {
     return typeof SharedArrayBuffer !== 'undefined';
+};
+
+// 格式化剩余时间
+export const formatRemainingTime = (seconds: number): string => {
+    if (seconds < 60) {
+        return `剩余约 ${Math.round(seconds)}秒`;
+    } else if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.round(seconds % 60);
+        if (remainingSeconds === 0) {
+            return `剩余约 ${minutes}分钟`;
+        }
+        return `剩余约 ${minutes}分${remainingSeconds}秒`;
+    } else {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.round((seconds % 3600) / 60);
+        if (minutes === 0) {
+            return `剩余约 ${hours}小时`;
+        }
+        return `剩余约 ${hours}小时${minutes}分`;
+    }
 };
 
 // FFmpeg 初始化
@@ -322,7 +344,7 @@ export const convertAudio = async (
     outputFormat: AudioFormat,
     qualityMode: QualityMode,
     isMultiThread: boolean,
-    onProgress?: (progress: number, step: string) => void
+    onProgress?: (progress: number, step: string, remainingTime?: string) => void
 ): Promise<Blob> => {
     const inputExtension = getFileExtension(file.name);
     const inputFileName = `input.${inputExtension}`;
@@ -331,6 +353,9 @@ export const convertAudio = async (
     await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
     let totalDuration = 0;
+    const startTime = Date.now();
+    let lastProgressTime = startTime;
+    let lastProgress = 0;
 
     const progressListener = ({ message }: { message: string }) => {
         // 解析总时长
@@ -351,14 +376,33 @@ export const convertAudio = async (
                 const hours = parseInt(timeMatch[1]);
                 const minutes = parseInt(timeMatch[2]);
                 const seconds = parseFloat(timeMatch[3]);
-                const currentTime = hours * 3600 + minutes * 60 + seconds;
+                const currentTime = hours * 3600 + minutes * 60 + seconds; const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
+                const now = Date.now();
 
-                const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
-                onProgress?.(progress, `正在转换音频... ${progress}%`);
+                // 计算剩余时间 - 直接显示
+                let remainingTimeStr: string | undefined;
+                if (progress > 0 && progress < 100) {
+                    const elapsedTime = (now - startTime) / 1000; // 秒
+                    const estimatedTotalTime = elapsedTime / (progress / 100);
+                    const remainingSeconds = estimatedTotalTime - elapsedTime;
+
+                    if (remainingSeconds > 0) {
+                        remainingTimeStr = formatRemainingTime(remainingSeconds);
+                    }
+                }
+
+                lastProgress = progress;
+                lastProgressTime = now;
+
+                const stepText = progress >= 95 ? '即将完成...' : `正在转换音频... ${progress}%`;
+                onProgress?.(progress, stepText, remainingTimeStr);
             }
         } else if (message.includes('time=') && totalDuration === 0) {
             // 如果无法获取总时长，使用简单的增量进度
-            onProgress?.(Math.min((onProgress as any)._lastProgress + 5, 95), '正在转换音频...');
+            const now = Date.now();
+            const simpleProgress = Math.min(lastProgress + 5, 95);
+            lastProgress = simpleProgress;
+            onProgress?.(simpleProgress, '正在转换音频...');
         }
     };
 

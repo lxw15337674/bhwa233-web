@@ -70,10 +70,6 @@ export const AudioInfoDisplay: React.FC<AudioInfoDisplayProps> = ({
                                     {audioInfo!.bitrate > 0 ? `${audioInfo!.bitrate} kbps` : '未知'}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span>音频编码:</span>
-                                <span>{audioInfo!.codec}</span>
-                            </div>
                         </div>
                     </div>
                 </div>

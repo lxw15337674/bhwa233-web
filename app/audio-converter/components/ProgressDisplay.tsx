@@ -29,7 +29,12 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
                         className="h-2"
                     />
                     {conversionState.currentStep && (
-                        <p className="text-xs text-muted-foreground">{conversionState.currentStep}</p>
+                        <div className="flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">{conversionState.currentStep}</p>
+                            {conversionState.remainingTime && (
+                                <p className="text-xs text-blue-500 font-medium">{conversionState.remainingTime}</p>
+                            )}
+                        </div>
                     )}
 
                     {/* FFmpeg 日志显示 */}

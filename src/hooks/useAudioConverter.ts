@@ -114,6 +114,7 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
         error: null,
         outputFile: null,
         outputFileName: '',
+        remainingTime: null,
     });
 
     const {
@@ -130,7 +131,8 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
                 progress: 0,
                 currentStep: '准备转换...',
                 error: null,
-                outputFile: null
+                outputFile: null,
+                remainingTime: null
             });
 
             const outputBlob = await convertAudio(
@@ -139,10 +141,11 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
                 outputFormat,
                 qualityMode,
                 isMultiThread,
-                (progress, step) => {
+                (progress, step, remainingTime) => {
                     setConversionState({
                         progress,
-                        currentStep: step
+                        currentStep: step,
+                        remainingTime: remainingTime || null
                     });
                 }
             );
@@ -154,7 +157,8 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
                 progress: 100,
                 currentStep: '转换完成！',
                 outputFile: outputBlob,
-                outputFileName: finalFileName
+                outputFileName: finalFileName,
+                remainingTime: null
             });
 
             // 清除完成状态
@@ -202,6 +206,7 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
             error: null,
             outputFile: null,
             outputFileName: '',
+            remainingTime: null,
         });
     });
 
