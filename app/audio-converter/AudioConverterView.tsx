@@ -9,7 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
-import { createTimeEstimator, type ConversionTimeEstimator, type TimeEstimate } from '../../src/utils/timeEstimator';
 
 // 音频格式配置
 const AUDIO_FORMATS = {
@@ -104,9 +103,6 @@ const AudioConverterView = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analyzeError, setAnalyzeError] = useState<string | null>(null);
 
-    // 时间估算相关状态
-    const [timeEstimate, setTimeEstimate] = useState<TimeEstimate | null>(null);
-
     const [conversionState, setConversionState] = useState<ConversionState>({
         isConverting: false,
         progress: 0,
@@ -121,9 +117,6 @@ const AudioConverterView = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageRef = useRef<HTMLDivElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
-
-    // 时间估算器 ref
-    const timeEstimatorRef = useRef<ConversionTimeEstimator | null>(null);
 
     // 格式化文件大小显示
     const formatFileSize = useCallback((sizeMB: number) => {
@@ -580,13 +573,6 @@ const AudioConverterView = () => {
             return;
         }
 
-        // 初始化时间估算器
-        timeEstimatorRef.current = createTimeEstimator({
-            windowSize: 8,
-            minSamples: 3,
-            smoothingFactor: 0.3,
-        });
-
         setConversionState(prev => ({
             ...prev,
             isConverting: true,
@@ -595,8 +581,6 @@ const AudioConverterView = () => {
             error: null,
             outputFile: null
         }));
-
-        setTimeEstimate(null); // 重置时间估算
 
         try {
             const ffmpeg = ffmpegRef.current;
@@ -651,13 +635,6 @@ const AudioConverterView = () => {
                         const conversionPercent = Math.min(currentTime / totalDuration, 1);
                         const progress = Math.round(conversionPercent * 100);
 
-                        // 更新时间估算
-                        if (timeEstimatorRef.current) {
-                            timeEstimatorRef.current.addSample(progress);
-                            const estimate = timeEstimatorRef.current.estimate();
-                            setTimeEstimate(estimate);
-                        }
-
                         setConversionState(prev => ({
                             ...prev,
                             progress: progress,
@@ -668,13 +645,6 @@ const AudioConverterView = () => {
                     // 如果无法获取总时长，使用简单的增量进度
                     setConversionState(prev => {
                         const newProgress = Math.min(prev.progress + 5, 95);
-
-                        // 更新时间估算（即使没有总时长）
-                        if (timeEstimatorRef.current) {
-                            timeEstimatorRef.current.addSample(newProgress);
-                            const estimate = timeEstimatorRef.current.estimate();
-                            setTimeEstimate(estimate);
-                        }
 
                         return {
                             ...prev,

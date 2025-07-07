@@ -13,17 +13,6 @@ const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    largePageDataBytes: 512 * 100000,
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
-  },
   webpack: (config, { isServer }) => {
     // FFmpeg.wasm 配置
     config.resolve.fallback = {
@@ -47,14 +36,6 @@ const nextConfig: NextConfig = withSerwist({
       type: 'asset/resource',
     });
 
-    // 忽略相关警告和错误
-    config.ignoreWarnings = [
-      ...(config.ignoreWarnings || []),
-      /Failed to parse source map/,
-      /Module not found.*@ffmpeg/,
-      /Can't resolve.*<dynamic>/,
-      /Critical dependency: the request of a dependency is an expression/,
-    ];
 
     return config;
   },
