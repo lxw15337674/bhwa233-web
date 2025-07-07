@@ -65,6 +65,46 @@ export interface AudioInfo {
     format: string;
 }
 
+export interface VideoInfo {
+    codec: string;
+    width: number;
+    height: number;
+    frameRate: number;
+    bitrate: number;
+    pixelFormat: string;
+    duration: number;
+}
+
+export interface MediaMetadata {
+    // 文件信息
+    fileName: string;
+    fileSize: number;
+    container: string;
+    totalDuration: number;
+    overallBitrate: number;
+
+    // 音频流信息
+    audio: {
+        codec: string;
+        bitrate: number;
+        sampleRate: number;
+        channels: number;
+        channelLayout: string;
+        duration: number;
+    };
+
+    // 视频流信息（可选）
+    video?: {
+        codec: string;
+        width: number;
+        height: number;
+        frameRate: number;
+        bitrate: number;
+        pixelFormat: string;
+        duration: number;
+    };
+}
+
 export interface ConversionState {
     isConverting: boolean;
     progress: number;
@@ -124,6 +164,50 @@ export const formatRemainingTime = (seconds: number): string => {
             return `剩余约 ${hours}小时`;
         }
         return `剩余约 ${hours}小时${minutes}分`;
+    }
+};
+
+// 格式化时长
+export const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+};
+
+// 格式化分辨率
+export const formatResolution = (width: number, height: number): string => {
+    if (width === 0 || height === 0) return '未知';
+
+    // 常见分辨率标识
+    const commonResolutions: { [key: string]: string } = {
+        '1920x1080': '1080p (Full HD)',
+        '1280x720': '720p (HD)',
+        '3840x2160': '4K (UHD)',
+        '2560x1440': '1440p (2K)',
+        '854x480': '480p',
+        '640x360': '360p'
+    };
+
+    const resolution = `${width}x${height}`;
+    return commonResolutions[resolution] || resolution;
+};
+
+// 格式化声道布局
+export const formatChannelLayout = (channels: number, layout: string): string => {
+    if (layout && layout !== '') return layout;
+
+    switch (channels) {
+        case 1: return '单声道';
+        case 2: return '立体声';
+        case 6: return '5.1 环绕声';
+        case 8: return '7.1 环绕声';
+        default: return `${channels} 声道`;
     }
 };
 
@@ -225,38 +309,221 @@ export const parseAudioInfo = (message: string, audioInfo: Partial<AudioInfo>) =
     }
 };
 
-// 音频分析
-export const analyzeAudioInfo = async (file: File, ffmpeg: FFmpeg): Promise<AudioInfo | null> => {
+// 元数据信息解析（优化版本）
+export const parseMediaMetadata = (message: string, metadata: Partial<MediaMetadata>) => {
+    // 排除不需要的输出段落
+    const isExcludedSection = message.includes('Output #0') ||
+        message.includes('Stream mapping:') ||
+        message.includes('frame=') ||
+        message.includes('size=N/A time=') ||
+        message.includes('-> #0:');
+
+    if (isExcludedSection) return;
+
+    // 解析时长和总码率
+    if (message.includes('Duration:')) {
+        const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
+        if (durationMatch) {
+            const hours = parseInt(durationMatch[1]);
+            const minutes = parseInt(durationMatch[2]);
+            const seconds = parseFloat(durationMatch[3]);
+            metadata.totalDuration = hours * 3600 + minutes * 60 + seconds;
+        }
+
+        const bitrateMatch = message.match(/bitrate:\s*(\d+)\s*kb\/s/);
+        if (bitrateMatch) {
+            metadata.overallBitrate = parseInt(bitrateMatch[1]);
+        }
+    }
+
+    // 解析视频流信息（改进版本）
+    if (message.includes('Stream #') && message.includes('Video:')) {
+        if (!metadata.video) {
+            metadata.video = {
+                codec: '',
+                width: 0,
+                height: 0,
+                frameRate: 0,
+                bitrate: 0,
+                pixelFormat: '',
+                duration: 0
+            };
+        }
+
+        // 解析视频编码
+        const videoCodecMatch = message.match(/Video:\s*([^,\s\(]+)/);
+        if (videoCodecMatch) {
+            metadata.video.codec = videoCodecMatch[1].trim().toUpperCase();
+        }
+
+        // 解析像素格式（改进）
+        const pixelFormatMatch = message.match(/Video:\s*[^,]+,\s*([^,\s\(]+)/);
+        if (pixelFormatMatch) {
+            metadata.video.pixelFormat = pixelFormatMatch[1].trim().toUpperCase();
+        }
+
+        // 解析分辨率（改进的正则表达式）
+        const resolutionMatch = message.match(/(\d+)x(\d+)(?:\s*\[|,|\s)/);
+        if (resolutionMatch) {
+            metadata.video.width = parseInt(resolutionMatch[1]);
+            metadata.video.height = parseInt(resolutionMatch[2]);
+        }
+
+        // 解析视频码率（改进）
+        const videoBitrateMatch = message.match(/(\d+)\s*kb\/s/);
+        if (videoBitrateMatch) {
+            const bitrate = parseInt(videoBitrateMatch[1]);
+            // 确保这是视频码率而不是总码率
+            if (bitrate > 100 && bitrate < 50000) { // 合理的视频码率范围
+                metadata.video.bitrate = bitrate;
+            }
+        }
+
+        // 解析帧率
+        const frameRateMatch = message.match(/(\d+(?:\.\d+)?)\s*fps/);
+        if (frameRateMatch) {
+            metadata.video.frameRate = parseFloat(frameRateMatch[1]);
+        }
+    }
+
+    // 解析音频流信息（保持原有逻辑）
+    if (message.includes('Stream #') && message.includes('Audio:')) {
+        if (!metadata.audio) {
+            metadata.audio = {
+                codec: '',
+                bitrate: 0,
+                sampleRate: 0,
+                channels: 0,
+                channelLayout: '',
+                duration: 0
+            };
+        }
+
+        // 解析音频编码
+        const audioCodecMatch = message.match(/Audio:\s*([^,\s\(]+)/);
+        if (audioCodecMatch) {
+            metadata.audio.codec = audioCodecMatch[1].trim().toUpperCase();
+        }
+
+        // 解析采样率
+        const sampleRateMatch = message.match(/(\d+)\s*Hz/);
+        if (sampleRateMatch) {
+            metadata.audio.sampleRate = parseInt(sampleRateMatch[1]);
+        }
+
+        // 解析声道布局
+        if (message.includes('mono')) {
+            metadata.audio.channels = 1;
+            metadata.audio.channelLayout = '单声道';
+        } else if (message.includes('stereo')) {
+            metadata.audio.channels = 2;
+            metadata.audio.channelLayout = '立体声';
+        } else {
+            const channelMatch = message.match(/(\d+)\s*channels/);
+            if (channelMatch) {
+                const channelCount = parseInt(channelMatch[1]);
+                metadata.audio.channels = channelCount;
+                metadata.audio.channelLayout = formatChannelLayout(channelCount, '');
+            }
+        }
+
+        // 解析音频码率
+        const audioBitrateMatch = message.match(/(\d+)\s*kb\/s/);
+        if (audioBitrateMatch) {
+            const bitrate = parseInt(audioBitrateMatch[1]);
+            // 确保这是合理的音频码率
+            if (bitrate > 0 && bitrate < 1000) { // 合理的音频码率范围
+                metadata.audio.bitrate = bitrate;
+            }
+        }
+    }
+};
+
+// 统一的媒体分析函数（优化版本 - 只读取流头部信息）
+export const analyzeMediaFile = async (file: File, ffmpeg: FFmpeg): Promise<{ audioInfo: AudioInfo | null; metadata: MediaMetadata | null }> => {
     const inputExtension = getFileExtension(file.name);
-    const inputFileName = `analyze_input.${inputExtension}`;
+    const inputFileName = `quick_input.${inputExtension}`;
 
     await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
     const audioInfo: Partial<AudioInfo> = {};
+    const metadata: Partial<MediaMetadata> = {
+        fileName: file.name,
+        fileSize: file.size,
+        container: '',
+        totalDuration: 0,
+        overallBitrate: 0,
+        audio: {
+            codec: '',
+            bitrate: 0,
+            sampleRate: 0,
+            channels: 0,
+            channelLayout: '',
+            duration: 0
+        }
+    };
 
-    const analyzeListener = ({ message }: { message: string }) => {
+    // 根据文件扩展名直接设置容器格式
+    const extension = getFileExtension(file.name);
+    const containerMap: { [key: string]: string } = {
+        'mp4': 'MP4',
+        'mov': 'MOV',
+        'mkv': 'MKV',
+        'avi': 'AVI',
+        'webm': 'WebM',
+        'flv': 'FLV',
+        '3gp': '3GP',
+        'm4v': 'M4V',
+        'ts': 'TS',
+        'wmv': 'WMV',
+        // 音频格式
+        'mp3': 'MP3',
+        'aac': 'AAC',
+        'wav': 'WAV',
+        'ogg': 'OGG',
+        'm4a': 'M4A',
+        'flac': 'FLAC'
+    };
+    metadata.container = containerMap[extension] || extension.toUpperCase();
+
+    const unifiedListener = ({ message }: { message: string }) => {
+    // 解析音频信息
         parseAudioInfo(message, audioInfo);
+        // 解析元数据信息
+        parseMediaMetadata(message, metadata);
     };
 
     // 临时替换监听器
     const originalLogHandlers = (ffmpeg as any)._listeners?.log || [];
-    ffmpeg.on('log', analyzeListener);
+    ffmpeg.on('log', unifiedListener);
 
     try {
-        await ffmpeg.exec([
-            '-i', inputFileName,
-            '-vn',
-            '-f', 'null',
-            '-t', '0',
-            '-'
+        // 优化的分析命令：只读取流头部信息，不解码内容
+        await Promise.race([
+            ffmpeg.exec([
+                '-hide_banner',         // 隐藏版本信息
+                '-i', inputFileName,    // 输入文件
+                '-t', '0.1',           // 处理0.1秒，确保有足够信息被解析
+                '-c', 'copy',          // 不重新编码，直接复制流
+                '-f', 'null',          // 输出到null，不生成文件
+                'pipe:'                // 输出到管道
+            ]),
+            // 30秒超时机制
+            new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Analysis timeout after 30 seconds')), 30000);
+            })
         ]);
-    } catch (execError) {
+    } catch (execError: any) {
+        if (execError.message?.includes('timeout')) {
+            console.error('Media analysis timed out');
+            throw execError;
+        }
         // FFmpeg在分析模式下可能会"失败"，但仍然输出信息，这是正常的
-        console.log('Analysis exec completed (expected behavior)');
+        console.log('Media analysis completed (expected behavior)');
     }
 
     // 移除分析监听器，恢复原有监听器
-    ffmpeg.off('log', analyzeListener);
+    ffmpeg.off('log', unifiedListener);
 
     // 恢复基础日志监听器
     if (originalLogHandlers.length === 0) {
@@ -272,8 +539,10 @@ export const analyzeAudioInfo = async (file: File, ffmpeg: FFmpeg): Promise<Audi
         console.log('Failed to delete temp file:', deleteError);
     }
 
+    // 构建音频信息结果
+    let resultAudioInfo: AudioInfo | null = null;
     if (audioInfo.duration && audioInfo.duration > 0) {
-        return {
+        resultAudioInfo = {
             duration: audioInfo.duration,
             bitrate: audioInfo.bitrate || 0,
             sampleRate: audioInfo.sampleRate || 44100,
@@ -283,7 +552,35 @@ export const analyzeAudioInfo = async (file: File, ffmpeg: FFmpeg): Promise<Audi
         };
     }
 
-    return null;
+    // 构建元数据结果
+    let resultMetadata: MediaMetadata | null = null;
+    if (metadata.totalDuration && metadata.totalDuration > 0 && metadata.audio) {
+        // 设置音频时长为总时长（如果没有单独的音频时长）
+        if (metadata.audio.duration === 0) {
+            metadata.audio.duration = metadata.totalDuration;
+        }
+
+        // 设置视频时长为总时长（如果有视频且没有单独的视频时长）
+        if (metadata.video && metadata.video.duration === 0) {
+            metadata.video.duration = metadata.totalDuration;
+        }
+
+        resultMetadata = metadata as MediaMetadata;
+    }
+
+    return { audioInfo: resultAudioInfo, metadata: resultMetadata };
+};
+
+// 音频分析（保留向后兼容性）
+export const analyzeAudioInfo = async (file: File, ffmpeg: FFmpeg): Promise<AudioInfo | null> => {
+    const result = await analyzeMediaFile(file, ffmpeg);
+    return result.audioInfo;
+};
+
+// 媒体元数据分析（保留向后兼容性）
+export const analyzeMediaMetadata = async (file: File, ffmpeg: FFmpeg): Promise<MediaMetadata | null> => {
+    const result = await analyzeMediaFile(file, ffmpeg);
+    return result.metadata;
 };
 
 // 计算文件大小

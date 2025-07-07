@@ -9,7 +9,7 @@ import { useMemoizedFn, useUpdateEffect } from 'ahooks';
 // Hooks
 import {
     useFFmpegManager,
-    useAudioAnalysis,
+    useUnifiedMediaAnalysis,
     useAudioConversion,
     useFileSelection,
     useAudioConverterSettings
@@ -19,6 +19,7 @@ import {
 import { FileUploadArea } from './components/FileUploadArea';
 import { ConversionSettings } from './components/ConversionSettings';
 import { AudioInfoDisplay } from './components/AudioInfoDisplay';
+import { MediaMetadataCard } from './components/MediaMetadataCard';
 import { ProgressDisplay } from './components/ProgressDisplay';
 import { OutputPreview } from './components/OutputPreview';
 
@@ -53,10 +54,11 @@ const AudioConverterView = () => {
 
     const {
         audioInfo,
+        mediaMetadata,
         isAnalyzing,
         analyzeError,
-        analyzeAudio
-    } = useAudioAnalysis(ffmpeg);
+        analyzeMedia
+    } = useUnifiedMediaAnalysis(ffmpeg);
 
     const {
         conversionState,
@@ -87,7 +89,7 @@ const AudioConverterView = () => {
 
         // 如果 FFmpeg 已加载，立即开始分析
         if (ffmpeg) {
-            analyzeAudio(file);
+            analyzeMedia(file);
         }
     });
 
@@ -124,7 +126,7 @@ const AudioConverterView = () => {
     // 重试音频分析
     const handleRetryAnalysis = useMemoizedFn(() => {
         if (selectedFile && ffmpeg) {
-            analyzeAudio(selectedFile);
+            analyzeMedia(selectedFile);
         }
     });
 
@@ -132,7 +134,7 @@ const AudioConverterView = () => {
     useUpdateEffect(() => {
         if (ffmpegLoaded && selectedFile && !audioInfo && !isAnalyzing) {
             console.log('FFmpeg 已加载完成，开始自动分析已选择的文件:', selectedFile.name);
-            analyzeAudio(selectedFile);
+            analyzeMedia(selectedFile);
         }
     }, [ffmpegLoaded, selectedFile]);
 
@@ -188,6 +190,16 @@ const AudioConverterView = () => {
 
                     {/* 右侧：控制面板 */}
                     <div className="space-y-6">
+                        {/* 媒体元数据显示 */}
+                        <MediaMetadataCard
+                            selectedFile={selectedFile}
+                            mediaMetadata={mediaMetadata || null}
+                            isAnalyzing={isAnalyzing}
+                            analyzeError={analyzeError}
+                            ffmpegLoaded={ffmpegLoaded}
+                            onRetryAnalysis={handleRetryAnalysis}
+                        />
+
                         {/* 输出格式和质量设置 */}
                         <ConversionSettings
                             outputFormat={outputFormat}
