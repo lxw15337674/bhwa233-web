@@ -40,6 +40,9 @@ const AudioConverterView = () => {
     const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
     const [ffmpegLoading, setFfmpegLoading] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isMultiThread, setIsMultiThread] = useState(false);
+    const [maxThreads, setMaxThreads] = useState(1);
+    const [isMobile, setIsMobile] = useState(false);
 
     const [conversionState, setConversionState] = useState<ConversionState>({
         isConverting: false,
@@ -79,23 +82,12 @@ const AudioConverterView = () => {
             const ffmpeg = new FFmpeg();
             ffmpegRef.current = ffmpeg;
 
-            // 监听 FFmpeg 日志
+            // 基础日志监听器（仅用于调试，转换时会使用专门的进度监听器）
             ffmpeg.on('log', ({ message }: { message: string }) => {
-                if (messageRef.current) {
-                    messageRef.current.innerHTML = message;
-                }
                 console.log('FFmpeg log:', message);
-
-                // 解析进度信息
-                if (message.includes('time=')) {
-                    const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
-                    if (timeMatch) {
-                        // 这里可以根据时间信息计算更精确的进度
-                        setConversionState(prev => ({
-                            ...prev,
-                            progress: Math.min(prev.progress + 5, 90)
-                        }));
-                    }
+                // 仅在初始化时显示日志，转换时由专门的进度监听器处理
+                if (messageRef.current && !ffmpegLoaded) {
+                    messageRef.current.innerHTML = message;
                 }
             });
 
@@ -107,13 +99,17 @@ const AudioConverterView = () => {
 
             console.log('Loading FFmpeg with Blob URLs...');
 
-            // 使用 toBlobURL 处理所有 core 文件
-            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+            // 动态选择 FFmpeg 版本（多线程 vs 单线程）
+            const supportsMultiThread = checkMultiThreadSupport();
+            const coreVersion = supportsMultiThread ? 'core-mt' : 'core';
+            const baseURL = `https://unpkg.com/@ffmpeg/${coreVersion}@0.12.6/dist/umd`;
+
+            console.log(`使用 FFmpeg ${supportsMultiThread ? '多线程' : '单线程'} 版本: ${baseURL}`);
 
             const [coreURL, wasmURL, workerURL] = await Promise.all([
                 toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
                 toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-                toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript')
+                toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
             ]);
 
             console.log('Core URL:', coreURL);
@@ -157,7 +153,9 @@ const AudioConverterView = () => {
 
             // 添加常见问题的解决建议
             if (error instanceof Error) {
-                if (error.message.includes('Network')) {
+                if (error.message.includes('SharedArrayBuffer')) {
+                    errorMessage += '\n\n💡 多线程模式需要特殊配置：\n• 请确保服务器配置了正确的 HTTP 头\n• 尝试刷新页面重试\n• 系统会自动降级到单线程模式';
+                } else if (error.message.includes('Network')) {
                     errorMessage += '\n\n💡 解决建议：\n• 检查网络连接\n• 尝试刷新页面\n• 如果使用VPN，请尝试关闭后重试';
                 } else if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
                     errorMessage += '\n\n💡 这可能是浏览器跨域限制导致的，请尝试：\n• 刷新页面重试\n• 使用现代浏览器（Chrome、Firefox、Safari）\n• 检查浏览器是否阻止了跨域请求';
@@ -176,6 +174,28 @@ const AudioConverterView = () => {
             setFfmpegLoading(false);
         }
     }, [ffmpegLoaded, ffmpegLoading]);
+
+    // 检测多线程支持
+    const checkMultiThreadSupport = useCallback(() => {
+        const supportsMultiThread = typeof SharedArrayBuffer !== 'undefined';
+        const cpuCores = navigator.hardwareConcurrency || 8;
+        const deviceIsMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        setIsMultiThread(supportsMultiThread);
+        setMaxThreads(cpuCores); // 仅用于显示，实际由FFmpeg自动决定
+        setIsMobile(deviceIsMobile);
+
+        console.log(`设备类型: ${deviceIsMobile ? '移动设备' : '桌面设备'}`);
+        console.log(`CPU核心数: ${cpuCores}`);
+        console.log(`FFmpeg线程策略: ${supportsMultiThread ? '自动决定最佳线程数' : '单线程模式'}`);
+
+        return supportsMultiThread;
+    }, []);
+
+    // 在组件挂载时检测多线程支持
+    useEffect(() => {
+        checkMultiThreadSupport();
+    }, [checkMultiThreadSupport]);
 
     // 文件拖拽处理
     const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -243,36 +263,91 @@ const AudioConverterView = () => {
 
             setConversionState(prev => ({
                 ...prev,
-                currentStep: '正在读取文件...',
-                progress: 10
+                currentStep: '正在转换音频...',
+                progress: 0
             }));
 
             // 将文件写入 FFmpeg 虚拟文件系统
             await ffmpeg.writeFile(inputFileName, await fetchFile(selectedFile));
 
-            setConversionState(prev => ({
-                ...prev,
-                currentStep: '正在转换音频...',
-                progress: 20
-            }));
+            // 设置进度监听变量
+            let totalDuration = 0;
+            let currentTime = 0;
 
-            // 执行转换命令
+            // 更新进度监听逻辑 - 只基于FFmpeg实际转换进度
+            const progressListener = ({ message }: { message: string }) => {
+                if (messageRef.current) {
+                    messageRef.current.innerHTML = message;
+                }
+                console.log('FFmpeg log:', message);
+
+                // 解析总时长
+                if (message.includes('Duration:') && totalDuration === 0) {
+                    const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
+                    if (durationMatch) {
+                        const hours = parseInt(durationMatch[1]);
+                        const minutes = parseInt(durationMatch[2]);
+                        const seconds = parseFloat(durationMatch[3]);
+                        totalDuration = hours * 3600 + minutes * 60 + seconds;
+                        console.log('Total duration:', totalDuration, 'seconds');
+                    }
+                }
+
+                // 解析当前进度 - 直接使用FFmpeg的实际进度
+                if (message.includes('time=') && totalDuration > 0) {
+                    const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
+                    if (timeMatch) {
+                        const hours = parseInt(timeMatch[1]);
+                        const minutes = parseInt(timeMatch[2]);
+                        const seconds = parseFloat(timeMatch[3]);
+                        currentTime = hours * 3600 + minutes * 60 + seconds;
+
+                        // 直接使用FFmpeg转换进度（0% 到 100%）
+                        const conversionPercent = Math.min(currentTime / totalDuration, 1);
+                        const progress = Math.round(conversionPercent * 100);
+
+                        setConversionState(prev => ({
+                            ...prev,
+                            progress: progress,
+                            currentStep: `正在转换音频... ${progress}%`
+                        }));
+                    }
+                } else if (message.includes('time=') && totalDuration === 0) {
+                    // 如果无法获取总时长，使用简单的增量进度
+                    setConversionState(prev => ({
+                        ...prev,
+                        progress: Math.min(prev.progress + 5, 95)
+                    }));
+                }
+            };
+
+            // 临时添加进度监听器
+            ffmpeg.on('log', progressListener);
+
+            // 构建FFmpeg转换命令，让FFmpeg自动决定线程数
+            const threadArgs = isMultiThread
+                ? ['-threads', '0'] // 0 = 让FFmpeg自动决定最佳线程数
+                : [];
+
             const args = [
                 '-i', inputFileName,
+                ...threadArgs,
                 ...AUDIO_FORMATS[outputFormat].ffmpegArgs,
                 outputFileName
             ];
 
+            console.log(`线程策略: ${isMultiThread ? 'FFmpeg自动优化' : '单线程模式'}`);
+            console.log('FFmpeg命令参数:', args);
+
             await ffmpeg.exec(args);
 
-            setConversionState(prev => ({
-                ...prev,
-                currentStep: '正在生成输出文件...',
-                progress: 90
-            }));
+            // 移除进度监听器
+            ffmpeg.off('log', progressListener);
 
             // 读取输出文件
             const data = await ffmpeg.readFile(outputFileName);
+
+            // 创建Blob
             const outputBlob = new Blob([data], {
                 type: AUDIO_FORMATS[outputFormat].mime
             });
@@ -446,9 +521,18 @@ const AudioConverterView = () => {
                             <CardContent className="p-4">
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-sm font-medium text-foreground mb-2 block">
-                                            输出格式
-                                        </label>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-sm font-medium text-foreground">
+                                                输出格式
+                                            </label>
+                                            {/* 多线程模式状态 */}
+                                            {ffmpegLoaded && (
+                                                <span className={`inline-flex items-center gap-1 text-xs ${isMultiThread ? 'text-green-600' : 'text-blue-600'}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${isMultiThread ? 'bg-green-500' : 'bg-blue-500'}`}></span>
+                                                    {isMultiThread ? '多线程' : '单线程'}
+                                                </span>
+                                            )}
+                                        </div>
                                         <Select
                                             value={outputFormat}
                                             onValueChange={(value: keyof typeof AUDIO_FORMATS) => setOutputFormat(value)}
@@ -473,6 +557,8 @@ const AudioConverterView = () => {
                                     >
                                         {ffmpegLoading ? '加载中...' : conversionState.isConverting ? '转换中...' : '开始转换'}
                                     </Button>
+
+
                                 </div>
                             </CardContent>
                         </Card>
@@ -493,6 +579,7 @@ const AudioConverterView = () => {
                                         {conversionState.currentStep && (
                                             <p className="text-xs text-muted-foreground">{conversionState.currentStep}</p>
                                         )}
+
                                         {/* FFmpeg 日志显示 */}
                                         <div
                                             ref={messageRef}

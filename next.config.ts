@@ -1,4 +1,5 @@
 import withSerwistInit from "@serwist/next";
+import type { NextConfig } from 'next'
 
 const withSerwist = withSerwistInit({
   // Note: This is only an example. If you use Pages Router,
@@ -8,12 +9,20 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
-const nextConfig = withSerwist({
+const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
   experimental: {
     largePageDataBytes: 512 * 100000,
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   webpack: (config, { isServer }) => {
     // FFmpeg.wasm 配置
@@ -56,15 +65,15 @@ const nextConfig = withSerwist({
         source: '/(.*)',
         headers: [
           {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp'
           },
           {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
-          },
-        ],
-      },
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          }
+        ]
+      }
     ];
   },
   images: {
@@ -134,4 +143,5 @@ const nextConfig = withSerwist({
     ];
   },
 });
-module.exports = nextConfig;
+
+export default nextConfig;
