@@ -7,6 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, Download, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
 // 音频格式配置
 const AUDIO_FORMATS = {
@@ -31,19 +33,14 @@ interface ConversionState {
     outputFileName: string;
 }
 
-// 声明全局变量类型
-declare global {
-    interface Window {
-        FFmpeg?: any;
-        createFFmpeg?: any;
-        fetchFile?: any;
-        ffmpegInstance?: any;
-    }
-}
-
 const AudioConverterView = () => {
+    // 状态管理
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [outputFormat, setOutputFormat] = useState<keyof typeof AUDIO_FORMATS>('mp3');
+    const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
+    const [ffmpegLoading, setFfmpegLoading] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+
     const [conversionState, setConversionState] = useState<ConversionState>({
         isConverting: false,
         progress: 0,
@@ -52,117 +49,162 @@ const AudioConverterView = () => {
         outputFile: null,
         outputFileName: '',
     });
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [ffmpegLoaded, setFFmpegLoaded] = useState(false);
-    const [ffmpegLoading, setFFmpegLoading] = useState(false);
 
-    const audioRef = useRef<HTMLAudioElement>(null);
+    // Refs
+    const ffmpegRef = useRef<any>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const messageRef = useRef<HTMLDivElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
-    // 检查浏览器支持
-    const checkBrowserSupport = useCallback(() => {
-        const isWasmSupported = (() => {
-            try {
-                if (typeof WebAssembly === 'object') {
-                    const testWasm = Uint8Array.of(0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
-                    return WebAssembly.validate(testWasm);
-                }
-            } catch (e) { }
-            return false;
-        })();
-
-        return { isWasmSupported };
-    }, []);
-
-    // 动态加载脚本
-    const loadScript = (src: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = src;
-            script.crossOrigin = 'anonymous'; // 解决跨域问题
-            script.onload = () => resolve();
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    };
-
-    // 加载 FFmpeg
-    const loadFFmpeg = useCallback(async () => {
+    // FFmpeg 初始化
+    const initFFmpeg = useCallback(async () => {
         if (ffmpegLoaded || ffmpegLoading) return;
 
-        const { isWasmSupported } = checkBrowserSupport();
-        if (!isWasmSupported) {
-            setConversionState(prev => ({
-                ...prev,
-                error: '您的浏览器不支持WebAssembly，请升级到最新版本的Chrome、Firefox或Safari'
-            }));
-            return;
-        }
-
-        setFFmpegLoading(true);
-        setConversionState(prev => ({ ...prev, currentStep: '正在加载FFmpeg...', progress: 10 }));
+        setFfmpegLoading(true);
+        setConversionState(prev => ({
+            ...prev,
+            currentStep: '正在初始化 FFmpeg...',
+            progress: 10
+        }));
 
         try {
-            // 加载 FFmpeg UMD 版本的脚本
-            if (!window.createFFmpeg) {
-                await loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.min.js');
-            }
+            console.log('Starting FFmpeg initialization...');
 
-            // 加载 fetchFile 工具函数
-            if (!window.fetchFile) {
-                await loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/umd/index.min.js');
-            }
-
-            if (!window.createFFmpeg) {
-                throw new Error('FFmpeg脚本加载失败');
-            }
-
-            // 创建 FFmpeg 实例，使用 UMD 版本
-            const ffmpeg = window.createFFmpeg({
-                log: true,
-                corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
-            });
-
-            // 设置进度监听
-            ffmpeg.setProgress(({ ratio }: { ratio: number }) => {
-                setConversionState(prev => ({
-                    ...prev,
-                    progress: Math.round(ratio * 100)
-                }));
-            });
-
-            // 加载核心文件
-            await ffmpeg.load();
-
-            window.ffmpegInstance = ffmpeg;
-            setFFmpegLoaded(true);
-            setConversionState(prev => ({ ...prev, currentStep: 'FFmpeg加载完成', progress: 0 }));
-        } catch (error) {
-            console.error('FFmpeg加载失败:', error);
             setConversionState(prev => ({
                 ...prev,
-                error: 'FFmpeg加载失败，请检查网络连接或刷新页面重试'
+                currentStep: '正在创建 FFmpeg 实例...',
+                progress: 30
+            }));
+
+            const ffmpeg = new FFmpeg();
+            ffmpegRef.current = ffmpeg;
+
+            // 监听 FFmpeg 日志
+            ffmpeg.on('log', ({ message }: { message: string }) => {
+                if (messageRef.current) {
+                    messageRef.current.innerHTML = message;
+                }
+                console.log('FFmpeg log:', message);
+
+                // 解析进度信息
+                if (message.includes('time=')) {
+                    const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
+                    if (timeMatch) {
+                        // 这里可以根据时间信息计算更精确的进度
+                        setConversionState(prev => ({
+                            ...prev,
+                            progress: Math.min(prev.progress + 5, 90)
+                        }));
+                    }
+                }
+            });
+
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: '正在加载 FFmpeg 核心文件...',
+                progress: 50
+            }));
+
+            console.log('Loading FFmpeg with Blob URLs...');
+
+            // 使用 toBlobURL 处理所有 core 文件
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+
+            const [coreURL, wasmURL, workerURL] = await Promise.all([
+                toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript')
+            ]);
+
+            console.log('Core URL:', coreURL);
+            console.log('WASM URL:', wasmURL);
+            console.log('Worker URL:', workerURL);
+
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: '正在初始化 WASM 模块...',
+                progress: 80
+            }));
+
+            await ffmpeg.load({
+                coreURL,
+                wasmURL,
+                workerURL,
+            });
+
+            console.log('FFmpeg loaded successfully!');
+
+            setFfmpegLoaded(true);
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: 'FFmpeg 加载完成',
+                progress: 100
+            }));
+
+            // 清除加载状态
+            setTimeout(() => {
+                setConversionState(prev => ({
+                    ...prev,
+                    currentStep: '',
+                    progress: 0
+                }));
+            }, 1000);
+
+        } catch (error) {
+            console.error('FFmpeg 加载失败:', error);
+
+            let errorMessage = `FFmpeg 加载失败: ${error instanceof Error ? error.message : '未知错误'}`;
+
+            // 添加常见问题的解决建议
+            if (error instanceof Error) {
+                if (error.message.includes('Network')) {
+                    errorMessage += '\n\n💡 解决建议：\n• 检查网络连接\n• 尝试刷新页面\n• 如果使用VPN，请尝试关闭后重试';
+                } else if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
+                    errorMessage += '\n\n💡 这可能是浏览器跨域限制导致的，请尝试：\n• 刷新页面重试\n• 使用现代浏览器（Chrome、Firefox、Safari）\n• 检查浏览器是否阻止了跨域请求';
+                } else if (error.message.includes('timeout') || error.message.includes('load')) {
+                    errorMessage += '\n\n💡 加载超时，请尝试：\n• 刷新页面重试\n• 检查网络连接稳定性\n• 使用更快的网络环境';
+                }
+            }
+
+            setConversionState(prev => ({
+                ...prev,
+                error: errorMessage,
+                currentStep: '',
+                progress: 0
             }));
         } finally {
-            setFFmpegLoading(false);
+            setFfmpegLoading(false);
         }
-    }, [ffmpegLoaded, ffmpegLoading, checkBrowserSupport]);
+    }, [ffmpegLoaded, ffmpegLoading]);
 
-    // 验证文件格式
-    const validateFile = useCallback((file: File): string | null => {
-        const fileExtension = file.name.split('.').pop()?.toLowerCase();
-        if (!fileExtension || !SUPPORTED_VIDEO_FORMATS.includes(fileExtension)) {
-            return `不支持的文件格式。支持的格式：${SUPPORTED_VIDEO_FORMATS.join(', ')}`;
-        }
-
-        return null;
+    // 文件拖拽处理
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
     }, []);
 
-    // 文件选择处理
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            handleFileSelect(files[0]);
+        }
+    }, []);
+
+    const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            handleFileSelect(files[0]);
+        }
+    }, []);
+
     const handleFileSelect = useCallback((file: File) => {
-        const error = validateFile(file);
-        if (error) {
-            setConversionState(prev => ({ ...prev, error }));
+        // 验证文件类型
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        if (!fileExtension || !SUPPORTED_VIDEO_FORMATS.includes(fileExtension)) {
+            setConversionState(prev => ({
+                ...prev,
+                error: `不支持的文件格式。支持的格式: ${SUPPORTED_VIDEO_FORMATS.join(', ')}`
+            }));
             return;
         }
 
@@ -171,39 +213,14 @@ const AudioConverterView = () => {
             ...prev,
             error: null,
             outputFile: null,
-            progress: 0,
-            currentStep: ''
+            outputFileName: ''
         }));
-    }, [validateFile]);
-
-    // 拖拽处理
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleFileSelect(files[0]);
-        }
-    }, [handleFileSelect]);
-
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
     }, []);
-
-    // 文件输入处理
-    const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files && files.length > 0) {
-            handleFileSelect(files[0]);
-        }
-    }, [handleFileSelect]);
 
     // 开始转换
     const startConversion = useCallback(async () => {
-        if (!selectedFile || !ffmpegLoaded) {
-            if (!ffmpegLoaded) {
-                await loadFFmpeg();
-                return;
-            }
+        if (!selectedFile || !ffmpegRef.current) {
+            await initFFmpeg();
             return;
         }
 
@@ -211,105 +228,102 @@ const AudioConverterView = () => {
             ...prev,
             isConverting: true,
             progress: 0,
+            currentStep: '准备转换...',
             error: null,
-            currentStep: '准备转换...'
+            outputFile: null
         }));
 
         try {
-            const ffmpeg = window.ffmpegInstance;
+            const ffmpeg = ffmpegRef.current;
 
-            if (!ffmpeg) {
-                throw new Error('FFmpeg未正确加载');
-            }
+            // 获取文件扩展名
+            const inputExtension = selectedFile.name.split('.').pop()?.toLowerCase() || 'unknown';
+            const inputFileName = `input.${inputExtension}`;
+            const outputFileName = `output.${AUDIO_FORMATS[outputFormat].ext}`;
 
-            // 写入输入文件
-            setConversionState(prev => ({ ...prev, currentStep: '读取视频文件...', progress: 10 }));
-            const inputFileName = `input.${selectedFile.name.split('.').pop()}`;
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: '正在读取文件...',
+                progress: 10
+            }));
 
-            // 使用 fetchFile 读取文件
-            if (!window.fetchFile) {
-                throw new Error('fetchFile 函数未加载');
-            }
+            // 将文件写入 FFmpeg 虚拟文件系统
+            await ffmpeg.writeFile(inputFileName, await fetchFile(selectedFile));
 
-            const inputData = await window.fetchFile(selectedFile);
-            ffmpeg.FS('writeFile', inputFileName, inputData);
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: '正在转换音频...',
+                progress: 20
+            }));
 
-            // 获取格式配置
-            const formatConfig = AUDIO_FORMATS[outputFormat];
-            const outputFileName = `output.${formatConfig.ext}`;
-
-            // 执行转换
-            setConversionState(prev => ({ ...prev, currentStep: '正在转换...', progress: 20 }));
-
+            // 执行转换命令
             const args = [
                 '-i', inputFileName,
-                ...formatConfig.ffmpegArgs,
+                ...AUDIO_FORMATS[outputFormat].ffmpegArgs,
                 outputFileName
             ];
 
-            await ffmpeg.run(...args);
+            await ffmpeg.exec(args);
+
+            setConversionState(prev => ({
+                ...prev,
+                currentStep: '正在生成输出文件...',
+                progress: 90
+            }));
 
             // 读取输出文件
-            setConversionState(prev => ({ ...prev, currentStep: '生成音频文件...', progress: 90 }));
-            const data = ffmpeg.FS('readFile', outputFileName);
-            const outputBlob = new Blob([data.buffer], { type: formatConfig.mime });
+            const data = await ffmpeg.readFile(outputFileName);
+            const outputBlob = new Blob([data], {
+                type: AUDIO_FORMATS[outputFormat].mime
+            });
 
-            // 清理临时文件
-            try {
-                ffmpeg.FS('unlink', inputFileName);
-                ffmpeg.FS('unlink', outputFileName);
-            } catch (e) {
-                console.warn('清理临时文件失败:', e);
-            }
-
-            const finalFileName = selectedFile.name.replace(/\.[^/.]+$/, `.${formatConfig.ext}`);
+            const finalFileName = `${selectedFile.name.split('.')[0]}.${AUDIO_FORMATS[outputFormat].ext}`;
 
             setConversionState(prev => ({
                 ...prev,
                 isConverting: false,
                 progress: 100,
-                currentStep: '转换完成',
+                currentStep: '转换完成！',
                 outputFile: outputBlob,
                 outputFileName: finalFileName
             }));
+
+            // 清除完成状态
+            setTimeout(() => {
+                setConversionState(prev => ({
+                    ...prev,
+                    currentStep: '',
+                    progress: 0
+                }));
+            }, 2000);
 
         } catch (error) {
             console.error('转换失败:', error);
             setConversionState(prev => ({
                 ...prev,
                 isConverting: false,
+                progress: 0,
+                currentStep: '',
                 error: `转换失败: ${error instanceof Error ? error.message : '未知错误'}`
             }));
         }
-    }, [selectedFile, outputFormat, ffmpegLoaded, loadFFmpeg]);
-
-    // 播放/暂停音频
-    const toggleAudioPlayback = useCallback(() => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-            } else {
-                audioRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    }, [isPlaying]);
+    }, [selectedFile, outputFormat, initFFmpeg]);
 
     // 下载文件
     const downloadFile = useCallback(() => {
-        if (conversionState.outputFile) {
-            const url = URL.createObjectURL(conversionState.outputFile);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = conversionState.outputFileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+        if (!conversionState.outputFile) return;
+
+        const url = URL.createObjectURL(conversionState.outputFile);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = conversionState.outputFileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }, [conversionState.outputFile, conversionState.outputFileName]);
 
-    // 重置
+    // 重置状态
     const reset = useCallback(() => {
         setSelectedFile(null);
         setConversionState({
@@ -321,6 +335,7 @@ const AudioConverterView = () => {
             outputFileName: '',
         });
         setIsPlaying(false);
+
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -399,9 +414,25 @@ const AudioConverterView = () => {
                                 {conversionState.error && (
                                     <Alert className="mt-4 border-destructive bg-destructive/10">
                                         <AlertCircle className="h-4 w-4" />
-                                        <AlertDescription className="text-destructive">
+                                        <AlertDescription className="text-destructive whitespace-pre-line">
                                             {conversionState.error}
                                         </AlertDescription>
+                                        {!ffmpegLoaded && (
+                                            <div className="mt-3">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setConversionState(prev => ({ ...prev, error: null }));
+                                                        initFFmpeg();
+                                                    }}
+                                                    disabled={ffmpegLoading}
+                                                    className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                                                >
+                                                    {ffmpegLoading ? '加载中...' : '重新加载 FFmpeg'}
+                                                </Button>
+                                            </div>
+                                        )}
                                     </Alert>
                                 )}
                             </CardContent>
@@ -462,6 +493,12 @@ const AudioConverterView = () => {
                                         {conversionState.currentStep && (
                                             <p className="text-xs text-muted-foreground">{conversionState.currentStep}</p>
                                         )}
+                                        {/* FFmpeg 日志显示 */}
+                                        <div
+                                            ref={messageRef}
+                                            className="text-xs font-mono text-muted-foreground bg-muted/30 p-2 rounded border max-h-20 overflow-y-auto"
+                                            style={{ minHeight: '1.5rem' }}
+                                        />
                                     </div>
                                 </CardContent>
                             </Card>

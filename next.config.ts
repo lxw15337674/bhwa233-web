@@ -15,6 +15,58 @@ const nextConfig = withSerwist({
   experimental: {
     largePageDataBytes: 512 * 100000,
   },
+  webpack: (config, { isServer }) => {
+    // FFmpeg.wasm 配置
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    };
+
+    // 禁用动态导入的解析以避免 import.meta.url 问题
+    config.module.rules.push({
+      test: /\.m?js$/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+
+    // 处理 WASM 文件
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: 'asset/resource',
+    });
+
+    // 忽略相关警告和错误
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      /Failed to parse source map/,
+      /Module not found.*@ffmpeg/,
+      /Can't resolve.*<dynamic>/,
+      /Critical dependency: the request of a dependency is an expression/,
+    ];
+
+    return config;
+  },
+  // 为了支持 SharedArrayBuffer（虽然我们用单线程版本，但这有助于兼容性）
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+        ],
+      },
+    ];
+  },
   images: {
     dangerouslyAllowSVG: true,
     unoptimized: true,
