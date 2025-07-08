@@ -756,7 +756,6 @@ export const calculateFileSize = (
     if (format === 'wav') {
         const bitDepth = 16;
         const estimatedSizeMB = (audioInfo.sampleRate * bitDepth * audioInfo.channels * audioInfo.duration) / 8 / 1024 / 1024;
-
         return {
             estimatedSizeMB: Math.max(estimatedSizeMB, 0.1),
             compressionRatio: 0,
@@ -764,7 +763,7 @@ export const calculateFileSize = (
         };
     }
 
-    // 使用智能参数生成来获取目标码率
+    // 用 generateSmartAudioParams 推导目标码率和编码策略
     const smartParams = generateSmartAudioParams(
         audioInfo,
         originalCodec || '',
@@ -772,67 +771,54 @@ export const calculateFileSize = (
         quality
     );
 
-    // 获取目标码率
-    let targetBitrate = 192; // 默认值
-    let isAudioCopy = false;
+    // 判断是否流复制
+    const isAudioCopy = smartParams.params.includes('-c:a') && smartParams.params.includes('copy');
+    if (isAudioCopy) {
+        // 直接复制流，输出大小≈原文件大小
+        return {
+            estimatedSizeMB: Math.max(audioInfo.bitrate > 0 ? (audioInfo.duration * audioInfo.bitrate) / 8 / 1024 : 0.1, 0.1),
+            compressionRatio: 0,
+            note: smartParams.description + '（流复制，输出大小≈原文件）'
+        };
+    }
 
-    // 检查是否使用音频流复制
-    if (smartParams.params.includes('-c:a') && smartParams.params.includes('copy')) {
-        isAudioCopy = true;
-        targetBitrate = audioInfo.bitrate;
-    } else {
-        // 从参数中提取码率
-        for (let i = 0; i < smartParams.params.length; i++) {
-            if (smartParams.params[i] === '-b:a' && i + 1 < smartParams.params.length) {
-                const bitrateStr = smartParams.params[i + 1];
-                const bitrateMatch = bitrateStr.match(/(\d+)k/);
-                if (bitrateMatch) {
-                    targetBitrate = parseInt(bitrateMatch[1]);
-                }
-                break;
-            } else if (smartParams.params[i] === '-q:a' && i + 1 < smartParams.params.length) {
-                // OGG质量等级转换为近似码率
-                const qualityLevel = parseInt(smartParams.params[i + 1]);
-                const oggQualityToBitrate = {
-                    8: 256, 7: 224, 6: 192, 5: 160,
-                    4: 128, 3: 96, 2: 64, 1: 48, 0: 32
-                };
-                targetBitrate = oggQualityToBitrate[qualityLevel as keyof typeof oggQualityToBitrate] || 128;
-                break;
+    // 提取目标码率
+    let targetBitrate = 192; // 默认值
+    for (let i = 0; i < smartParams.params.length; i++) {
+        if (smartParams.params[i] === '-b:a' && i + 1 < smartParams.params.length) {
+            const bitrateStr = smartParams.params[i + 1];
+            const bitrateMatch = bitrateStr.match(/(\d+)k/);
+            if (bitrateMatch) {
+                targetBitrate = parseInt(bitrateMatch[1]);
             }
+            break;
+        } else if (smartParams.params[i] === '-q:a' && i + 1 < smartParams.params.length) {
+            // OGG质量等级转换为近似码率
+            const qualityLevel = parseInt(smartParams.params[i + 1]);
+            const oggQualityToBitrate = {
+                8: 256, 7: 224, 6: 192, 5: 160,
+                4: 128, 3: 96, 2: 64, 1: 48, 0: 32
+            };
+            targetBitrate = oggQualityToBitrate[qualityLevel as keyof typeof oggQualityToBitrate] || 128;
+            break;
         }
     }
 
+    // 计算预估大小
     const baseSizeMB = (audioInfo.duration * targetBitrate) / 8 / 1024;
     const containerOverhead = format === 'mp3' ? 1.02 : 1.03;
     const estimatedSizeMB = baseSizeMB * containerOverhead;
 
+    // 计算压缩比
     let compressionRatio = 0;
-    let note = '';
-
-    if (isAudioCopy) {
-        // 音频流复制情况
-        note = `${smartParams.description}`;
-        compressionRatio = 0;
-    } else {
-        // 重新编码情况
-        if (quality === 'compressed' && audioInfo.bitrate > 0) {
-            // 压缩模式：固定50%压缩
-            compressionRatio = 50;
-            note = `${smartParams.description}`;
-        } else if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
-        // 其他情况：根据实际码率差计算压缩比
-            compressionRatio = ((audioInfo.bitrate - targetBitrate) / audioInfo.bitrate) * 100;
-            note = `${smartParams.description}`;
-        } else {
-            note = `${smartParams.description}`;
-        }
+    if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
+        compressionRatio = ((audioInfo.bitrate - targetBitrate) / audioInfo.bitrate) * 100;
     }
 
     return {
         estimatedSizeMB: Math.max(estimatedSizeMB, 0.1),
         compressionRatio: Math.max(compressionRatio, 0),
-        note: note
+        note: smartParams.description
     };
 };
 
