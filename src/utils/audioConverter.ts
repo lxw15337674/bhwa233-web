@@ -366,37 +366,6 @@ export const formatChannelLayout = (channels: number, layout: string): string =>
     }
 };
 
-// FFmpeg 初始化
-export const initializeFFmpeg = async () => {
-    const ffmpeg = new FFmpeg();
-
-    // 基础日志监听器
-    ffmpeg.on('log', ({ message }: { message: string }) => {
-        console.log('FFmpeg log:', message);
-    });
-
-    const supportsMultiThread = checkMultiThreadSupport();
-    const coreVersion = supportsMultiThread ? 'core-mt' : 'core';
-    const baseURL = `https://unpkg.com/@ffmpeg/${coreVersion}@0.12.10/dist/umd`;
-
-    console.log(`使用 FFmpeg ${supportsMultiThread ? '多线程' : '单线程'} 版本: ${baseURL}`);
-
-    const [coreURL, wasmURL, workerURL] = await Promise.all([
-        toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-        toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
-    ]);
-
-    await ffmpeg.load({
-        coreURL,
-        wasmURL,
-        workerURL,
-    });
-
-    console.log('FFmpeg loaded successfully!');
-    return { ffmpeg, isMultiThread: supportsMultiThread };
-};
-
 // 音频信息解析
 export const parseAudioInfo = (message: string, audioInfo: Partial<AudioInfo>) => {
     // 排除不需要的输出段落

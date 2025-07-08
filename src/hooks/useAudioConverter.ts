@@ -2,7 +2,6 @@ import { useRef } from 'react';
 import { useRequest, useLocalStorageState, useSetState, useMemoizedFn, useMount } from 'ahooks';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import {
-    initializeFFmpeg,
     analyzeMediaFile,
     analyzeAudioInfo,
     analyzeMediaMetadata,
@@ -14,6 +13,7 @@ import {
     QualityMode,
     ConversionState
 } from '@/utils/audioConverter';
+import { ffmpegManager } from '@/lib/ffmpeg-instance'; // 导入单例管理器
 
 // FFmpeg 管理 Hook
 export const useFFmpegManager = () => {
@@ -24,31 +24,18 @@ export const useFFmpegManager = () => {
         run: initFFmpeg
     } = useRequest(
         async () => {
-            const result = await initializeFFmpeg();
+            // 直接从单例管理器获取实例
+            const result = await ffmpegManager.getInstance();
             return result;
         },
         {
             manual: true,
-            cacheKey: 'ffmpeg-instance',
+            cacheKey: 'ffmpeg-instance', // cacheKey 保证 useRequest 在组件重新挂载时不会重复执行
             staleTime: Infinity,
             onError: (error) => {
-                console.error('FFmpeg 加载失败:', error);
-
-                let errorMessage = `FFmpeg 加载失败: ${error instanceof Error ? error.message : '未知错误'}`;
-
-                if (error instanceof Error) {
-                    if (error.message.includes('SharedArrayBuffer')) {
-                        errorMessage += '\n\n💡 多线程模式需要特殊配置：\n• 请确保服务器配置了正确的 HTTP 头\n• 尝试刷新页面重试\n• 系统会自动降级到单线程模式';
-                    } else if (error.message.includes('Network')) {
-                        errorMessage += '\n\n💡 解决建议：\n• 检查网络连接\n• 尝试刷新页面\n• 如果使用VPN，请尝试关闭后重试';
-                    } else if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
-                        errorMessage += '\n\n💡 这可能是浏览器跨域限制导致的，请尝试：\n• 刷新页面重试\n• 使用现代浏览器（Chrome、Firefox、Safari）\n• 检查浏览器是否阻止了跨域请求';
-                    } else if (error.message.includes('timeout') || error.message.includes('load')) {
-                        errorMessage += '\n\n💡 加载超时，请尝试：\n• 刷新页面重试\n• 检查网络连接稳定性\n• 使用更快的网络环境';
-                    }
-                }
-
-                throw new Error(errorMessage);
+                console.error('FFmpeg singleton failed to load:', error);
+                // 直接抛出原始错误或一个简单的包装错误，而不是构造复杂的字符串
+                throw new Error(`FFmpeg 加载失败: ${error instanceof Error ? error.message : '未知错误'}`);
             }
         }
     );
@@ -141,7 +128,7 @@ export const useUnifiedMediaAnalysis = (ffmpeg: FFmpeg | undefined) => {
         analyzeError: analyzeError?.message || null,
         analyzeMedia,
         clearAnalysis: () => {
-            // 清空分析结果
+            // Placeholder for future implementation
         }
     };
 };
@@ -183,7 +170,7 @@ export const useAudioAnalysis = (ffmpeg: FFmpeg | undefined) => {
         analyzeError: analyzeError?.message || null,
         analyzeAudio,
         clearAnalysis: () => {
-            // 清空分析结果
+            // Placeholder
         }
     };
 };
@@ -225,7 +212,7 @@ export const useMediaMetadataAnalysis = (ffmpeg: FFmpeg | undefined) => {
         analyzeError: analyzeError?.message || null,
         analyzeMetadata,
         clearMetadata: () => {
-            // 清空元数据结果
+            // Placeholder
         }
     };
 };
@@ -293,7 +280,6 @@ export const useAudioConversion = (
                 remainingTime: null
             });
 
-            // 清除完成状态
             setTimeout(() => {
                 setConversionState({
                     currentStep: '',
@@ -308,7 +294,6 @@ export const useAudioConversion = (
             refreshDeps: [ffmpeg, isMultiThread],
             onError: (error) => {
                 console.error('转换失败:', error);
-
                 setConversionState({
                     isConverting: false,
                     progress: 0,
@@ -333,13 +318,8 @@ export const useAudioConversion = (
 
     const resetConversion = useMemoizedFn(() => {
         setConversionState({
-            isConverting: false,
-            progress: 0,
-            currentStep: '',
-            error: null,
-            outputFile: null,
-            outputFileName: '',
-            remainingTime: null,
+            isConverting: false, progress: 0, currentStep: '', error: null,
+            outputFile: null, outputFileName: '', remainingTime: null,
         });
     });
 
