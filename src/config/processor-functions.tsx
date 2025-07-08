@@ -1,6 +1,7 @@
 import React from 'react';
 import { ProcessorFunction } from '@/types/media-processor';
 import { isValidVideoFile, isValidAudioFile, SUPPORTED_VIDEO_FORMATS, SUPPORTED_AUDIO_FORMATS } from '@/utils/audioConverter';
+import { validateVideoFile } from '@/utils/videoCompressor';
 
 // 导入控制面板组件
 import AudioExtractControlPanel from '@/components/media-processor/control-panels/AudioExtractControlPanel';
@@ -30,11 +31,14 @@ export const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         category: 'video',
         icon: '📦',
         component: VideoCompressControlPanel,
-        fileValidator: (file: File) => isValidVideoFile(file.name),
-        supportedFormats: SUPPORTED_VIDEO_FORMATS,
+        fileValidator: (file: File) => {
+            const validation = validateVideoFile(file);
+            return validation.valid;
+        },
+        supportedFormats: ['mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp'],
         defaultParams: {
             outputFormat: 'mp4',
-            compressionLevel: 'medium'
+            resolution: '1080p'
         }
     },
     {

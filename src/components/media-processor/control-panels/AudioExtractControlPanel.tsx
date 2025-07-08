@@ -174,13 +174,7 @@ export const AudioExtractControlPanel: React.FC<ControlPanelProps> = ({
                 <label className="text-sm font-medium text-foreground">
                   音频格式
                 </label>
-                {/* 多线程模式状态 */}
-                {ffmpegLoaded && (
-                  <span className="inline-flex items-center gap-1 text-xs text-blue-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                    FFmpeg 已就绪
-                  </span>
-                )}
+
               </div>
               <Select
                 value={outputFormat}
