@@ -183,6 +183,7 @@ const AudioFormatConverterView = () => {
                             analyzeError={analyzeError}
                             ffmpegLoaded={ffmpegLoaded}
                             onRetryAnalysis={handleRetryAnalysis}
+                            conversionState={conversionState}
                         />
 
                         {/* 错误提示 */}
@@ -239,6 +240,7 @@ const AudioFormatConverterView = () => {
                             isAnalyzing={isAnalyzing}
                             analyzeError={analyzeError}
                             onRetryAnalysis={handleRetryAnalysis}
+                            conversionState={conversionState}
                         />
 
                         {/* 处理进度 */}

@@ -162,9 +162,7 @@ export const ConversionSettings: React.FC<ConversionSettingsProps> = ({
                                             原文件: {formatFileSize(selectedFile.size / (1024 * 1024))}
                                         </div>
                                     </div>
-                                    {sizeEstimate.note && (
-                                        <div className="text-xs text-blue-600 mt-1">{sizeEstimate.note}</div>
-                                    )}
+
 
                                     {/* 音频信息显示 */}
                                     <div className="mt-2 pt-2 border-t border-border/50">

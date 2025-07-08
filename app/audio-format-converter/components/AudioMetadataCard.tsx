@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, FileAudio, Clock, Volume2, Disc, Music } from 'lucide-react';
-import { MediaMetadata, formatFileSize } from '@/utils/audioConverter';
+import { MediaMetadata, formatFileSize, ConversionState } from '@/utils/audioConverter';
 
 interface AudioMetadataCardProps {
     selectedFile: File | null;
@@ -13,6 +13,7 @@ interface AudioMetadataCardProps {
     analyzeError: string | null;
     ffmpegLoaded: boolean;
     onRetryAnalysis: () => void;
+    conversionState: ConversionState; // 添加转换状态
 }
 
 export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
@@ -21,7 +22,8 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
     isAnalyzing,
     analyzeError,
     ffmpegLoaded,
-    onRetryAnalysis
+    onRetryAnalysis,
+    conversionState
 }) => {
     if (!selectedFile) {
         return null;
@@ -68,7 +70,7 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
                     </div>
 
                     {/* 分析状态 */}
-                    {isAnalyzing && (
+                    {isAnalyzing && !conversionState.isConverting && !conversionState.outputFile && (
                         <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -78,7 +80,7 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
                     )}
 
                     {/* 分析错误 */}
-                    {analyzeError && (
+                    {analyzeError && !conversionState.isConverting && !conversionState.outputFile && (
                         <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                             <div className="text-xs text-yellow-700 dark:text-yellow-300">
                                 {analyzeError}
@@ -145,7 +147,7 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
                     )}
 
                     {/* 等待分析状态 */}
-                    {!isAnalyzing && !mediaMetadata && !analyzeError && (
+                    {!isAnalyzing && !mediaMetadata && !analyzeError && !conversionState.isConverting && !conversionState.outputFile && (
                         <div className="p-3 bg-muted/20 rounded-lg border">
                             <div className="text-xs text-muted-foreground">
                                 {!ffmpegLoaded ? (

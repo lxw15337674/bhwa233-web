@@ -26,7 +26,7 @@ export const QUALITY_MODES = {
     },
     compressed: {
         label: '压缩模式',
-        description: '减小文件大小，适合分享传输',
+        description: '文件大小减少约50%',
         icon: '📦',
         params: {
             mp3: ['-b:a', '128k'],
@@ -209,59 +209,35 @@ export const generateSmartAudioParams = (
         }
     }
 
-    // 压缩模式：使用智能优化
-    if (qualityMode === 'compressed' && audioInfo?.bitrate) {
+    // 压缩模式：固定50%压缩
+    if (qualityMode === 'compressed' && audioInfo?.bitrate && audioInfo.bitrate > 0) {
         const originalBitrate = audioInfo.bitrate;
+        const targetBitrate = Math.round(originalBitrate * 0.5);
 
-        // 为不同格式设置合理的质量门槛
-        const qualityThresholds = {
-            mp3: { min: 128, max: 320 },
-            aac: { min: 96, max: 256 },
-            m4a: { min: 96, max: 256 },
-            ogg: { min: 96, max: 256 },
-            wav: { min: 0, max: 0 } // WAV是无损格式
-        };
+        if (targetFormat === 'wav') {
+            // WAV格式保持无损
+            return {
+                params: ['-c:a', 'pcm_s16le'],
+                description: 'WAV无损格式，保持16位PCM'
+            };
+        } else if (targetFormat === 'ogg') {
+            // OGG使用质量等级，根据目标码率选择对应的质量等级
+            const quality = targetBitrate >= 256 ? 8 :
+                targetBitrate >= 192 ? 6 :
+                    targetBitrate >= 128 ? 4 :
+                        targetBitrate >= 96 ? 3 :
+                            targetBitrate >= 64 ? 2 : 1;
 
-        const threshold = qualityThresholds[targetFormat];
-
-        if (targetFormat !== 'wav' && originalBitrate > 0) {
-            // 智能码率选择：避免无意义的升频
-            let targetBitrate: number;
-
-            if (originalBitrate >= threshold.min) {
-                // 原始码率足够高，可以适度压缩
-                targetBitrate = Math.min(originalBitrate, threshold.max);
-                // 如果原始码率很高，可以压缩到合理范围
-                if (originalBitrate > 192) {
-                    targetBitrate = 192; // 压缩到192kbps
-                }
-            } else {
-                // 原始码率较低，保持原始码率（避免虚假提升）
-                targetBitrate = originalBitrate;
-            }
-
-            if (targetFormat === 'ogg') {
-                // OGG使用质量等级
-                const quality = targetBitrate >= 256 ? 8 :
-                    targetBitrate >= 192 ? 6 :
-                        targetBitrate >= 128 ? 4 :
-                            targetBitrate >= 96 ? 3 :
-                                targetBitrate >= 64 ? 2 : 1;
-
-                const action = originalBitrate > targetBitrate ? '压缩为' : '保持为';
-
-                return {
-                    params: ['-q:a', quality.toString()],
-                    description: `${action}质量等级${quality}（约${targetBitrate}kbps）`
-                };
-            } else {
-                const action = originalBitrate > targetBitrate ? '压缩为' : '保持为';
-
-                return {
-                    params: ['-b:a', `${targetBitrate}k`],
-                    description: `${action}${targetBitrate}kbps`
-                };
-            }
+            return {
+                params: ['-q:a', quality.toString()],
+                description: `压缩为原来的50% (${originalBitrate}kbps → 约${targetBitrate}kbps)`
+            };
+        } else {
+            // 其他格式直接使用目标码率
+            return {
+                params: ['-b:a', `${targetBitrate}k`],
+                description: `压缩为原来的50% (${originalBitrate}kbps → ${targetBitrate}kbps)`
+            };
         }
     }
 
@@ -279,7 +255,7 @@ export const generateSmartAudioParams = (
             ogg: '约128kbps',
             wav: '16位PCM'
         };
-        description = `压缩模式 - ${compressedBitrates[targetFormat]}`;
+        description = `压缩模式 - 文件大小减少约50% (${compressedBitrates[targetFormat]})`;
     }
 
     return {
@@ -814,6 +790,15 @@ export const calculateFileSize = (
                     targetBitrate = parseInt(bitrateMatch[1]);
                 }
                 break;
+            } else if (smartParams.params[i] === '-q:a' && i + 1 < smartParams.params.length) {
+                // OGG质量等级转换为近似码率
+                const qualityLevel = parseInt(smartParams.params[i + 1]);
+                const oggQualityToBitrate = {
+                    8: 256, 7: 224, 6: 192, 5: 160,
+                    4: 128, 3: 96, 2: 64, 1: 48, 0: 32
+                };
+                targetBitrate = oggQualityToBitrate[qualityLevel as keyof typeof oggQualityToBitrate] || 128;
+                break;
             }
         }
     }
@@ -827,14 +812,21 @@ export const calculateFileSize = (
 
     if (isAudioCopy) {
         // 音频流复制情况
-        note = `${smartParams.description} - 保持原始质量`;
+        note = `${smartParams.description}`;
         compressionRatio = 0;
     } else {
-    // 重新编码情况
-        if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
+        // 重新编码情况
+        if (quality === 'compressed' && audioInfo.bitrate > 0) {
+            // 压缩模式：固定50%压缩
+            compressionRatio = 50;
+            note = `${smartParams.description}`;
+        } else if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
+        // 其他情况：根据实际码率差计算压缩比
             compressionRatio = ((audioInfo.bitrate - targetBitrate) / audioInfo.bitrate) * 100;
+            note = `${smartParams.description}`;
+        } else {
+            note = `${smartParams.description}`;
         }
-        note = `${smartParams.description} - 目标码率 ${targetBitrate}kbps`;
     }
 
     return {
