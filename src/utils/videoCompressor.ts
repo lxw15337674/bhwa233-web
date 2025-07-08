@@ -300,7 +300,6 @@ export const compressVideo = async (
       if (frameMatch) {
         const currentFrame = parseInt(frameMatch[1]);
         console.log(`Current frame: ${currentFrame}`);
-
         // 如果消息同时包含有效的time=信息，优先使用
         if (message.includes('time=') && !message.includes('time=-') && totalDuration > 0) {
           const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
@@ -340,46 +339,6 @@ export const compressVideo = async (
               }
             }
           }
-        }
-
-        // 如果time=无效或不存在，使用frame=信息
-        if (totalDuration > 0 && currentFrame > 0) {
-          const assumedFps = metadata?.video?.frameRate || 30;
-          const estimatedCurrentTime = currentFrame / assumedFps;
-
-          const rawProgress = Math.min(estimatedCurrentTime / totalDuration, 1) * 100;
-          const progress = Math.round(Math.max(rawProgress, lastProgress));
-
-          if (progress > lastProgress) {
-            const now = Date.now();
-
-            let remainingTimeStr: string | undefined;
-            if (progress > 10 && progress < 100) {
-              const elapsedTime = (now - startTime) / 1000;
-              const estimatedTotalTime = elapsedTime / (progress / 100);
-              const remainingSeconds = estimatedTotalTime - elapsedTime;
-
-              if (remainingSeconds > 0) {
-                remainingTimeStr = formatRemainingTime(remainingSeconds);
-              }
-            }
-
-            lastProgress = progress;
-            lastProgressTime = now;
-
-            const stepText = progress >= 95
-              ? '即将完成...' 
-              : `正在压缩视频... ${progress}% (基于帧数 ${currentFrame})`;
-
-            onProgress?.(progress, stepText, remainingTimeStr);
-          }
-        }
-
-        // 即使无法计算准确进度，也要推进一点，避免卡住
-        else if (currentFrame === 0 && lastProgress === 10) {
-          // 检测到开始处理的第一帧，给个小进度
-          onProgress?.(12, '正在处理第一帧...', undefined);
-          lastProgress = 12;
         }
       }
     }

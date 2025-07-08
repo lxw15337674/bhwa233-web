@@ -42,13 +42,15 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   const urlCategory = searchParams?.get('category') as ProcessorCategory || defaultCategory;
   const urlFunction = searchParams?.get('function') || defaultFunction || getDefaultFunction(urlCategory);
 
-  // 状态管理
-  const [state, setState] = useSetState<MediaProcessorState>({
+  // 简化状态管理 - 只保留真正需要的本地状态
+  const [state, setState] = useSetState<{
+    category: ProcessorCategory;
+    currentFunction: string;
+    isProcessing: boolean;
+    processingState: ProcessingState;
+  }>({
     category: urlCategory,
     currentFunction: urlFunction,
-    selectedFile: null,
-    mediaMetadata: null,
-    audioInfo: null,
     isProcessing: false,
     processingState: {
       isProcessing: false,
@@ -58,17 +60,10 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
       outputFile: null,
       outputFileName: '',
       remainingTime: null
-    },
-    ffmpeg: null,
-    isMultiThread: false,
-    ffmpegLoaded: false,
-    ffmpegLoading: false,
-    ffmpegError: null,
-    isAnalyzing: false,
-    analyzeError: null
+    }
   });
 
-  // FFmpeg hooks
+  // FFmpeg hooks - 直接使用，不复制到本地状态
   const {
     ffmpeg,
     isMultiThread,
@@ -78,7 +73,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     initFFmpeg
   } = useFFmpegManager();
 
-  // 文件选择hooks
+  // 文件选择hooks - 直接使用，不复制到本地状态
   const {
     selectedFile,
     dragOver,
@@ -89,7 +84,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     handleDrop
   } = useFileSelection();
 
-  // 媒体分析hooks
+  // 媒体分析hooks - 直接使用，不复制到本地状态
   const {
     audioInfo,
     mediaMetadata,
@@ -100,22 +95,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
-
-  // 更新状态
-  useEffect(() => {
-    setState({
-      ffmpeg: ffmpeg || null,
-      isMultiThread,
-      ffmpegLoaded,
-      ffmpegLoading,
-      ffmpegError: ffmpegError || null,
-      selectedFile,
-      audioInfo,
-      mediaMetadata,
-      isAnalyzing,
-      analyzeError
-    });
-  }, [ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError, selectedFile, audioInfo, mediaMetadata, isAnalyzing, analyzeError]);
 
   // 分类切换处理
   const handleCategoryChange = useMemoizedFn((category: ProcessorCategory) => {
