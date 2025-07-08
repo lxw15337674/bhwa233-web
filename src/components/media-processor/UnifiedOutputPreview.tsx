@@ -126,6 +126,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
                 onPlay={onPlay}
                 onPause={onPause}
                 className="hidden"
+                  controls
               />
             </div>
           )}
