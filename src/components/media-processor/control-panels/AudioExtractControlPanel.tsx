@@ -127,6 +127,48 @@ export const AudioExtractControlPanel: React.FC<ControlPanelProps> = ({
         <CardContent className="p-4">
           <div className="space-y-4">
             {/* 输出格式选择 */}
+            {!processingState.outputFile ? (
+              <Button
+                onClick={handleStartProcessing}
+                disabled={!canStartProcessing}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                size="lg"
+              >
+                <Play className="w-4 h-4 mr-2" />
+                {processingState.isProcessing ? '正在提取音频...' : '开始提取音频'}
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  onClick={handleDownload}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  size="lg"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  下载音频文件
+                </Button>
+                <Button
+                  onClick={handleRestart}
+                  variant="outline"
+                  className="w-full"
+                  size="sm"
+                >
+                  重新提取
+                </Button>
+              </div>
+            )}
+
+            {/* 显示不能处理的原因 */}
+            {!canStartProcessing && selectedFile && !processingState.isProcessing && (
+              <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-950/20 rounded border border-yellow-200 dark:border-yellow-800">
+                <div className="text-xs text-yellow-700 dark:text-yellow-300">
+                  {!ffmpegLoaded ? '等待 FFmpeg 加载完成...' :
+                    isAnalyzing ? '正在分析文件...' :
+                      !SUPPORTED_VIDEO_FORMATS.includes(getFileExtension(selectedFile.name)) ?
+                        '不支持的文件格式，请选择视频文件' : '请选择有效的视频文件'}
+                </div>
+              </div>
+            )}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-foreground">
@@ -268,54 +310,6 @@ export const AudioExtractControlPanel: React.FC<ControlPanelProps> = ({
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* 处理按钮区域 */}
-      <Card className="bg-card border-border">
-        <CardContent className="p-4">
-          {!processingState.outputFile ? (
-            <Button
-              onClick={handleStartProcessing}
-              disabled={!canStartProcessing}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              size="lg"
-            >
-              <Play className="w-4 h-4 mr-2" />
-              {processingState.isProcessing ? '正在提取音频...' : '开始提取音频'}
-            </Button>
-          ) : (
-            <div className="space-y-2">
-              <Button
-                onClick={handleDownload}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                size="lg"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                下载音频文件
-              </Button>
-              <Button
-                onClick={handleRestart}
-                variant="outline"
-                className="w-full"
-                size="sm"
-              >
-                重新提取
-              </Button>
-            </div>
-          )}
-
-          {/* 显示不能处理的原因 */}
-          {!canStartProcessing && selectedFile && !processingState.isProcessing && (
-            <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-950/20 rounded border border-yellow-200 dark:border-yellow-800">
-              <div className="text-xs text-yellow-700 dark:text-yellow-300">
-                {!ffmpegLoaded ? '等待 FFmpeg 加载完成...' :
-                  isAnalyzing ? '正在分析文件...' :
-                    !SUPPORTED_VIDEO_FORMATS.includes(getFileExtension(selectedFile.name)) ?
-                      '不支持的文件格式，请选择视频文件' : '请选择有效的视频文件'}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
