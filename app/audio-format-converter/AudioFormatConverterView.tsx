@@ -10,23 +10,23 @@ import { useMemoizedFn, useUpdateEffect } from 'ahooks';
 import {
     useFFmpegManager,
     useUnifiedMediaAnalysis,
-    useAudioConversion,
-    useFileSelection,
     useAudioConverterSettings
 } from '@/hooks/useAudioConverter';
+import { useAudioToAudioConversion } from '@/hooks/audio-convert/useAudioToAudioConversion';
+import { useAudioFileSelection } from '@/hooks/audio-convert/useAudioFileSelection';
 
 // Components
-import { FileUploadArea } from './components/FileUploadArea';
-import { ConversionSettings } from './components/ConversionSettings';
-import { MediaMetadataCard } from './components/MediaMetadataCard';
-import { ProgressDisplay } from './components/ProgressDisplay';
-import { OutputPreview } from './components/OutputPreview';
+import { AudioFileUpload } from './components/AudioFileUpload';
+import { AudioConversionSettings } from './components/AudioConversionSettings';
+import { AudioMetadataCard } from './components/AudioMetadataCard';
+import { ProgressDisplay } from '../audio-converter/components/ProgressDisplay';
+import { OutputPreview } from '../audio-converter/components/OutputPreview';
 import { MediaConverterNavigation } from '@/components/shared/MediaConverterNavigation';
 
 // Utils
-import { isValidVideoFile, SUPPORTED_VIDEO_FORMATS } from '@/utils/audioConverter';
+import { isValidAudioFile, getMediaType, SUPPORTED_AUDIO_FORMATS } from '@/utils/audioConverter';
 
-const AudioConverterView = () => {
+const AudioFormatConverterView = () => {
     // Refs
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,7 @@ const AudioConverterView = () => {
         handleDragEnter,
         handleDragLeave,
         handleDrop
-    } = useFileSelection();
+    } = useAudioFileSelection();
 
     const {
         audioInfo,
@@ -65,7 +65,7 @@ const AudioConverterView = () => {
         isConverting,
         startConversion,
         resetConversion
-    } = useAudioConversion(ffmpeg, isMultiThread, audioInfo, mediaMetadata);
+    } = useAudioToAudioConversion(ffmpeg, isMultiThread, audioInfo, mediaMetadata);
 
     const {
         outputFormat,
@@ -78,9 +78,15 @@ const AudioConverterView = () => {
 
     // 文件选择处理
     const handleFileSelect = useMemoizedFn((file: File) => {
-        // 验证文件类型
-        if (!isValidVideoFile(file.name)) {
-            alert(`不支持的文件格式。支持的格式: ${SUPPORTED_VIDEO_FORMATS.join(', ')}`);
+        const mediaType = getMediaType(file.name);
+
+        if (mediaType === 'video') {
+            alert('检测到视频文件，请前往视频音频提取页面处理此文件。');
+            return;
+        }
+
+        if (!isValidAudioFile(file.name)) {
+            alert(`不支持的音频格式。支持的格式: ${SUPPORTED_AUDIO_FORMATS.join(', ')}`);
             return;
         }
 
@@ -133,7 +139,7 @@ const AudioConverterView = () => {
     // 当 FFmpeg 加载完成且有文件时，自动分析
     useUpdateEffect(() => {
         if (ffmpegLoaded && selectedFile && !audioInfo && !isAnalyzing) {
-            console.log('FFmpeg 已加载完成，开始自动分析已选择的文件:', selectedFile.name);
+            console.log('FFmpeg 已加载完成，开始自动分析已选择的音频文件:', selectedFile.name);
             analyzeMedia(selectedFile);
         }
     }, [ffmpegLoaded, selectedFile]);
@@ -146,17 +152,18 @@ const AudioConverterView = () => {
 
                 {/* 页面标题 */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        视频音频提取
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        音频格式转换
                     </h1>
                     <p className="text-muted-foreground">
-                        从视频文件中提取音频轨道，支持多种视频格式
+                        在不同音频格式之间转换，保持最佳音质
                     </p>
                 </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* 左侧：文件上传区域和媒体信息 */}
+                    {/* 左侧：文件上传区域和音频信息 */}
                     <div className="lg:col-span-2 space-y-6">
-                        <FileUploadArea
+                        <AudioFileUpload
                             selectedFile={selectedFile}
                             dragOver={dragOver}
                             onFileSelect={handleFileSelect}
@@ -168,8 +175,8 @@ const AudioConverterView = () => {
                             fileInputRef={fileInputRef}
                         />
 
-                        {/* 媒体元数据显示 */}
-                        <MediaMetadataCard
+                        {/* 音频元数据显示 */}
+                        <AudioMetadataCard
                             selectedFile={selectedFile}
                             mediaMetadata={mediaMetadata || null}
                             isAnalyzing={isAnalyzing}
@@ -204,7 +211,6 @@ const AudioConverterView = () => {
 
                     {/* 右侧：控制面板 */}
                     <div className="space-y-6">
-
                         {/* 转换按钮 */}
                         <Button
                             onClick={handleStartConversion}
@@ -214,13 +220,13 @@ const AudioConverterView = () => {
                             {ffmpegLoading
                                 ? '加载中...'
                                 : isConverting
-                                    ? '提取中...'
-                                    : '提取音频'
+                                    ? '转换中...'
+                                    : '转换格式'
                             }
                         </Button>
 
-                        {/* 输出格式和质量设置 */}
-                        <ConversionSettings
+                        {/* 转换设置 */}
+                        <AudioConversionSettings
                             outputFormat={outputFormat}
                             qualityMode={qualityMode}
                             onOutputFormatChange={setOutputFormat}
@@ -258,4 +264,4 @@ const AudioConverterView = () => {
     );
 };
 
-export default AudioConverterView;
+export default AudioFormatConverterView;

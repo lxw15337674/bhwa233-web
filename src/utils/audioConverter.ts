@@ -43,6 +43,11 @@ export const SUPPORTED_VIDEO_FORMATS = [
     'mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', 'webm', 'm4v', '3gp', 'ts'
 ];
 
+// 支持的音频格式
+export const SUPPORTED_AUDIO_FORMATS = [
+    'mp3', 'aac', 'wav', 'ogg', 'm4a', 'flac', 'wma', 'opus', 'aiff', 'ape', 'ac3', 'amr'
+];
+
 // 类型定义
 export interface AudioInfo {
     duration: number;
@@ -64,6 +69,9 @@ export interface VideoInfo {
 }
 
 export interface MediaMetadata {
+    // 媒体类型标识
+    mediaType: 'video' | 'audio';
+
     // 文件信息
     fileName: string;
     fileSize: number;
@@ -71,7 +79,7 @@ export interface MediaMetadata {
     totalDuration: number;
     overallBitrate: number;
 
-    // 音频流信息
+    // 音频流信息（必须）
     audio: {
         codec: string;
         bitrate: number;
@@ -81,7 +89,7 @@ export interface MediaMetadata {
         duration: number;
     };
 
-    // 视频流信息（可选）
+    // 视频流信息（仅视频文件有）
     video?: {
         codec: string;
         width: number;
@@ -296,6 +304,21 @@ export const getFileExtension = (filename: string) => {
 export const isValidVideoFile = (filename: string) => {
     const extension = getFileExtension(filename);
     return SUPPORTED_VIDEO_FORMATS.includes(extension);
+};
+
+export const isValidAudioFile = (filename: string) => {
+    const extension = getFileExtension(filename);
+    return SUPPORTED_AUDIO_FORMATS.includes(extension);
+};
+
+export const isValidMediaFile = (filename: string) => {
+    return isValidVideoFile(filename) || isValidAudioFile(filename);
+};
+
+export const getMediaType = (filename: string): 'video' | 'audio' | 'unknown' => {
+    if (isValidVideoFile(filename)) return 'video';
+    if (isValidAudioFile(filename)) return 'audio';
+    return 'unknown';
 };
 
 export const checkMultiThreadSupport = () => {
@@ -721,7 +744,14 @@ export const analyzeMediaFile = async (file: File, ffmpeg: FFmpeg): Promise<{ au
             metadata.video.duration = metadata.totalDuration;
         }
 
-        resultMetadata = metadata as MediaMetadata;
+        // 根据文件类型设置 mediaType
+        const fileMediaType = getMediaType(file.name);
+        const mediaType = fileMediaType === 'video' ? 'video' : 'audio';
+
+        resultMetadata = {
+            ...metadata,
+            mediaType
+        } as MediaMetadata;
     }
 
     return { audioInfo: resultAudioInfo, metadata: resultMetadata };

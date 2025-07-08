@@ -2,10 +2,10 @@ import AudioConverterView from './AudioConverterView';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: '在线视频转音频工具 - 免费视频提取音频 | 支持MP4转MP3',
-    description: '免费在线视频转音频工具，支持MP4、AVI、MOV等格式转换为MP3、AAC、WAV音频。基于FFmpeg.wasm技术，完全在浏览器端处理，保护隐私安全。',
+    title: '在线视频音频提取工具 - 免费视频提取音频 | 支持MP4转MP3',
+    description: '免费在线视频音频提取工具，支持MP4、AVI、MOV等视频格式提取为MP3、AAC、WAV音频。基于FFmpeg.wasm技术，完全在浏览器端处理，保护隐私安全。',
     keywords: [
-        '视频转音频', 'MP4转MP3', '视频提取音频', '在线音频转换',
+        '视频音频提取', 'MP4转MP3', '视频提取音频', '在线音频转换',
         'FFmpeg在线', '视频音频分离', '免费转换工具', '浏览器转换',
         '无需上传', '隐私安全', 'WAV转换', 'AAC转换', 'M4A转换', '音频格式转换'
     ],
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
         },
     },
     openGraph: {
-        title: '在线视频转音频工具 - 免费视频提取音频',
-        description: '支持MP4、AVI、MOV等格式转换为MP3、AAC、WAV音频，完全在浏览器端处理，保护隐私安全',
+        title: '在线视频音频提取工具 - 免费视频提取音频',
+        description: '支持MP4、AVI、MOV等视频格式提取为MP3、AAC、WAV音频，完全在浏览器端处理，保护隐私安全',
         url: 'https://233tools.vercel.app/audio-converter',
         siteName: '工具箱',
         locale: 'zh_CN',
