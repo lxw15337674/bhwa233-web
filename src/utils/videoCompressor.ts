@@ -114,6 +114,14 @@ export const getVideoCompressionParams = (
 
 // 文件大小验证
 export const validateVideoFile = (file: File): { valid: boolean; error?: string } => {
+  // 检查文件是否存在
+  if (!file) {
+    return {
+      valid: false,
+      error: '不支持的视频格式，请选择常见的视频文件'
+    };
+  }
+
   // 检查文件大小
   if (file.size > MAX_FILE_SIZE) {
     const sizeMB = file.size / (1024 * 1024);
@@ -130,7 +138,7 @@ export const validateVideoFile = (file: File): { valid: boolean; error?: string 
   ];
   
   if (!supportedTypes.some(type => file.type.startsWith(type)) && 
-      !file.name.match(/\.(mp4|avi|mov|mkv|webm|wmv|flv|3gp)$/i)) {
+    !file.name?.match(/\.(mp4|avi|mov|mkv|webm|wmv|flv|3gp)$/i)) {
     return {
       valid: false,
       error: '不支持的视频格式，请选择常见的视频文件'
@@ -228,7 +236,9 @@ export const compressVideo = async (
   await ffmpeg.writeFile(inputFileName, await fetchFile(file));
   
   let totalDuration = 0;
+  let lastProgress = 0;
   const startTime = Date.now();
+  let lastProgressTime = startTime;
   
   // 获取FFmpeg参数
   const ffmpegParams = getVideoCompressionParams(
@@ -242,6 +252,11 @@ export const compressVideo = async (
   console.log(`FFmpeg params: ${[...ffmpegParams.video, ...ffmpegParams.audio].join(' ')}`);
   
   const progressListener = ({ message }: { message: string }) => {
+    // 添加调试日志，记录所有进度相关的消息
+    if (message.includes('frame=') || message.includes('time=') || message.includes('Progress') || message.includes('speed=')) {
+      console.log('Progress message:', message);
+    }
+
     // 解析总时长
     if (message.includes('Duration:') && totalDuration === 0) {
       const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
@@ -250,41 +265,134 @@ export const compressVideo = async (
         const minutes = parseInt(durationMatch[2]);
         const seconds = parseFloat(durationMatch[3]);
         totalDuration = hours * 3600 + minutes * 60 + seconds;
+        console.log(`Video duration detected: ${totalDuration}s`);
+        onProgress?.(2, '正在初始化编码器...', undefined);
       }
     }
-    
-    // 解析当前进度
-    if (message.includes('time=') && totalDuration > 0) {
-      const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
-      if (timeMatch) {
-        const hours = parseInt(timeMatch[1]);
-        const minutes = parseInt(timeMatch[2]);
-        const seconds = parseFloat(timeMatch[3]);
-        const currentTime = hours * 3600 + minutes * 60 + seconds;
-        const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
-        
-        // 计算剩余时间
-        let remainingTimeStr: string | undefined;
-        if (progress > 0 && progress < 100) {
-          const elapsedTime = (Date.now() - startTime) / 1000;
-          const estimatedTotalTime = elapsedTime / (progress / 100);
-          const remainingSeconds = estimatedTotalTime - elapsedTime;
-          
-          if (remainingSeconds > 0) {
-            if (remainingSeconds < 60) {
-              remainingTimeStr = `剩余约 ${Math.round(remainingSeconds)}秒`;
-            } else {
-              const minutes = Math.floor(remainingSeconds / 60);
-              remainingTimeStr = `剩余约 ${minutes}分钟`;
+
+    // 检测编码器初始化阶段
+    if (message.includes('libx264') || message.includes('libvpx')) {
+      if (lastProgress < 5) {
+        onProgress?.(5, '正在配置编码器...', undefined);
+        lastProgress = 5;
+      }
+      return;
+    }
+
+    // 检测输出流设置阶段
+    if (message.includes('Output #0') || message.includes('Stream #0:')) {
+      if (lastProgress < 8) {
+        onProgress?.(8, '正在设置输出流...', undefined);
+        lastProgress = 8;
+      }
+      return;
+    }
+
+    // 检测处理开始的标志
+    if (message.includes('Press [q] to stop') || (message.includes('frame=') && lastProgress < 10)) {
+      onProgress?.(10, '开始处理视频...', undefined);
+      lastProgress = 10;
+    }
+
+    // 处理包含frame=的消息（即使包含负时间戳）
+    if (message.includes('frame=')) {
+      const frameMatch = message.match(/frame=\s*(\d+)/);
+      if (frameMatch) {
+        const currentFrame = parseInt(frameMatch[1]);
+        console.log(`Current frame: ${currentFrame}`);
+
+        // 如果消息同时包含有效的time=信息，优先使用
+        if (message.includes('time=') && !message.includes('time=-') && totalDuration > 0) {
+          const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
+          if (timeMatch) {
+            const hours = parseInt(timeMatch[1]);
+            const minutes = parseInt(timeMatch[2]);
+            const seconds = parseFloat(timeMatch[3]);
+            const currentTime = hours * 3600 + minutes * 60 + seconds;
+
+            if (currentTime >= 0 && currentTime <= totalDuration * 1.1) {
+              const rawProgress = Math.min(currentTime / totalDuration, 1) * 100;
+              const progress = Math.round(Math.max(rawProgress, lastProgress));
+
+              if (progress > lastProgress) {
+                const now = Date.now();
+
+                let remainingTimeStr: string | undefined;
+                if (progress > 10 && progress < 100) {
+                  const elapsedTime = (now - startTime) / 1000;
+                  const estimatedTotalTime = elapsedTime / (progress / 100);
+                  const remainingSeconds = estimatedTotalTime - elapsedTime;
+
+                  if (remainingSeconds > 0) {
+                    remainingTimeStr = formatRemainingTime(remainingSeconds);
+                  }
+                }
+
+                lastProgress = progress;
+                lastProgressTime = now;
+
+                const stepText = progress >= 95
+                  ? '即将完成...'
+                  : `正在压缩视频... ${progress}%`;
+
+                onProgress?.(progress, stepText, remainingTimeStr);
+                return; // 成功处理，退出
+              }
             }
           }
         }
-        
-        const stepText = progress >= 95 
-          ? '即将完成...' 
-          : `正在压缩视频... ${progress}%`;
-        
-        onProgress?.(progress, stepText, remainingTimeStr);
+
+        // 如果time=无效或不存在，使用frame=信息
+        if (totalDuration > 0 && currentFrame > 0) {
+          const assumedFps = metadata?.video?.frameRate || 30;
+          const estimatedCurrentTime = currentFrame / assumedFps;
+
+          const rawProgress = Math.min(estimatedCurrentTime / totalDuration, 1) * 100;
+          const progress = Math.round(Math.max(rawProgress, lastProgress));
+
+          if (progress > lastProgress) {
+            const now = Date.now();
+
+            let remainingTimeStr: string | undefined;
+            if (progress > 10 && progress < 100) {
+              const elapsedTime = (now - startTime) / 1000;
+              const estimatedTotalTime = elapsedTime / (progress / 100);
+              const remainingSeconds = estimatedTotalTime - elapsedTime;
+
+              if (remainingSeconds > 0) {
+                remainingTimeStr = formatRemainingTime(remainingSeconds);
+              }
+            }
+
+            lastProgress = progress;
+            lastProgressTime = now;
+
+            const stepText = progress >= 95
+              ? '即将完成...' 
+              : `正在压缩视频... ${progress}% (基于帧数 ${currentFrame})`;
+
+            onProgress?.(progress, stepText, remainingTimeStr);
+          }
+        }
+
+        // 即使无法计算准确进度，也要推进一点，避免卡住
+        else if (currentFrame === 0 && lastProgress === 10) {
+          // 检测到开始处理的第一帧，给个小进度
+          onProgress?.(12, '正在处理第一帧...', undefined);
+          lastProgress = 12;
+        }
+      }
+    }
+
+    // 兜底方案：如果长时间没有进度更新，使用时间推算
+    const now = Date.now();
+    if (now - lastProgressTime > 5000 && lastProgress < 90) { // 5秒没更新且未接近完成
+      const simpleProgress = Math.min(lastProgress + 1, 85); // 缓慢推进
+      if (simpleProgress > lastProgress) {
+        lastProgress = simpleProgress;
+        lastProgressTime = now;
+        onProgress?.(simpleProgress, '正在处理中...', undefined);
+        console.log(`Fallback progress: ${simpleProgress}%`);
       }
     }
   };
@@ -296,6 +404,10 @@ export const compressVideo = async (
     const threadArgs = isMultiThread ? ['-threads', '0'] : [];
     
     const args = [
+      '-y',                    // 覆盖输出文件
+      '-nostdin',              // 不等待用户输入
+      '-loglevel', 'info',     // 详细日志级别
+      '-stats',                // 强制统计输出
       '-i', inputFileName,
       ...threadArgs,
       ...ffmpegParams.video,
@@ -324,6 +436,27 @@ export const compressVideo = async (
     } catch (deleteError) {
       console.log('Failed to cleanup files:', deleteError);
     }
+  }
+};
+
+// 格式化剩余时间（从 audioConverter.ts 移植）
+export const formatRemainingTime = (seconds: number): string => {
+  if (seconds < 60) {
+    return `剩余约 ${Math.round(seconds)}秒`;
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    if (remainingSeconds === 0) {
+      return `剩余约 ${minutes}分钟`;
+    }
+    return `剩余约 ${minutes}分${remainingSeconds}秒`;
+  } else {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.round((seconds % 3600) / 60);
+    if (minutes === 0) {
+      return `剩余约 ${hours}小时`;
+    }
+    return `剩余约 ${hours}小时${minutes}分`;
   }
 };
 

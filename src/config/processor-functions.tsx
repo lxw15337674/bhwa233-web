@@ -1,88 +1,73 @@
-import React from 'react';
-import { ProcessorFunction } from '@/types/media-processor';
-import { isValidVideoFile, isValidAudioFile, SUPPORTED_VIDEO_FORMATS, SUPPORTED_AUDIO_FORMATS } from '@/utils/audioConverter';
-import { validateVideoFile } from '@/utils/videoCompressor';
+import { ConversionSettings } from '@/components/media-processor/control-panels/ConversionSettings';
+import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
+import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
+import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
+import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
+import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
+import { getMediaType } from '@/utils/audioConverter';
 
-// 导入控制面板组件
-import AudioExtractControlPanel from '@/components/media-processor/control-panels/AudioExtractControlPanel';
-import AudioConvertControlPanel from '@/components/media-processor/control-panels/AudioConvertControlPanel';
-import VideoCompressControlPanel from '@/components/media-processor/control-panels/VideoCompressControlPanel';
+const audioFileValidator = (file: File) => getMediaType(file.name) === 'audio';
+const videoFileValidator = (file: File) => getMediaType(file.name) === 'video';
 
-// 功能注册表
-export const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
+export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string }> = {
+    audio: { label: '音频', icon: '🎵' },
+    video: { label: '视频', icon: '🎥' },
+};
+
+const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
+// 音频功能
     {
-        id: 'audio-extract',
-        label: '音频提取',
-        description: '从视频文件中提取音频轨道',
-        category: 'video',
+        id: 'audio-convert',
+        label: '音频格式转换',
+        category: 'audio',
+        description: '将音频文件转换为不同的格式和质量。',
         icon: '🎵',
-        component: AudioExtractControlPanel,
-        fileValidator: (file: File) => isValidVideoFile(file.name),
-        supportedFormats: SUPPORTED_VIDEO_FORMATS,
-        defaultParams: {
-            outputFormat: 'mp3',
-            qualityMode: 'original'
-        }
+        component: AudioConvertControlPanel,
+        fileValidator: audioFileValidator,
+        supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'aiff'],
     },
+    {
+        id: 'audio-speed-change',
+        label: '音频倍速调整',
+        category: 'audio',
+        description: '调整音频的播放速度，同时保持音调不变。',
+        icon: '⏩',
+        component: AudioSpeedControlPanel,
+        fileValidator: audioFileValidator,
+        supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'aiff'],
+    },
+
+    // 视频功能
     {
         id: 'video-compress',
         label: '视频压缩',
-        description: '压缩视频文件以减小文件大小',
         category: 'video',
-        icon: '📦',
+        description: '压缩视频文件，减小文件大小并调整分辨率。',
+        icon: '🗜️',
         component: VideoCompressControlPanel,
-        fileValidator: (file: File) => {
-            const validation = validateVideoFile(file);
-            return validation.valid;
-        },
-        supportedFormats: ['mp4', 'avi', 'mov', 'mkv', 'webm', 'wmv', 'flv', '3gp'],
-        defaultParams: {
-            outputFormat: 'mp4',
-            resolution: '1080p'
-        }
+        fileValidator: videoFileValidator,
+        supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
     },
     {
-        id: 'audio-convert',
-        label: '格式转换',
-        description: '音频格式之间的转换',
-        category: 'audio',
-        icon: '🔄',
-        component: AudioConvertControlPanel,
-        fileValidator: (file: File) => isValidAudioFile(file.name),
-        supportedFormats: SUPPORTED_AUDIO_FORMATS,
-        defaultParams: {
-            outputFormat: 'mp3',
-            qualityMode: 'original'
-        }
-    }
+        id: 'audio-extract',
+        label: '音频提取',
+        category: 'video',
+        description: '从视频文件中提取音频轨道。',
+        icon: '🎤',
+        component: AudioExtractControlPanel,
+        fileValidator: videoFileValidator,
+        supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
+    },
 ];
 
-// 根据分类获取功能列表
-export const getFunctionsByCategory = (category: 'video' | 'audio'): ProcessorFunction[] => {
+export const getFunctionsByCategory = (category: ProcessorCategory): ProcessorFunction[] => {
     return PROCESSOR_FUNCTIONS.filter(func => func.category === category);
 };
 
-// 根据ID获取功能
 export const getFunctionById = (id: string): ProcessorFunction | undefined => {
     return PROCESSOR_FUNCTIONS.find(func => func.id === id);
 };
 
-// 获取默认功能
-export const getDefaultFunction = (category: 'video' | 'audio'): string => {
-    const functions = getFunctionsByCategory(category);
-    return functions.length > 0 ? functions[0].id : '';
-};
-
-// 分类配置
-export const PROCESSOR_CATEGORIES = {
-    video: {
-        label: '视频处理',
-        icon: '🎬',
-        description: '视频相关的处理功能'
-    },
-    audio: {
-        label: '音频处理',
-        icon: '🎧',
-        description: '音频相关的处理功能'
-    }
-} as const; 
+export const getDefaultFunction = (category: ProcessorCategory): string => {
+    return getFunctionsByCategory(category)[0]?.id || '';
+}

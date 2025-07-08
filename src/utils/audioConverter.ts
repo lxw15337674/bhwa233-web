@@ -120,6 +120,32 @@ export interface SizeEstimate {
 export type AudioFormat = keyof typeof AUDIO_FORMATS;
 export type QualityMode = keyof typeof QUALITY_MODES;
 
+// 音频倍速配置
+export const AUDIO_SPEED_PRESETS = {
+    '0.5': { label: '0.5x (慢速)', description: '适合学习和仔细聆听' },
+    '0.75': { label: '0.75x (慢放)', description: '略慢，保持清晰度' },
+    '1.0': { label: '1.0x (原速)', description: '正常播放速度' },
+    '1.25': { label: '1.25x (快放)', description: '略快，提高效率' },
+    '1.5': { label: '1.5x (快速)', description: '适合快速浏览' },
+    '2.0': { label: '2.0x (高速)', description: '最大2倍速度' },
+} as const;
+
+// 音频倍速参数接口
+export interface AudioSpeedParams {
+    speed: number;
+    preservePitch: boolean;
+}
+
+// 音频倍速结果
+export interface AudioSpeedResult {
+    outputFile: Blob;
+    originalDuration: number;
+    newDuration: number;
+    speedRatio: number;
+}
+
+export type AudioSpeedPreset = keyof typeof AUDIO_SPEED_PRESETS;
+
 // 音频流兼容性检查
 export const AUDIO_COPY_COMPATIBILITY = {
     'AAC': {
@@ -903,6 +929,208 @@ export const convertAudio = async (
         return new Blob([data], {
             type: AUDIO_FORMATS[outputFormat].mime
         });
+    } finally {
+        // 移除进度监听器
+        ffmpeg.off('log', progressListener);
+
+        // 清理文件
+        try {
+            await ffmpeg.deleteFile(inputFileName);
+            await ffmpeg.deleteFile(outputFileName);
+        } catch (deleteError) {
+            console.log('Failed to cleanup files:', deleteError);
+        }
+    }
+};
+
+// 生成音频倍速滤镜参数
+export const generateSpeedFilter = (speed: number, preservePitch: boolean = true): string => {
+    if (speed === 1.0) {
+        return ''; // 原速度不需要滤镜
+    }
+
+    if (!preservePitch) {
+        // 不保持音调，直接改变播放速度
+        return `atempo=${speed}`;
+    }
+
+    // 保持音调（默认行为）
+    if (speed <= 2.0 && speed >= 0.5) {
+        // atempo滤镜支持的范围
+        return `atempo=${speed}`;
+    } else if (speed > 2.0) {
+        // 大于2倍速需要链式处理
+        const chainCount = Math.floor(speed / 2);
+        const remainder = speed % 2;
+
+        const filters = Array(chainCount).fill('atempo=2.0');
+        if (remainder > 0 && remainder !== 1.0) {
+            filters.push(`atempo=${remainder + 1}`);
+        }
+
+        return filters.join(',');
+    } else {
+        // 小于0.5倍速需要链式处理
+        const chainCount = Math.ceil(Math.log(speed) / Math.log(0.5));
+        const targetSpeed = Math.pow(0.5, chainCount - 1) * speed;
+
+        const filters = Array(chainCount - 1).fill('atempo=0.5');
+        if (targetSpeed !== 0.5) {
+            filters.push(`atempo=${targetSpeed}`);
+        }
+
+        return filters.join(',');
+    }
+};
+
+// 计算倍速处理后的文件大小
+export const calculateSpeedFileSize = (
+    audioInfo: AudioInfo,
+    speed: number,
+    outputFormat: AudioFormat = 'mp3'
+): SizeEstimate => {
+    const newDuration = audioInfo.duration / speed;
+    const targetBitrate = audioInfo.bitrate || 192; // 使用原始码率或默认值
+
+    // 计算预估大小
+    const baseSizeMB = (newDuration * targetBitrate) / 8 / 1024;
+    const containerOverhead = outputFormat === 'mp3' ? 1.02 : 1.03;
+    const estimatedSizeMB = baseSizeMB * containerOverhead;
+
+    // 计算相对于原文件的变化
+    const originalSizeMB = (audioInfo.duration * targetBitrate) / 8 / 1024 * containerOverhead;
+    const sizeRatio = (originalSizeMB - estimatedSizeMB) / originalSizeMB * 100;
+
+    return {
+        estimatedSizeMB: Math.max(estimatedSizeMB, 0.1),
+        compressionRatio: Math.max(sizeRatio, 0),
+        note: `${speed}x倍速，时长变为${formatDuration(newDuration)}`
+    };
+};
+
+// 音频倍速转换
+export const convertAudioSpeed = async (
+    file: File,
+    ffmpeg: FFmpeg,
+    params: AudioSpeedParams,
+    isMultiThread: boolean,
+    audioInfo?: AudioInfo | null,
+    onProgress?: (progress: number, step: string, remainingTime?: string) => void
+): Promise<AudioSpeedResult> => {
+    const inputExtension = getFileExtension(file.name);
+    const inputFileName = `input.${inputExtension}`;
+    const outputFileName = `output.${inputExtension}`; // 保持原格式
+
+    await ffmpeg.writeFile(inputFileName, await fetchFile(file));
+
+    let totalDuration = 0;
+    const startTime = Date.now();
+    let lastProgress = 0;
+
+    // 生成倍速滤镜
+    const speedFilter = generateSpeedFilter(params.speed, params.preservePitch);
+
+    console.log(`Audio speed adjustment: ${params.speed}x`);
+    console.log(`Speed filter: ${speedFilter}`);
+    console.log(`Preserve pitch: ${params.preservePitch}`);
+
+    const progressListener = ({ message }: { message: string }) => {
+        // 解析总时长
+        if (message.includes('Duration:') && totalDuration === 0) {
+            const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
+            if (durationMatch) {
+                const hours = parseInt(durationMatch[1]);
+                const minutes = parseInt(durationMatch[2]);
+                const seconds = parseFloat(durationMatch[3]);
+                totalDuration = hours * 3600 + minutes * 60 + seconds;
+            }
+        }
+
+        // 解析当前进度
+        if (message.includes('time=') && totalDuration > 0) {
+            const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
+            if (timeMatch) {
+                const hours = parseInt(timeMatch[1]);
+                const minutes = parseInt(timeMatch[2]);
+                const seconds = parseFloat(timeMatch[3]);
+                const currentTime = hours * 3600 + minutes * 60 + seconds;
+                const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
+                const now = Date.now();
+
+                // 计算剩余时间
+                let remainingTimeStr: string | undefined;
+                if (progress > 0 && progress < 100) {
+                    const elapsedTime = (now - startTime) / 1000;
+                    const estimatedTotalTime = elapsedTime / (progress / 100);
+                    const remainingSeconds = estimatedTotalTime - elapsedTime;
+
+                    if (remainingSeconds > 0) {
+                        remainingTimeStr = formatRemainingTime(remainingSeconds);
+                    }
+                }
+
+                lastProgress = progress;
+
+                const stepText = progress >= 95
+                    ? '即将完成...'
+                    : `正在调整音频速度到 ${params.speed}x... ${progress}%`;
+
+                onProgress?.(progress, stepText, remainingTimeStr);
+            }
+        } else if (message.includes('time=') && totalDuration === 0) {
+            // 如果无法获取总时长，使用简单的增量进度
+            const simpleProgress = Math.min(lastProgress + 5, 95);
+            lastProgress = simpleProgress;
+            onProgress?.(simpleProgress, `正在调整音频速度到 ${params.speed}x...`);
+        }
+    };
+
+    // 临时添加进度监听器
+    ffmpeg.on('log', progressListener);
+
+    try {
+        const threadArgs = isMultiThread ? ['-threads', '0'] : [];
+
+        let args: string[];
+
+        if (speedFilter) {
+            // 需要应用倍速滤镜
+            args = [
+                '-i', inputFileName,
+                ...threadArgs,
+                '-filter:a', speedFilter,
+                '-c:a', 'libmp3lame', // 重新编码为MP3以确保兼容性
+                '-b:a', '192k', // 使用合理的码率
+                outputFileName
+            ];
+        } else {
+            // 原速度，直接复制
+            args = [
+                '-i', inputFileName,
+                ...threadArgs,
+                '-c:a', 'copy',
+                outputFileName
+            ];
+        }
+
+        console.log('FFmpeg command:', args.join(' '));
+
+        await ffmpeg.exec(args);
+
+        // 读取输出文件
+        const data = await ffmpeg.readFile(outputFileName);
+        const outputBlob = new Blob([data], { type: 'audio/mpeg' });
+
+        // 计算结果信息
+        const originalDuration = audioInfo?.duration || totalDuration || 0;
+        const newDuration = originalDuration / params.speed;
+
+        return {
+            outputFile: outputBlob,
+            originalDuration,
+            newDuration,
+            speedRatio: params.speed
+        };
     } finally {
         // 移除进度监听器
         ffmpeg.off('log', progressListener);

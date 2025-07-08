@@ -245,7 +245,9 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 获取当前功能配置
   const currentFunction = getFunctionById(state.currentFunction);
-  const outputMediaType = state.currentFunction === 'audio-extract' || state.currentFunction === 'audio-convert' ? 'audio' : 'video';
+  const outputMediaType = state.currentFunction === 'audio-extract' ||
+    state.currentFunction === 'audio-convert' ||
+    state.currentFunction === 'audio-speed-change' ? 'audio' : 'video';
 
   return (
     <div className="min-h-screen text-foreground">
