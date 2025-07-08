@@ -13,11 +13,11 @@ interface MenuItem {
 }
 
 export const Apps: MenuItem[] = [
-  {
-    name: '文件上传',
-    url: '/upload',
-    icon: Upload
-  },
+  // {
+  //   name: '文件上传',
+  //   url: '/upload',
+  //   icon: Upload
+  // },
   {
     name: '音频转换',
     url: '/audio-converter',
