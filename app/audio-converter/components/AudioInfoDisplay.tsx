@@ -25,7 +25,7 @@ export const AudioInfoDisplay: React.FC<AudioInfoDisplayProps> = ({
     if (!selectedFile) return null;
 
     // 文件大小预估
-    const sizeEstimate = audioInfo ? calculateFileSize(audioInfo, outputFormat, qualityMode) : null;
+    const sizeEstimate = audioInfo ? calculateFileSize(audioInfo, outputFormat, qualityMode, '') : null;
 
     return (
         <div className="space-y-3">

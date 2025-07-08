@@ -18,7 +18,6 @@ import {
 // Components
 import { FileUploadArea } from './components/FileUploadArea';
 import { ConversionSettings } from './components/ConversionSettings';
-import { AudioInfoDisplay } from './components/AudioInfoDisplay';
 import { MediaMetadataCard } from './components/MediaMetadataCard';
 import { ProgressDisplay } from './components/ProgressDisplay';
 import { OutputPreview } from './components/OutputPreview';
@@ -65,7 +64,7 @@ const AudioConverterView = () => {
         isConverting,
         startConversion,
         resetConversion
-    } = useAudioConversion(ffmpeg, isMultiThread);
+    } = useAudioConversion(ffmpeg, isMultiThread, audioInfo, mediaMetadata);
 
     const {
         outputFormat,
@@ -146,12 +145,10 @@ const AudioConverterView = () => {
                     <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                         音频转换
                     </h1>
-                    <p className="text-muted-foreground text-lg">支持多种音频格式转换</p>
                 </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* 左侧：文件上传区域 */}
-                    <div className="lg:col-span-2">
+                    {/* 左侧：文件上传区域和媒体信息 */}
+                    <div className="lg:col-span-2 space-y-6">
                         <FileUploadArea
                             selectedFile={selectedFile}
                             dragOver={dragOver}
@@ -164,9 +161,19 @@ const AudioConverterView = () => {
                             fileInputRef={fileInputRef}
                         />
 
+                        {/* 媒体元数据显示 */}
+                        <MediaMetadataCard
+                            selectedFile={selectedFile}
+                            mediaMetadata={mediaMetadata || null}
+                            isAnalyzing={isAnalyzing}
+                            analyzeError={analyzeError}
+                            ffmpegLoaded={ffmpegLoaded}
+                            onRetryAnalysis={handleRetryAnalysis}
+                        />
+
                         {/* 错误提示 */}
                         {(conversionState.error || ffmpegError) && (
-                            <Alert className="mt-4 border-destructive bg-destructive/10">
+                            <Alert className="border-destructive bg-destructive/10">
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertDescription className="text-destructive whitespace-pre-line">
                                     {conversionState.error || ffmpegError?.message}
@@ -190,37 +197,6 @@ const AudioConverterView = () => {
 
                     {/* 右侧：控制面板 */}
                     <div className="space-y-6">
-                        {/* 媒体元数据显示 */}
-                        <MediaMetadataCard
-                            selectedFile={selectedFile}
-                            mediaMetadata={mediaMetadata || null}
-                            isAnalyzing={isAnalyzing}
-                            analyzeError={analyzeError}
-                            ffmpegLoaded={ffmpegLoaded}
-                            onRetryAnalysis={handleRetryAnalysis}
-                        />
-
-                        {/* 输出格式和质量设置 */}
-                        <ConversionSettings
-                            outputFormat={outputFormat}
-                            qualityMode={qualityMode}
-                            onOutputFormatChange={setOutputFormat}
-                            onQualityModeChange={setQualityMode}
-                            ffmpegLoaded={ffmpegLoaded}
-                            isMultiThread={isMultiThread}
-                        />
-
-                        {/* 音频信息显示 */}
-                        <AudioInfoDisplay
-                            selectedFile={selectedFile}
-                            audioInfo={audioInfo || null}
-                            outputFormat={outputFormat}
-                            qualityMode={qualityMode}
-                            isAnalyzing={isAnalyzing}
-                            analyzeError={analyzeError}
-                            ffmpegLoaded={ffmpegLoaded}
-                            onRetryAnalysis={handleRetryAnalysis}
-                        />
 
                         {/* 转换按钮 */}
                         <Button
@@ -235,6 +211,22 @@ const AudioConverterView = () => {
                                     : '开始转换'
                             }
                         </Button>
+
+                        {/* 输出格式和质量设置 */}
+                        <ConversionSettings
+                            outputFormat={outputFormat}
+                            qualityMode={qualityMode}
+                            onOutputFormatChange={setOutputFormat}
+                            onQualityModeChange={setQualityMode}
+                            ffmpegLoaded={ffmpegLoaded}
+                            isMultiThread={isMultiThread}
+                            selectedFile={selectedFile}
+                            audioInfo={audioInfo || null}
+                            mediaMetadata={mediaMetadata || null}
+                            isAnalyzing={isAnalyzing}
+                            analyzeError={analyzeError}
+                            onRetryAnalysis={handleRetryAnalysis}
+                        />
 
                         {/* 处理进度 */}
                         <ProgressDisplay

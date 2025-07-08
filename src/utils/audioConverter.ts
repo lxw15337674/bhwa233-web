@@ -12,9 +12,9 @@ export const AUDIO_FORMATS = {
 
 // 音频质量模式配置
 export const QUALITY_MODES = {
-    high: {
-        label: '高质量',
-        description: '320kbps - 文件较大，音质最佳',
+    original: {
+        label: '原质量',
+        description: '保持原始音频质量',
         icon: '🎵',
         params: {
             mp3: ['-b:a', '320k'],
@@ -24,25 +24,13 @@ export const QUALITY_MODES = {
             m4a: ['-b:a', '256k'],
         }
     },
-    standard: {
-        label: '标准质量',
-        description: '192kbps - 平衡音质与大小',
-        icon: '⚖️',
-        params: {
-            mp3: ['-b:a', '192k'],
-            aac: ['-b:a', '192k'],
-            wav: ['-c:a', 'pcm_s16le'],
-            ogg: ['-q:a', '5'],
-            m4a: ['-b:a', '192k'],
-        }
-    },
     compressed: {
         label: '压缩模式',
-        description: '128kbps - 文件较小，音质可接受',
+        description: '减小文件大小，适合分享传输',
         icon: '📦',
         params: {
             mp3: ['-b:a', '128k'],
-            aac: ['-b:a', '128k'],
+            aac: ['-b:a', '96k'],
             wav: ['-c:a', 'pcm_s16le'],
             ogg: ['-q:a', '3'],
             m4a: ['-b:a', '128k'],
@@ -124,6 +112,174 @@ export interface SizeEstimate {
 export type AudioFormat = keyof typeof AUDIO_FORMATS;
 export type QualityMode = keyof typeof QUALITY_MODES;
 
+// 音频流兼容性检查
+export const AUDIO_COPY_COMPATIBILITY = {
+    'AAC': {
+        'm4a': true,  // AAC可以直接放入M4A容器
+        'aac': true,  // 提取纯AAC流
+        'mp3': false, // 需要转码
+        'wav': false, // 需要转PCM
+        'ogg': false  // 需要转码
+    },
+    'MP3': {
+        'mp3': true,  // 直接复制
+        'm4a': false, // MP3不能放入M4A
+        'aac': false,
+        'wav': false,
+        'ogg': false
+    },
+    'OPUS': {
+        'ogg': true,  // Opus原生支持OGG
+        'mp3': false,
+        'aac': false,
+        'wav': false,
+        'm4a': false
+    },
+    'VORBIS': {
+        'ogg': true,  // Vorbis原生支持OGG
+        'mp3': false,
+        'aac': false,
+        'wav': false,
+        'm4a': false
+    },
+    'PCM_S16LE': {
+        'wav': true,  // PCM原生支持WAV
+        'mp3': false,
+        'aac': false,
+        'ogg': false,
+        'm4a': false
+    }
+} as const;
+
+// 检查音频流是否可以直接复制
+export const canCopyAudioStream = (originalCodec: string, targetFormat: AudioFormat): boolean => {
+    const codecUpper = originalCodec.toUpperCase();
+    const compatibility = AUDIO_COPY_COMPATIBILITY[codecUpper as keyof typeof AUDIO_COPY_COMPATIBILITY];
+    return compatibility?.[targetFormat] || false;
+};
+
+// 生成智能音频编码参数
+export const generateSmartAudioParams = (
+    audioInfo: AudioInfo | null,
+    originalCodec: string,
+    targetFormat: AudioFormat,
+    qualityMode: QualityMode
+): { params: string[], description: string } => {
+    // 原质量模式：严格保持原始质量
+    if (qualityMode === 'original') {
+        // 首先检查是否可以直接复制音频流
+        if (audioInfo && canCopyAudioStream(originalCodec, targetFormat)) {
+            return {
+                params: ['-c:a', 'copy'],
+                description: '保持原始质量（直接复制音频流）'
+            };
+        }
+
+        // 无法复制音频流时，严格保持原始码率进行重新编码
+        if (audioInfo?.bitrate && targetFormat !== 'wav') {
+            const originalBitrate = audioInfo.bitrate;
+
+            if (targetFormat === 'ogg') {
+                // OGG使用质量等级，根据原始码率选择对应的质量等级
+                const quality = originalBitrate >= 256 ? 8 :
+                    originalBitrate >= 192 ? 6 :
+                        originalBitrate >= 128 ? 4 :
+                            originalBitrate >= 96 ? 3 :
+                                originalBitrate >= 64 ? 2 : 1;
+
+                return {
+                    params: ['-q:a', quality.toString()],
+                    description: `保持原始 ${originalBitrate}kbps（OGG质量等级${quality}）`
+                };
+            } else {
+                // 其他格式直接使用原始码率
+                return {
+                    params: ['-b:a', `${originalBitrate}k`],
+                    description: `保持原始 ${originalBitrate}kbps`
+                };
+            }
+        }
+    }
+
+    // 压缩模式：使用智能优化
+    if (qualityMode === 'compressed' && audioInfo?.bitrate) {
+        const originalBitrate = audioInfo.bitrate;
+
+        // 为不同格式设置合理的质量门槛
+        const qualityThresholds = {
+            mp3: { min: 128, max: 320 },
+            aac: { min: 96, max: 256 },
+            m4a: { min: 96, max: 256 },
+            ogg: { min: 96, max: 256 },
+            wav: { min: 0, max: 0 } // WAV是无损格式
+        };
+
+        const threshold = qualityThresholds[targetFormat];
+
+        if (targetFormat !== 'wav' && originalBitrate > 0) {
+            // 智能码率选择：避免无意义的升频
+            let targetBitrate: number;
+
+            if (originalBitrate >= threshold.min) {
+                // 原始码率足够高，可以适度压缩
+                targetBitrate = Math.min(originalBitrate, threshold.max);
+                // 如果原始码率很高，可以压缩到合理范围
+                if (originalBitrate > 192) {
+                    targetBitrate = 192; // 压缩到192kbps
+                }
+            } else {
+                // 原始码率较低，保持原始码率（避免虚假提升）
+                targetBitrate = originalBitrate;
+            }
+
+            if (targetFormat === 'ogg') {
+                // OGG使用质量等级
+                const quality = targetBitrate >= 256 ? 8 :
+                    targetBitrate >= 192 ? 6 :
+                        targetBitrate >= 128 ? 4 :
+                            targetBitrate >= 96 ? 3 :
+                                targetBitrate >= 64 ? 2 : 1;
+
+                const action = originalBitrate > targetBitrate ? '压缩为' : '保持为';
+
+                return {
+                    params: ['-q:a', quality.toString()],
+                    description: `${action}质量等级${quality}（约${targetBitrate}kbps）`
+                };
+            } else {
+                const action = originalBitrate > targetBitrate ? '压缩为' : '保持为';
+
+                return {
+                    params: ['-b:a', `${targetBitrate}k`],
+                    description: `${action}${targetBitrate}kbps`
+                };
+            }
+        }
+    }
+
+    // 使用默认参数（fallback）
+    const qualityConfig = QUALITY_MODES[qualityMode];
+    const baseParams = qualityConfig.params[targetFormat];
+    let description = `${qualityConfig.label} - ${qualityConfig.description}`;
+
+    // 为压缩模式添加具体信息
+    if (qualityMode === 'compressed') {
+        const compressedBitrates = {
+            mp3: '128kbps',
+            aac: '96kbps',
+            m4a: '128kbps',
+            ogg: '约128kbps',
+            wav: '16位PCM'
+        };
+        description = `压缩模式 - ${compressedBitrates[targetFormat]}`;
+    }
+
+    return {
+        params: [...baseParams],
+        description
+    };
+};
+
 // 工具函数
 export const formatFileSize = (sizeMB: number) => {
     if (sizeMB >= 1) {
@@ -186,12 +342,12 @@ export const formatResolution = (width: number, height: number): string => {
 
     // 常见分辨率标识
     const commonResolutions: { [key: string]: string } = {
-        '1920x1080': '1080p (Full HD)',
-        '1280x720': '720p (HD)',
-        '3840x2160': '4K (UHD)',
-        '2560x1440': '1440p (2K)',
-        '854x480': '480p',
-        '640x360': '360p'
+        '1920x1080': '1080p (1920x1080)',
+        '1280x720': '720p (1280x720)',
+        '3840x2160': '4K (3840x2160)',
+        '2560x1440': '1440p (2560x1440)',
+        '854x480': '480p (854x480)',
+        '640x360': '360p (640x360)'
     };
 
     const resolution = `${width}x${height}`;
@@ -587,10 +743,9 @@ export const analyzeMediaMetadata = async (file: File, ffmpeg: FFmpeg): Promise<
 export const calculateFileSize = (
     audioInfo: AudioInfo,
     format: AudioFormat,
-    quality: QualityMode
+    quality: QualityMode,
+    originalCodec?: string
 ): SizeEstimate => {
-    const qualityConfig = QUALITY_MODES[quality];
-
     // WAV格式特殊处理
     if (format === 'wav') {
         const bitDepth = 16;
@@ -603,18 +758,33 @@ export const calculateFileSize = (
         };
     }
 
-    // 获取目标码率
-    let targetBitrate = 192;
-    const params = qualityConfig.params[format];
+    // 使用智能参数生成来获取目标码率
+    const smartParams = generateSmartAudioParams(
+        audioInfo,
+        originalCodec || '',
+        format,
+        quality
+    );
 
-    for (let i = 0; i < params.length; i++) {
-        if (params[i] === '-b:a' && i + 1 < params.length) {
-            const bitrateStr = params[i + 1];
-            const bitrateMatch = bitrateStr.match(/(\d+)k/);
-            if (bitrateMatch) {
-                targetBitrate = parseInt(bitrateMatch[1]);
+    // 获取目标码率
+    let targetBitrate = 192; // 默认值
+    let isAudioCopy = false;
+
+    // 检查是否使用音频流复制
+    if (smartParams.params.includes('-c:a') && smartParams.params.includes('copy')) {
+        isAudioCopy = true;
+        targetBitrate = audioInfo.bitrate;
+    } else {
+        // 从参数中提取码率
+        for (let i = 0; i < smartParams.params.length; i++) {
+            if (smartParams.params[i] === '-b:a' && i + 1 < smartParams.params.length) {
+                const bitrateStr = smartParams.params[i + 1];
+                const bitrateMatch = bitrateStr.match(/(\d+)k/);
+                if (bitrateMatch) {
+                    targetBitrate = parseInt(bitrateMatch[1]);
+                }
+                break;
             }
-            break;
         }
     }
 
@@ -623,14 +793,24 @@ export const calculateFileSize = (
     const estimatedSizeMB = baseSizeMB * containerOverhead;
 
     let compressionRatio = 0;
-    if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
-        compressionRatio = ((audioInfo.bitrate - targetBitrate) / audioInfo.bitrate) * 100;
+    let note = '';
+
+    if (isAudioCopy) {
+        // 音频流复制情况
+        note = `${smartParams.description} - 保持原始质量`;
+        compressionRatio = 0;
+    } else {
+    // 重新编码情况
+        if (audioInfo.bitrate > 0 && audioInfo.bitrate > targetBitrate) {
+            compressionRatio = ((audioInfo.bitrate - targetBitrate) / audioInfo.bitrate) * 100;
+        }
+        note = `${smartParams.description} - 目标码率 ${targetBitrate}kbps`;
     }
 
     return {
         estimatedSizeMB: Math.max(estimatedSizeMB, 0.1),
         compressionRatio: Math.max(compressionRatio, 0),
-        note: `基于 ${audioInfo.duration.toFixed(1)}s 时长和 ${targetBitrate}kbps 目标码率计算`
+        note: note
     };
 };
 
@@ -641,6 +821,8 @@ export const convertAudio = async (
     outputFormat: AudioFormat,
     qualityMode: QualityMode,
     isMultiThread: boolean,
+    audioInfo?: AudioInfo | null,
+    originalCodec?: string,
     onProgress?: (progress: number, step: string, remainingTime?: string) => void
 ): Promise<Blob> => {
     const inputExtension = getFileExtension(file.name);
@@ -653,6 +835,17 @@ export const convertAudio = async (
     const startTime = Date.now();
     let lastProgressTime = startTime;
     let lastProgress = 0;
+
+    // 生成智能编码参数
+    const smartParams = generateSmartAudioParams(
+        audioInfo || null,
+        originalCodec || '',
+        outputFormat,
+        qualityMode
+    );
+
+    console.log(`Audio conversion strategy: ${smartParams.description}`);
+    console.log(`FFmpeg params: ${smartParams.params.join(' ')}`);
 
     const progressListener = ({ message }: { message: string }) => {
         // 解析总时长
@@ -691,7 +884,14 @@ export const convertAudio = async (
                 lastProgress = progress;
                 lastProgressTime = now;
 
-                const stepText = progress >= 95 ? '即将完成...' : `正在转换音频... ${progress}%`;
+                // 根据转换策略显示不同的进度文本
+                const isDirectCopy = smartParams.params.includes('copy');
+                const stepText = progress >= 95
+                    ? '即将完成...'
+                    : isDirectCopy
+                        ? `正在提取音频... ${progress}%`
+                        : `正在转换音频... ${progress}%`;
+
                 onProgress?.(progress, stepText, remainingTimeStr);
             }
         } else if (message.includes('time=') && totalDuration === 0) {
@@ -708,14 +908,15 @@ export const convertAudio = async (
 
     try {
         const threadArgs = isMultiThread ? ['-threads', '0'] : [];
-        const qualityArgs = QUALITY_MODES[qualityMode].params[outputFormat];
 
         const args = [
             '-i', inputFileName,
             ...threadArgs,
-            ...qualityArgs,
+            ...smartParams.params,
             outputFileName
         ];
+
+        console.log('FFmpeg command:', args.join(' '));
 
         await ffmpeg.exec(args);
 

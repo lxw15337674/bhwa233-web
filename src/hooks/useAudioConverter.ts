@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useRequest, useLocalStorageState, useSetState, useMemoizedFn, useMount } from 'ahooks';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import {
@@ -230,7 +231,12 @@ export const useMediaMetadataAnalysis = (ffmpeg: FFmpeg | undefined) => {
 };
 
 // 音频转换 Hook
-export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: boolean) => {
+export const useAudioConversion = (
+    ffmpeg: FFmpeg | undefined,
+    isMultiThread: boolean,
+    audioInfo?: AudioInfo | null,
+    mediaMetadata?: MediaMetadata | null
+) => {
     const [conversionState, setConversionState] = useSetState<ConversionState>({
         isConverting: false,
         progress: 0,
@@ -265,6 +271,8 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
                 outputFormat,
                 qualityMode,
                 isMultiThread,
+                audioInfo,
+                mediaMetadata?.audio.codec,
                 (progress, step, remainingTime) => {
                     setConversionState({
                         progress,
@@ -300,6 +308,7 @@ export const useAudioConversion = (ffmpeg: FFmpeg | undefined, isMultiThread: bo
             refreshDeps: [ffmpeg, isMultiThread],
             onError: (error) => {
                 console.error('转换失败:', error);
+
                 setConversionState({
                     isConverting: false,
                     progress: 0,
@@ -398,7 +407,7 @@ export const useAudioConverterSettings = () => {
 
     const [qualityMode, setQualityMode] = useLocalStorageState<QualityMode>(
         'audioConverter.qualityMode',
-        { defaultValue: 'standard' }
+        { defaultValue: 'original' }
     );
 
     const [isPlaying, setIsPlaying] = useSetState({

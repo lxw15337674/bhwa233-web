@@ -20,17 +20,23 @@ export const ProgressDisplay: React.FC<ProgressDisplayProps> = ({
         <Card className="bg-card border-border">
             <CardContent className="p-4">
                 <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                        <span className="text-foreground">处理进度</span>
-                        <span className="text-primary">{conversionState.progress}%</span>
+                    <div className="flex justify-between items-center">
+                        <div className="flex justify-between text-sm w-full">
+                            <span className="text-foreground">处理进度</span>
+                            <span className="text-primary">{conversionState.progress}%</span>
+                        </div>
                     </div>
+
                     <Progress
                         value={conversionState.progress}
                         className="h-2"
                     />
+
                     {conversionState.currentStep && (
                         <div className="flex justify-between items-center">
-                            <p className="text-xs text-muted-foreground">{conversionState.currentStep}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {conversionState.currentStep}
+                            </p>
                             {conversionState.remainingTime && (
                                 <p className="text-xs text-blue-500 font-medium">{conversionState.remainingTime}</p>
                             )}
