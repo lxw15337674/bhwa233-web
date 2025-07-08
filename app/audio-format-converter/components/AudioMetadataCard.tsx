@@ -36,7 +36,7 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
     };
 
     const formatBitrate = (bitrate: number) => {
-        return `${Math.round(bitrate / 1000)} kbps`;
+        return `${bitrate} kbps`;
     };
 
     const formatSampleRate = (sampleRate: number) => {

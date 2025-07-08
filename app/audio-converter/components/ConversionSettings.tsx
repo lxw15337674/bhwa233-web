@@ -164,24 +164,7 @@ export const ConversionSettings: React.FC<ConversionSettingsProps> = ({
                                     </div>
 
 
-                                    {/* 音频信息显示 */}
-                                    <div className="mt-2 pt-2 border-t border-border/50">
-                                        <div className="text-xs text-muted-foreground space-y-1">
-                                            <div className="flex justify-between">
-                                                <span>时长:</span>
-                                                <span>
-                                                    {Math.floor(audioInfo!.duration / 60)}:
-                                                    {(audioInfo!.duration % 60).toFixed(1).padStart(4, '0')}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>原始码率:</span>
-                                                <span>
-                                                    {audioInfo!.bitrate > 0 ? `${audioInfo!.bitrate} kbps` : '未知'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                             )}
 
