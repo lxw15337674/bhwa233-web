@@ -3,7 +3,8 @@ import {
   Gamepad2,
   MessageCircle,
   Upload,
-  Music
+  Music,
+  Video
 } from 'lucide-react';
 
 interface MenuItem {
@@ -19,8 +20,13 @@ export const Apps: MenuItem[] = [
   //   icon: Upload
   // },
   {
+    name: '媒体处理器',
+    url: '/media-processor',
+    icon: Video
+  },
+  {
     name: '音频转换',
-    url: '/audio-converter',
+    url: '/audio-format-converter',
     icon: Music
   },
   // {

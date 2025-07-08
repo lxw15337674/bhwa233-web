@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import AudioFormatConverterView from './AudioFormatConverterView';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
     title: '音频格式转换 - 音频文件格式互转工具',
@@ -13,5 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default function AudioFormatConverterPage() {
-    return <AudioFormatConverterView />;
+    // 重定向到新的统一媒体处理器，保持音频转换功能
+    redirect('/media-processor?category=audio&function=audio-convert');
 }
