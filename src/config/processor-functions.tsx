@@ -1,13 +1,23 @@
-import { ConversionSettings } from '@/components/media-processor/control-panels/ConversionSettings';
-import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
 import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
+import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
+import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 import { getMediaType } from '@/utils/audioConverter';
 
-const audioFileValidator = (file: File) => getMediaType(file.name) === 'audio';
-const videoFileValidator = (file: File) => getMediaType(file.name) === 'video';
+// 文件验证器
+const audioFileValidator = (file: File): boolean => {
+    const supportedFormats = ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    return supportedFormats.includes(extension || '');
+};
+
+const videoFileValidator = (file: File): boolean => {
+    const supportedFormats = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    return supportedFormats.includes(extension || '');
+};
 
 export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string }> = {
     audio: { label: '音频', icon: '🎵' },
@@ -35,6 +45,16 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         component: AudioSpeedControlPanel,
         fileValidator: audioFileValidator,
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'aiff'],
+    },
+    {
+        id: 'speech-to-text',
+        label: '语音转文字',
+        category: 'audio',
+        description: '将音频文件转换为文字，支持自动语言检测。',
+        icon: '🎤',
+        component: SpeechToTextControlPanel,
+        fileValidator: audioFileValidator,
+        supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
     },
 
     // 视频功能
@@ -64,10 +84,13 @@ export const getFunctionsByCategory = (category: ProcessorCategory): ProcessorFu
     return PROCESSOR_FUNCTIONS.filter(func => func.category === category);
 };
 
+
+
 export const getFunctionById = (id: string): ProcessorFunction | undefined => {
     return PROCESSOR_FUNCTIONS.find(func => func.id === id);
 };
 
 export const getDefaultFunction = (category: ProcessorCategory): string => {
-    return getFunctionsByCategory(category)[0]?.id || '';
-}
+    const functions = getFunctionsByCategory(category);
+    return functions.length > 0 ? functions[0].id : '';
+};

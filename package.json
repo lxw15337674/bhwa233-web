@@ -9,7 +9,7 @@
     "typescript"
   ],
   "scripts": {
-    "dev": "cross-env next dev  --turbo",
+    "dev": "cross-env next dev ",
     "build": "next build",
     "start": "pnpm dev",
     "type-check": " tsc --noEmit",

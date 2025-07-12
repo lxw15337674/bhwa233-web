@@ -272,29 +272,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
               ffmpegLoaded={ffmpegLoaded}
               onRetryAnalysis={handleRetryAnalysis}
             />
-
-            {/* 错误提示 */}
-            {(state.processingState.error || ffmpegError) && (
-              <Alert className="border-destructive bg-destructive/10">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-destructive whitespace-pre-line">
-                  {state.processingState.error || ffmpegError?.message}
-                </AlertDescription>
-                {!ffmpegLoaded && (
-                  <div className="mt-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={initFFmpeg}
-                      disabled={ffmpegLoading}
-                      className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    >
-                      {ffmpegLoading ? '加载中...' : '重新加载 FFmpeg'}
-                    </Button>
-                  </div>
-                )}
-              </Alert>
-            )}
           </div>
 
           {/* 右侧：控制面板 */}
