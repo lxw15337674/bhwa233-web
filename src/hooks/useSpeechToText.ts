@@ -28,17 +28,15 @@ export const useSpeechToText = () => {
                 error: null
             });
 
-            // 模拟进度更新
-            const progressInterval = setInterval(() => {
-                setState(prev => ({
-                    progress: Math.min(prev.progress + 15, 90),
-                    currentStep: '正在识别音频内容...'
-                }));
-            }, 800);
-
             try {
                 const formData = new FormData();
                 formData.append('file', file);
+
+                // 上传文件阶段 - 50%
+                setState({
+                    progress: 50,
+                    currentStep: '正在识别音频内容...'
+                });
 
                 const response = await fetch('/api/siliconflow/transcribe', {
                     method: 'POST',
@@ -52,8 +50,7 @@ export const useSpeechToText = () => {
 
                 const result = await response.json();
 
-                clearInterval(progressInterval);
-
+                // 识别完成阶段 - 100%
                 setState({
                     isProcessing: false,
                     progress: 100,
@@ -64,7 +61,6 @@ export const useSpeechToText = () => {
 
                 return result;
             } catch (error) {
-                clearInterval(progressInterval);
                 throw error;
             }
         },
