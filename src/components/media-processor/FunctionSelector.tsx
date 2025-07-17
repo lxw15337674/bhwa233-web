@@ -13,16 +13,14 @@ interface FunctionSelectorProps {
 
 export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) => {
   const router = useRouter();
-  // 通过 usePathname 获取 category 和 function
   const pathname = usePathname();
-  // 兼容 /category/function 或 /category/function/xxx
-  const [, category = 'text', selectedFunction = ''] = pathname.split('/');
+  const [, , category = 'text', selectedFunction = ''] = pathname.split('/');
   const availableFunctions = getFunctionsByCategory(category as ProcessorCategory);
   const currentFunction = getFunctionById(selectedFunction);
 
   const handleFunctionChange = (functionId: string) => {
     // 跳转到新功能的 url
-    router.push(`/${category}/${functionId}`);
+    router.push(`/processor/${category}/${functionId}`);
   };
 
   return (

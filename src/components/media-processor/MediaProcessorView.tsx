@@ -14,16 +14,16 @@ import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
 import { UnifiedProgressDisplay } from './UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from './UnifiedOutputPreview';
-import { TextInputArea } from '../../../app/text/TextInputArea';
+import { TextInputArea } from '../../../app/processor/text/TextInputArea';
 
 // 导入类型和配置
 import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';
 import { getFunctionById, getDefaultFunction } from '@/config/processor-functions';
 import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 
-// 导入hooks（需要适配现有的hooks）
-import { useFFmpegManager, useFileSelection } from '@/hooks/useAudioConverter';
+import { useFileSelection } from '@/hooks/useAudioConverter';
 import { useUnifiedMediaAnalysis } from '@/hooks/useUnifiedMediaAnalysis';
+import { useFFmpegManager } from '../../hooks/useFFmpeg';
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;

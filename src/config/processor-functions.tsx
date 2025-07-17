@@ -1,9 +1,6 @@
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
-import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
-import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
-import { TextToSpeechControlPanel } from '@/public/app/text/tts/page';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 import { getMediaType } from '@/utils/audioConverter';
 
@@ -27,10 +24,10 @@ const videoFileValidator = (file: File): boolean => {
     return supportedFormats.includes(extension || '');
 };
 
-export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string }> = {
-    audio: { label: '音频', icon: '🎵' },
-    video: { label: '视频', icon: '🎥' },
-    text: { label: '文本', icon: '📝' },
+export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string; default: string }> = {
+    audio: { label: '音频', icon: '🎵', default: 'audio-convert' },
+    video: { label: '视频', icon: '🎥', default: 'video-compress' },
+    text: { label: '文本', icon: '📝', default: 'tts' },
 };
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
@@ -73,7 +70,6 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         category: 'video',
         description: '压缩视频文件，减小文件大小并调整分辨率。',
         icon: '🗜️',
-        component: VideoCompressControlPanel,
         fileValidator: videoFileValidator,
         supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
     },
@@ -83,11 +79,9 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         category: 'video',
         description: '从视频文件中提取音频轨道。',
         icon: '🎤',
-        component: AudioExtractControlPanel,
         fileValidator: videoFileValidator,
         supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
     },
-
     // 文本功能
     {
         id: 'tts',
@@ -95,7 +89,6 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         category: 'text',
         description: '将文本转换为语音音频文件，支持多种语音模型和参数调整。',
         icon: '🔊',
-        component: TextToSpeechControlPanel,
         fileValidator: textFileValidator,
         supportedFormats: ['txt', 'md', 'rtf', 'doc', 'docx', 'pdf'],
     },

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { downloadFile } from '@/utils/download';
 import axios from 'axios';
-import { useTextProcessorStore } from '../../../src/stores/media-processor/text-store';
+import { useTextProcessorStore } from '../../../../src/stores/media-processor/text-store';
 
 const TextToSpeechControlPanel = () => {
   const { inputText = '' } = useTextProcessorStore();

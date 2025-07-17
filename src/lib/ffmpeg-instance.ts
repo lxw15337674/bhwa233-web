@@ -26,11 +26,6 @@ class FFmpegManager {
         try {
             console.log('Initializing FFmpeg singleton...');
             const ffmpeg = new FFmpeg();
-            
-            // 可以在生产环境中注释掉，以保持控制台清洁
-            ffmpeg.on('log', ({ message }) => {
-                // console.log('[FFmpeg]', message);
-            });
 
             const checkMultiThreadSupport = () => typeof SharedArrayBuffer !== 'undefined';
             this.isMultiThread = checkMultiThreadSupport();
