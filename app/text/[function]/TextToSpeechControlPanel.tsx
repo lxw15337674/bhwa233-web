@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useTextProcessorStore } from '../../../src/stores/media-processor/text-store';
 
 export const TextToSpeechControlPanel = () => {
-  const { inputText = '', resetProcessing, setInputText, processingState } = useTextProcessorStore();
+  const { inputText = '' } = useTextProcessorStore();
 
   const [speed, setSpeed] = useState(1.0);
   const [isProcessing, setIsProcessing] = useState(false);

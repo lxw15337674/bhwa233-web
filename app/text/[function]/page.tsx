@@ -12,7 +12,7 @@ import { TextToSpeechControlPanel } from './TextToSpeechControlPanel';
 
 
 const TextProcessorView: React.FC = () => {
-  const { inputText, resetProcessing, setInputText, processingState } = useTextProcessorStore();
+  const { inputText, setInputText } = useTextProcessorStore();
 
   // 文本功能列表
 
@@ -29,7 +29,6 @@ const TextProcessorView: React.FC = () => {
     if (!validateTextFile(file)) {
       return;
     }
-    resetProcessing();
   };
 
   // 处理文本输入
@@ -65,7 +64,6 @@ const TextProcessorView: React.FC = () => {
               text={inputText}
               onTextChange={handleTextInput}
               onFileUpload={handleFileSelect}
-              disabled={processingState.isProcessing}
             />
           </div>
 
@@ -73,7 +71,6 @@ const TextProcessorView: React.FC = () => {
           <div className="space-y-6">
             {/* 功能选择器 */}
             <FunctionSelector
-              disabled={processingState.isProcessing}
             />
             <TextToSpeechControlPanel />
           </div>
