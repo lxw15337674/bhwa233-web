@@ -14,7 +14,7 @@ import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
 import { UnifiedProgressDisplay } from './UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from './UnifiedOutputPreview';
-import { TextInputArea } from '../../../app/text/[function]/TextInputArea';
+import { TextInputArea } from '../../../app/text/TextInputArea';
 
 // 导入类型和配置
 import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';

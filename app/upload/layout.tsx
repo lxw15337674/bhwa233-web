@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { GetServerSideProps } from 'next';
 
 type Props = {
   params: { locale?: string };

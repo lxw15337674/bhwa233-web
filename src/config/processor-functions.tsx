@@ -3,7 +3,7 @@ import { AudioExtractControlPanel } from '@/components/media-processor/control-p
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
-import { TextToSpeechControlPanel } from '@/public/app/text/[function]/TextToSpeechControlPanel';
+import { TextToSpeechControlPanel } from '@/public/app/text/tts/page';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 import { getMediaType } from '@/utils/audioConverter';
 
@@ -90,7 +90,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
 
     // 文本功能
     {
-        id: 'text-to-speech',
+        id: 'tts',
         label: '文本转语音',
         category: 'text',
         description: '将文本转换为语音音频文件，支持多种语音模型和参数调整。',

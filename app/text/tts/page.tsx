@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { downloadFile } from '@/utils/download';
 import axios from 'axios';
 import { useTextProcessorStore } from '../../../src/stores/media-processor/text-store';
 
-export const TextToSpeechControlPanel = () => {
+const TextToSpeechControlPanel = () => {
   const { inputText = '' } = useTextProcessorStore();
 
   const [speed, setSpeed] = useState(1.0);
@@ -138,3 +139,5 @@ export const TextToSpeechControlPanel = () => {
     </div>
   );
 };
+
+export default TextToSpeechControlPanel;

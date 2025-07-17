@@ -1,21 +1,23 @@
 'use client';
 
 
-import { useParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getFunctionById, getFunctionsByCategory } from '../../config/processor-functions';
 import { ProcessorCategory } from '../../types/media-processor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
+
 interface FunctionSelectorProps {
   disabled?: boolean;
 }
+
 export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) => {
-  const params = useParams();
   const router = useRouter();
-  // 假设路由格式为 /[category]/[function]，如 /text/xxx
-  const category: ProcessorCategory = params.category || 'text';
-  const selectedFunction = params.function as string;
-  const availableFunctions = getFunctionsByCategory(category);
+  // 通过 usePathname 获取 category 和 function
+  const pathname = usePathname();
+  // 兼容 /category/function 或 /category/function/xxx
+  const [, category = 'text', selectedFunction = ''] = pathname.split('/');
+  const availableFunctions = getFunctionsByCategory(category as ProcessorCategory);
   const currentFunction = getFunctionById(selectedFunction);
 
   const handleFunctionChange = (functionId: string) => {
@@ -67,4 +69,4 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
       </Select>
     </div>
   );
-}; 
+};
