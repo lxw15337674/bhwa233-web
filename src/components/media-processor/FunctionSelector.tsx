@@ -1,25 +1,27 @@
 'use client';
 
-import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ProcessorCategory, ProcessorFunction } from '@/types/media-processor';
-import { getFunctionsByCategory, getFunctionById } from '@/config/processor-functions';
+
+import { useParams, useRouter } from 'next/navigation';
+import { getFunctionById, getFunctionsByCategory } from '../../config/processor-functions';
+import { ProcessorCategory } from '../../types/media-processor';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface FunctionSelectorProps {
-  category: ProcessorCategory;
-  selectedFunction: string;
-  onFunctionChange: (functionId: string) => void;
   disabled?: boolean;
 }
-
-export const FunctionSelector: React.FC<FunctionSelectorProps> = ({
-  category,
-  selectedFunction,
-  onFunctionChange,
-  disabled = false
-}) => {
+export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) => {
+  const params = useParams();
+  const router = useRouter();
+  // 假设路由格式为 /[category]/[function]，如 /text/xxx
+  const category: ProcessorCategory = params.category || 'text';
+  const selectedFunction = params.function as string;
   const availableFunctions = getFunctionsByCategory(category);
   const currentFunction = getFunctionById(selectedFunction);
+
+  const handleFunctionChange = (functionId: string) => {
+    // 跳转到新功能的 url
+    router.push(`/${category}/${functionId}`);
+  };
 
   return (
     <div className="space-y-2">
@@ -27,9 +29,9 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({
         功能选择
       </label>
       <Select
-        value={selectedFunction}
-        onValueChange={onFunctionChange}
         disabled={disabled}
+        value={selectedFunction}
+        onValueChange={handleFunctionChange}
       >
         <SelectTrigger className="bg-background border-border">
           <SelectValue>

@@ -1,9 +1,10 @@
-import React, { useRef, useState } from 'react';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
+import React, { useRef, useState, useMemo } from 'react';
+import { Upload, FileText, AlertCircle, Clock, Languages, Hash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 
 interface TextInputAreaProps {
   text: string;
@@ -97,7 +98,15 @@ export const TextInputArea: React.FC<TextInputAreaProps> = ({
   };
 
   const charCount = text.length;
-  const charPercentage = (charCount / maxLength) * 100;
+
+  const stats = useMemo(() => {
+    if (!text.trim()) return { words: 0, sentences: 0, paragraphs: 0 };
+
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    const paragraphs = text.split('\n').filter(p => p.trim().length > 0).length;
+
+    return { words, paragraphs };
+  }, [text]);
 
   return (
     <div className="space-y-4">
@@ -135,19 +144,19 @@ export const TextInputArea: React.FC<TextInputAreaProps> = ({
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
             dragOver 
-              ? 'border-blue-400 bg-blue-50' 
-              : 'border-gray-300 hover:border-gray-400'
+            ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/20'
+            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onDrop={handleDrop}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onClick={() => !disabled && fileInputRef.current?.click()}
         >
-          <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-600 mb-1">
+          <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
             拖拽文本文件到此处，或点击选择文件
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
             支持格式: {supportedFormats.join(', ')}
           </p>
         </div>
@@ -186,29 +195,24 @@ export const TextInputArea: React.FC<TextInputAreaProps> = ({
 
       {/* 文本统计信息 */}
       {text && (
-        <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>字数:</span>
-            <span>{text.trim() ? text.trim().split(/\s+/).length : 0}</span>
+        <Card className="p-4  shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Hash className="w-4 h-4 text-blue-500" />
+              <div>
+                <p className="text-slate-600 dark:text-slate-400">字数</p>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">{charCount.toLocaleString()}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Languages className="w-4 h-4 text-purple-500" />
+              <div>
+                <p className="text-slate-600 dark:text-slate-400">段落</p>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">{stats.paragraphs}</p>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span>字符数:</span>
-            <span>{charCount}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>行数:</span>
-            <span>{text.split('\n').length}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div 
-              className={`h-1.5 rounded-full transition-colors ${
-                charPercentage > 90 ? 'bg-red-500' : 
-                charPercentage > 75 ? 'bg-yellow-500' : 'bg-green-500'
-              }`}
-              style={{ width: `${Math.min(charPercentage, 100)}%` }}
-            />
-          </div>
-        </div>
+        </Card>
       )}
     </div>
   );

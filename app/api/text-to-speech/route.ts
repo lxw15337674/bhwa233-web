@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const siliconFlowRequest = {
       model: 'FunAudioLLM/CosyVoice2-0.5B',
       input: text,
-      voice: voiceModel || 'FunAudioLLM/CosyVoice2-0.5B: alex',
+      voice: voiceModel || 'FunAudioLLM/CosyVoice2-0.5B:alex',
       response_format: "mp3",
       speed: speed || 1.0,
     };

@@ -8,12 +8,10 @@ import { ProcessingState } from '@/types/media-processor';
 
 interface UnifiedProgressDisplayProps {
     processingState: ProcessingState;
-    messageRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
     processingState,
-    messageRef
 }) => {
     const { isProcessing, progress, currentStep, error, remainingTime } = processingState;
 
@@ -37,7 +35,6 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
             </CardHeader>
 
             <CardContent className="space-y-4">
-                {/* 进度条 */}
                 {!error && (
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
@@ -59,13 +56,6 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                         )}
                     </div>
                 )}
-
-                {/* 状态消息容器 */}
-                <div
-                    ref={messageRef}
-                    className="max-h-32 overflow-y-auto text-xs text-muted-foreground font-mono bg-muted/20 p-3 rounded border"
-                    style={{ scrollBehavior: 'smooth' }}
-                />
             </CardContent>
         </Card>
     );

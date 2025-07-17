@@ -3,7 +3,7 @@ import { AudioExtractControlPanel } from '@/components/media-processor/control-p
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
-import { TextToSpeechControlPanel } from '@/components/media-processor/control-panels/TextToSpeechControlPanel';
+import { TextToSpeechControlPanel } from '@/public/app/text/[function]/TextToSpeechControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 import { getMediaType } from '@/utils/audioConverter';
 
