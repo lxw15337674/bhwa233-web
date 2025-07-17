@@ -2,7 +2,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { AudioInfo, MediaMetadata, ConversionState } from '@/utils/audioConverter';
 
 // 媒体处理分类
-export type ProcessorCategory = 'video' | 'audio';
+export type ProcessorCategory = 'video' | 'audio' | 'text';
 
 // 处理状态接口
 export interface ProcessingState {
@@ -28,6 +28,7 @@ export interface ControlPanelProps {
   onRetryAnalysis: () => void;
   onStateChange: (state: Partial<ProcessingState>) => void;
   onOutputReady: (blob: Blob, filename: string) => void;
+  textInput?: string;
 }
 
 // 功能定义接口

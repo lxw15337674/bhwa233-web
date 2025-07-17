@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,6 +14,7 @@ import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
 import { UnifiedProgressDisplay } from './UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from './UnifiedOutputPreview';
+import { TextInputArea } from './TextInputArea';
 
 // 导入类型和配置
 import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';
@@ -95,6 +96,13 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
+  
+  // 文本转语音的文本状态
+  const [inputText, setInputText] = useState('');
+  const [textFile, setTextFile] = useState<File | null>(null);
+
+  // 判断是否为文本转语音功能
+  const isTextToSpeech = state.currentFunction === 'text-to-speech';
 
   // 分类切换处理
   const handleCategoryChange = useMemoizedFn((category: ProcessorCategory) => {
@@ -178,6 +186,8 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 重置所有状态
   const reset = useMemoizedFn(() => {
     clearFile();
+    setInputText('');
+    setTextFile(null);
     resetProcessing();
 
     if (fileInputRef.current) {
@@ -248,30 +258,43 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 左侧：文件上传区域和媒体信息 */}
+          {/* 左侧：根据功能类型显示不同内容 */}
           <div className="lg:col-span-2 space-y-6">
-            <UnifiedFileUploadArea
-              selectedFile={selectedFile}
-              category={state.category}
-              dragOver={dragOver}
-              onFileSelect={handleFileSelect}
-              onReset={reset}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onFileInputChange={handleFileInputChange}
-              fileInputRef={fileInputRef}
-              disabled={state.isProcessing}
-            />
+            {isTextToSpeech ? (
+              /* 文本转语音：显示文本输入区域 */
+              <TextInputArea
+                text={inputText}
+                onTextChange={setInputText}
+                onFileUpload={setTextFile}
+                disabled={state.isProcessing}
+              />
+            ) : (
+              /* 其他功能：显示文件上传和媒体信息 */
+              <>
+                <UnifiedFileUploadArea
+                  selectedFile={selectedFile}
+                  category={state.category}
+                  dragOver={dragOver}
+                  onFileSelect={handleFileSelect}
+                  onReset={reset}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onFileInputChange={handleFileInputChange}
+                  fileInputRef={fileInputRef}
+                  disabled={state.isProcessing}
+                />
 
-            <UnifiedMediaMetadataCard
-              selectedFile={selectedFile}
-              mediaMetadata={mediaMetadata}
-              isAnalyzing={isAnalyzing}
-              analyzeError={analyzeError}
-              ffmpegLoaded={ffmpegLoaded}
-              onRetryAnalysis={handleRetryAnalysis}
-            />
+                <UnifiedMediaMetadataCard
+                  selectedFile={selectedFile}
+                  mediaMetadata={mediaMetadata}
+                  isAnalyzing={isAnalyzing}
+                  analyzeError={analyzeError}
+                  ffmpegLoaded={ffmpegLoaded}
+                  onRetryAnalysis={handleRetryAnalysis}
+                />
+              </>
+            )}
           </div>
 
           {/* 右侧：控制面板 */}
@@ -286,9 +309,10 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
             {/* 动态控制面板 */}
             {currentFunction && (
               <currentFunction.component
-                selectedFile={selectedFile}
-                mediaMetadata={mediaMetadata}
-                audioInfo={audioInfo}
+                selectedFile={isTextToSpeech ? null : selectedFile}
+                textInput={isTextToSpeech ? inputText : undefined}
+                mediaMetadata={isTextToSpeech ? undefined : mediaMetadata}
+                audioInfo={isTextToSpeech ? undefined : audioInfo}
                 ffmpeg={ffmpeg || null}
                 isMultiThread={isMultiThread}
                 ffmpegLoaded={ffmpegLoaded}

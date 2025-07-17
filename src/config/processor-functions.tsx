@@ -3,10 +3,18 @@ import { AudioExtractControlPanel } from '@/components/media-processor/control-p
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { VideoCompressControlPanel } from '@/components/media-processor/control-panels/VideoCompressControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
+import { TextToSpeechControlPanel } from '@/components/media-processor/control-panels/TextToSpeechControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 import { getMediaType } from '@/utils/audioConverter';
 
 // 文件验证器
+// 文本文件验证器
+const textFileValidator = (file: File): boolean => {
+    const supportedFormats = ['txt', 'md', 'rtf', 'doc', 'docx', 'pdf'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    return supportedFormats.includes(extension || '') || file.type.startsWith('text/');
+};
+
 const audioFileValidator = (file: File): boolean => {
     const supportedFormats = ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'];
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -22,6 +30,7 @@ const videoFileValidator = (file: File): boolean => {
 export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string }> = {
     audio: { label: '音频', icon: '🎵' },
     video: { label: '视频', icon: '🎥' },
+    text: { label: '文本', icon: '📝' },
 };
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
@@ -77,6 +86,18 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         component: AudioExtractControlPanel,
         fileValidator: videoFileValidator,
         supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
+    },
+
+    // 文本功能
+    {
+        id: 'text-to-speech',
+        label: '文本转语音',
+        category: 'text',
+        description: '将文本转换为语音音频文件，支持多种语音模型和参数调整。',
+        icon: '🔊',
+        component: TextToSpeechControlPanel,
+        fileValidator: textFileValidator,
+        supportedFormats: ['txt', 'md', 'rtf', 'doc', 'docx', 'pdf'],
     },
 ];
 
