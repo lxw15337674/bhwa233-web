@@ -3,8 +3,7 @@ import React, { useEffect } from 'react';
 import { ModeToggle } from 'src/components/ModeToggle';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../src/components/ui/dropdown-menu';
 import { Button } from '../src/components/ui/button';
-import { Separator } from '../src/components/ui/separator';
-import { LayoutGrid, Github } from 'lucide-react'; // 新增导入
+import { LayoutGrid } from 'lucide-react'; // 新增导入
 import { usePathname } from 'next/navigation';
 import { Apps } from './RouterConfig';
 import Link from 'next/link';

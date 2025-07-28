@@ -105,7 +105,7 @@ const nextConfig: NextConfig = withSerwist({
     return [
       {
         source: '/telegraph-upload',
-        destination: 'https://telegraph-image-bww.pages.dev/upload',
+        destination: 'https://cloudflare-imgbed-76v.pages.dev/upload',
       },
       {
         source: '/jiaqi',
