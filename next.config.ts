@@ -39,24 +39,6 @@ const nextConfig: NextConfig = withSerwist({
 
     return config;
   },
-  // 为了支持 SharedArrayBuffer（虽然我们用单线程版本，但这有助于兼容性）
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp'
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin'
-          }
-        ]
-      }
-    ];
-  },
   images: {
     dangerouslyAllowSVG: true,
     unoptimized: true,
