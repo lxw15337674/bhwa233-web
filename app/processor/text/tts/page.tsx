@@ -1,6 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { ControlPanelProps } from '@/types/media-processor';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -56,7 +55,7 @@ const TextToSpeechControlPanel = () => {
 
     } catch (error) {
       setIsProcessing(false);
-      let errorMessage = '转换失败';
+      const errorMessage = '转换失败';
       setError(errorMessage);
     }
   }

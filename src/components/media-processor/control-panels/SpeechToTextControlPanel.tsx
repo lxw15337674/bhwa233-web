@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect } from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
