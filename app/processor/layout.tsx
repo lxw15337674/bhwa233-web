@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { CategoryNavigation } from '@/components/media-processor/CategoryNavigation';
-import { usePathname } from 'next/navigation';
-import { ProcessorCategory } from '../../src/types/media-processor';
 
 interface Props {
     children?: React.ReactNode;

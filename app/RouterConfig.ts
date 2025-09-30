@@ -14,11 +14,11 @@ interface MenuItem {
 }
 
 export const Apps: MenuItem[] = [
-  // {
-  //   name: '文件上传',
-  //   url: '/upload',
-  //   icon: Upload
-  // },
+  {
+    name: '文件上传',
+    url: '/upload',
+    icon: Upload
+  },
   {
     name: '媒体处理器',
     url: '/media-processor',
@@ -30,7 +30,7 @@ export const Apps: MenuItem[] = [
     icon: Music
   },
   // {
-  //   name : '图床',
+  //   name: '图床',
   //   url: '/gallery',
   //   icon: Image
   // },

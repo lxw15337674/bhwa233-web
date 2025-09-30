@@ -2,6 +2,7 @@
 
 import axios from "axios";
 
+const GALLERY_URL = 'https://cloudflare-imgbed-76v.pages.dev';
 
 export async function uploadToGalleryServer(
     file: File,
@@ -25,7 +26,7 @@ export async function uploadToGalleryServer(
             throw new Error('Upload response missing file URL');
         }
 
-        const url = `${response.data[0].src}`;
+        const url = `${GALLERY_URL}${response.data[0].src}`;
         return url;
     } catch (error: any) {
         console.error(`File upload failed: ${error.message}`);

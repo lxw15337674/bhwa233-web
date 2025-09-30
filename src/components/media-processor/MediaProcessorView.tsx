@@ -242,10 +242,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* 分类导航 */}
-        <CategoryNavigation
-          currentCategory={state.category}
-          onCategoryChange={handleCategoryChange}
-        />
+        <CategoryNavigation />
 
         {/* 页面标题 */}
         <div className="text-center mb-8">
@@ -297,16 +294,11 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
             )}
           </div>
 
-          {/* 右侧：控制面板 */}
           <div className="space-y-6">
             {/* 功能选择器 */}
             <FunctionSelector
-              category={state.category}
-              selectedFunction={state.currentFunction}
-              onFunctionChange={handleFunctionChange}
               disabled={state.isProcessing}
             />
-            {/* 动态控制面板 */}
             {currentFunction && (
               <currentFunction.component
                 selectedFile={isTextToSpeech ? null : selectedFile}
@@ -323,11 +315,9 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
                 onOutputReady={handleOutputReady}
               />
             )}
-
             {/* 处理进度 */}
             <UnifiedProgressDisplay
               processingState={state.processingState}
-              messageRef={messageRef}
             />
 
             {/* 输出文件预览 */}

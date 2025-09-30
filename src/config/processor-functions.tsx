@@ -62,36 +62,35 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         fileValidator: audioFileValidator,
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
     },
-
     // 视频功能
-    {
-        id: 'video-compress',
-        label: '视频压缩',
-        category: 'video',
-        description: '压缩视频文件，减小文件大小并调整分辨率。',
-        icon: '🗜️',
-        fileValidator: videoFileValidator,
-        supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
-    },
-    {
-        id: 'audio-extract',
-        label: '音频提取',
-        category: 'video',
-        description: '从视频文件中提取音频轨道。',
-        icon: '🎤',
-        fileValidator: videoFileValidator,
-        supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
-    },
+    // {
+    //     id: 'video-compress',
+    //     label: '视频压缩',
+    //     category: 'video',
+    //     description: '压缩视频文件，减小文件大小并调整分辨率。',
+    //     icon: '🗜️',
+    //     fileValidator: videoFileValidator,
+    //     supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
+    // },
+    // {
+    //     id: 'audio-extract',
+    //     label: '音频提取',
+    //     category: 'video',
+    //     description: '从视频文件中提取音频轨道。',
+    //     icon: '🎤',
+    //     fileValidator: videoFileValidator,
+    //     supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v'],
+    // },
     // 文本功能
-    {
-        id: 'tts',
-        label: '文本转语音',
-        category: 'text',
-        description: '将文本转换为语音音频文件，支持多种语音模型和参数调整。',
-        icon: '🔊',
-        fileValidator: textFileValidator,
-        supportedFormats: ['txt', 'md', 'rtf', 'doc', 'docx', 'pdf'],
-    },
+    // {
+    //     id: 'tts',
+    //     label: '文本转语音',
+    //     category: 'text',
+    //     description: '将文本转换为语音音频文件，支持多种语音模型和参数调整。',
+    //     icon: '🔊',
+    //     fileValidator: textFileValidator,
+    //     supportedFormats: ['txt', 'md', 'rtf', 'doc', 'docx', 'pdf'],
+    // },
 ];
 
 export const getFunctionsByCategory = (category: ProcessorCategory): ProcessorFunction[] => {
