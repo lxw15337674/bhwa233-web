@@ -34,8 +34,8 @@ export const TextInputArea: React.FC<TextInputAreaProps> = ({
       return false;
     }
     
-    if (file.size > 1024 * 1024 * 2) { // 2MB限制
-      setError('文件大小不能超过2MB');
+    if (file.size > 1024 * 1024 * 10) { // 10MB限制
+      setError('文件大小不能超过10MB');
       return false;
     }
 
