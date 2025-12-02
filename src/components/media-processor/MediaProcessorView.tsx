@@ -14,7 +14,6 @@ import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
 import { UnifiedProgressDisplay } from './UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from './UnifiedOutputPreview';
-import { TextInputArea } from '../../../app/processor/text/TextInputArea';
 
 // 导入类型和配置
 import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';
@@ -31,13 +30,13 @@ interface MediaProcessorViewProps {
 }
 
 export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
-  defaultCategory = 'video',
+  defaultCategory = 'audio',
   defaultFunction
 }) => {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
-  const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement>(null);
+  const mediaRef = useRef<HTMLAudioElement>(null);
 
   // 从URL参数获取初始状态
   const urlCategory = searchParams?.get('category') as ProcessorCategory || defaultCategory;
@@ -96,13 +95,9 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
-  
-  // 文本转语音的文本状态
-  const [inputText, setInputText] = useState('');
-  const [textFile, setTextFile] = useState<File | null>(null);
 
-  // 判断是否为文本转语音功能
-  const isTextToSpeech = state.currentFunction === 'text-to-speech';
+  // 判断是否为文本转语音功能（已移除该功能）
+  const isTextToSpeech = false;
 
   // 分类切换处理
   const handleCategoryChange = useMemoizedFn((category: ProcessorCategory) => {
@@ -120,12 +115,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
     // 清理当前文件如果类型不匹配
     if (selectedFile) {
-      const mediaType = getMediaType(selectedFile.name);
-      const shouldClear = (category === 'video' && mediaType === 'audio') ||
-        (category === 'audio' && mediaType === 'video');
-      if (shouldClear) {
-        reset();
-      }
+      reset();
     }
   });
 
@@ -186,8 +176,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 重置所有状态
   const reset = useMemoizedFn(() => {
     clearFile();
-    setInputText('');
-    setTextFile(null);
     resetProcessing();
 
     if (fileInputRef.current) {
@@ -234,9 +222,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 获取当前功能配置
   const currentFunction = getFunctionById(state.currentFunction);
-  const outputMediaType = state.currentFunction === 'audio-extract' ||
-    state.currentFunction === 'audio-convert' ||
-    state.currentFunction === 'audio-speed-change' ? 'audio' : 'video';
+  const outputMediaType = 'audio' as const;
 
   return (
     <div className="min-h-screen text-foreground">
@@ -255,43 +241,30 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 左侧：根据功能类型显示不同内容 */}
+          {/* 左侧：文件上传和媒体信息 */}
           <div className="lg:col-span-2 space-y-6">
-            {isTextToSpeech ? (
-              /* 文本转语音：显示文本输入区域 */
-              <TextInputArea
-                text={inputText}
-                onTextChange={setInputText}
-                onFileUpload={setTextFile}
-                disabled={state.isProcessing}
-              />
-            ) : (
-              /* 其他功能：显示文件上传和媒体信息 */
-              <>
-                <UnifiedFileUploadArea
-                  selectedFile={selectedFile}
-                  category={state.category}
-                  dragOver={dragOver}
-                  onFileSelect={handleFileSelect}
-                  onReset={reset}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onFileInputChange={handleFileInputChange}
-                  fileInputRef={fileInputRef}
-                  disabled={state.isProcessing}
-                />
+            <UnifiedFileUploadArea
+              selectedFile={selectedFile}
+              category={state.category}
+              dragOver={dragOver}
+              onFileSelect={handleFileSelect}
+              onReset={reset}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onFileInputChange={handleFileInputChange}
+              fileInputRef={fileInputRef}
+              disabled={state.isProcessing}
+            />
 
-                <UnifiedMediaMetadataCard
-                  selectedFile={selectedFile}
-                  mediaMetadata={mediaMetadata}
-                  isAnalyzing={isAnalyzing}
-                  analyzeError={analyzeError}
-                  ffmpegLoaded={ffmpegLoaded}
-                  onRetryAnalysis={handleRetryAnalysis}
-                />
-              </>
-            )}
+            <UnifiedMediaMetadataCard
+              selectedFile={selectedFile}
+              mediaMetadata={mediaMetadata}
+              isAnalyzing={isAnalyzing}
+              analyzeError={analyzeError}
+              ffmpegLoaded={ffmpegLoaded}
+              onRetryAnalysis={handleRetryAnalysis}
+            />
           </div>
 
           <div className="space-y-6">
@@ -301,10 +274,9 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
             />
             {currentFunction && (
               <currentFunction.component
-                selectedFile={isTextToSpeech ? null : selectedFile}
-                textInput={isTextToSpeech ? inputText : undefined}
-                mediaMetadata={isTextToSpeech ? undefined : mediaMetadata}
-                audioInfo={isTextToSpeech ? undefined : audioInfo}
+                selectedFile={selectedFile}
+                mediaMetadata={mediaMetadata}
+                audioInfo={audioInfo}
                 ffmpeg={ffmpeg || null}
                 isMultiThread={isMultiThread}
                 ffmpegLoaded={ffmpegLoaded}

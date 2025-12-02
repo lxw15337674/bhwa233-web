@@ -3,10 +3,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X, FileVideo, FileAudio } from 'lucide-react';
+import { Upload, X, FileAudio } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProcessorCategory } from '@/types/media-processor';
-import { SUPPORTED_VIDEO_FORMATS, SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
+import { SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
 
 interface UnifiedFileUploadAreaProps {
     selectedFile: File | null;
@@ -35,10 +35,8 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
     fileInputRef,
     disabled = false
 }) => {
-    const supportedFormats = category === 'video' ? SUPPORTED_VIDEO_FORMATS : SUPPORTED_AUDIO_FORMATS;
-    const acceptTypes = category === 'video' ? 'video/*' : 'audio/*';
-    const mediaTypeIcon = category === 'video' ? FileVideo : FileAudio;
-    const MediaIcon = mediaTypeIcon;
+    const supportedFormats = SUPPORTED_AUDIO_FORMATS;
+    const acceptTypes = 'audio/*';
 
     const formatFileSize = (bytes: number) => {
         const mb = bytes / (1024 * 1024);
@@ -79,13 +77,13 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                         <div className="space-y-4">
                             <div className="flex justify-center">
                                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                                    <MediaIcon className="w-8 h-8 text-primary" />
+                                    <FileAudio className="w-8 h-8 text-primary" />
                                 </div>
                             </div>
 
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">
-                                    选择{category === 'video' ? '视频' : '音频'}文件
+                                    选择音频文件
                                 </h3>
                                 <p className="text-muted-foreground text-sm mb-4">
                                     拖拽文件到此处或点击选择文件
@@ -126,7 +124,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
 
                         <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-lg border">
                             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <MediaIcon className="w-6 h-6 text-primary" />
+                                    <FileAudio className="w-6 h-6 text-primary" />
                             </div>
 
                             <div className="flex-1 min-w-0">

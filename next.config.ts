@@ -105,6 +105,25 @@ const nextConfig: NextConfig = withSerwist({
       }
     ];
   },
+  // 添加 COEP/COOP 头以支持 SharedArrayBuffer（wasm-vips 需要）
+  headers: async () => {
+    return [
+      {
+        source: '/processor/image/:path*',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        source: '/processor/image',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+        ],
+      },
+    ];
+  },
 });
 
 export default nextConfig;
