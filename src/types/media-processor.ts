@@ -17,17 +17,17 @@ export interface ProcessingState {
 
 // 控制面板通用接口
 export interface ControlPanelProps {
-  selectedFile: File | null;
-  mediaMetadata: MediaMetadata | null;
-  audioInfo: AudioInfo | null;
-  ffmpeg: FFmpeg | null;
-  isMultiThread: boolean;
-  ffmpegLoaded: boolean;
-  isAnalyzing: boolean;
-  analyzeError: string | null;
-  onRetryAnalysis: () => void;
-  onStateChange: (state: Partial<ProcessingState>) => void;
-  onOutputReady: (blob: Blob, filename: string) => void;
+  selectedFile?: File | null;
+  mediaMetadata?: MediaMetadata | null;
+  audioInfo?: AudioInfo | null;
+  ffmpeg?: FFmpeg | null;
+  isMultiThread?: boolean;
+  ffmpegLoaded?: boolean;
+  isAnalyzing?: boolean;
+  analyzeError?: string | null;
+  onRetryAnalysis?: () => void;
+  onStateChange?: (state: Partial<ProcessingState>) => void;
+  onOutputReady?: (blob: Blob, filename: string) => void;
   textInput?: string;
 }
 

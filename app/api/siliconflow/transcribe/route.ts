@@ -44,6 +44,11 @@ export async function POST(request: NextRequest) {
       data: siliconFlowFormData
     });
 
+    console.log('SiliconFlow API response:', {
+      status: response.status,
+      data: response.data
+    });
+
     if (response.status !== 200) {
       let errorMessage = '识别失败';
       const errorData = response.data;

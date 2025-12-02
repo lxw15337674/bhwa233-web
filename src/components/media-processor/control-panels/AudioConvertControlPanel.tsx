@@ -20,25 +20,27 @@ import {
 } from '@/utils/audioConverter';
 import { ControlPanelProps } from '@/types/media-processor';
 import { useMediaProcessing } from '@/hooks/useMediaProcessing';
+import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
 
 interface AudioConvertParams {
   outputFormat: AudioFormat;
   qualityMode: QualityMode;
 }
 
-export const AudioConvertControlPanel: React.FC<ControlPanelProps> = ({
-  selectedFile,
-  mediaMetadata,
-  audioInfo,
-  ffmpeg,
-  isMultiThread,
-  ffmpegLoaded,
-  isAnalyzing,
-  analyzeError,
-  onRetryAnalysis,
-  onStateChange,
-  onOutputReady
-}) => {
+export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => {
+  // 从 store 获取数据
+  const store = useAudioProcessorStore();
+
+  // 优先使用 props，否则使用 store 的数据
+  const selectedFile = props.selectedFile ?? store.inputAudio;
+  const mediaMetadata = props.mediaMetadata ?? store.mediaMetadata;
+  const audioInfo = props.audioInfo ?? store.audioInfo;
+  const ffmpeg = props.ffmpeg ?? store.ffmpeg;
+  const isMultiThread = props.isMultiThread ?? store.isMultiThread;
+  const ffmpegLoaded = props.ffmpegLoaded ?? store.ffmpegLoaded;
+  const isAnalyzing = props.isAnalyzing ?? store.isAnalyzing;
+  const analyzeError = props.analyzeError ?? store.analyzeError;
+
   const [outputFormat, setOutputFormat] = React.useState<AudioFormat>('mp3');
   const [qualityMode, setQualityMode] = React.useState<QualityMode>('original');
 
@@ -53,22 +55,22 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = ({
 
   // 通知主容器状态变化
   React.useEffect(() => {
-    onStateChange(processingState);
-  }, [processingState, onStateChange]);
+    props.onStateChange?.(processingState);
+  }, [processingState, props.onStateChange]);
 
   // 文件大小预估
   const sizeEstimate = audioInfo ? calculateFileSize(
     audioInfo,
     outputFormat,
     qualityMode,
-    mediaMetadata?.audio.codec
+    mediaMetadata?.audio?.codec
   ) : null;
 
   // 获取智能转换策略描述
   const smartParams = selectedFile && mediaMetadata ?
     generateSmartAudioParams(
       audioInfo,
-      mediaMetadata.audio.codec,
+      mediaMetadata?.audio?.codec,
       outputFormat,
       qualityMode
     ) : null;
@@ -97,12 +99,12 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = ({
         qualityMode,
         isMultiThread,
         audioInfo,
-        mediaMetadata?.audio.codec,
+        mediaMetadata?.audio?.codec,
         updateProgress
       );
 
       finishProcessing(outputBlob, outputFileName);
-      onOutputReady(outputBlob, outputFileName);
+      props.onOutputReady?.(outputBlob, outputFileName);
     } catch (error) {
       console.error('Audio conversion failed:', error);
       setError(error instanceof Error ? error.message : '音频转换失败');

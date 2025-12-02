@@ -22,20 +22,22 @@ import {
 } from '@/utils/audioConverter';
 import { ControlPanelProps } from '@/types/media-processor';
 import { useMediaProcessing } from '@/hooks/useMediaProcessing';
+import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
 
-export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = ({
-    selectedFile,
-    mediaMetadata,
-    audioInfo,
-    ffmpeg,
-    isMultiThread,
-    ffmpegLoaded,
-    isAnalyzing,
-    analyzeError,
-    onRetryAnalysis,
-    onStateChange,
-    onOutputReady
-}) => {
+export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
+    // 从 store 获取数据
+    const store = useAudioProcessorStore();
+
+    // 优先使用 props，否则使用 store 的数据
+    const selectedFile = props.selectedFile ?? store.inputAudio;
+    const mediaMetadata = props.mediaMetadata ?? store.mediaMetadata;
+    const audioInfo = props.audioInfo ?? store.audioInfo;
+    const ffmpeg = props.ffmpeg ?? store.ffmpeg;
+    const isMultiThread = props.isMultiThread ?? store.isMultiThread;
+    const ffmpegLoaded = props.ffmpegLoaded ?? store.ffmpegLoaded;
+    const isAnalyzing = props.isAnalyzing ?? store.isAnalyzing;
+    const analyzeError = props.analyzeError ?? store.analyzeError;
+
     const [speed, setSpeed] = React.useState<number>(1.0);
     const [preservePitch, setPreservePitch] = React.useState<boolean>(true);
     const [selectedPreset, setSelectedPreset] = React.useState<AudioSpeedPreset>('1.0');
@@ -51,8 +53,8 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = ({
 
     // 通知主容器状态变化
     React.useEffect(() => {
-        onStateChange(processingState);
-    }, [processingState, onStateChange]);
+        props.onStateChange?.(processingState);
+    }, [processingState, props.onStateChange]);
 
     // 文件大小预估
     const sizeEstimate = audioInfo ? calculateSpeedFileSize(
@@ -110,7 +112,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = ({
             const outputFileName = `${selectedFile.name.replace(/\.[^/.]+$/, '')}_speed_${speed}x.mp3`;
 
             finishProcessing(result.outputFile, outputFileName);
-            onOutputReady(result.outputFile, outputFileName);
+            props.onOutputReady?.(result.outputFile, outputFileName);
         } catch (error) {
             console.error('Audio speed adjustment failed:', error);
             setError(error instanceof Error ? error.message : '音频倍速调整失败');
@@ -325,7 +327,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = ({
                                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
                                     {analyzeError}
                                     <Button
-                                        onClick={onRetryAnalysis}
+                                        onClick={props.onRetryAnalysis}
                                         variant="ghost"
                                         size="sm"
                                         className="mt-1 text-yellow-700 hover:text-yellow-800"

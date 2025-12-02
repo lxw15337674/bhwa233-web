@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
   // 2. 构造转发到 SiliconFlow 的 form-data
   const siliconForm = new FormData();
   siliconForm.append('file', file, 'audio.' + (file.type.split('/')[1] || 'wav'));
+  siliconForm.append('model', 'TeleAI/TeleSpeechASR');
 
   // 3. 调用 SiliconFlow API
   const apiKey = process.env.SILICONFLOW_API_KEY;

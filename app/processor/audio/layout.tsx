@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getFunctionById } from '@/config/processor-functions';
 import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
@@ -13,36 +13,24 @@ interface Props {
 }
 
 const AudioProcessorView: React.FC = ({ children }: Props) => {
-    const { setInputAudio } = useAudioProcessorStore();
+    const { initFFmpeg } = useAudioProcessorStore();
     const params = useParams<{ function: string }>();
-    const currentFunctionConfig = getFunctionById(params.function);
+    const currentFunction = params.function;
+    const currentFunctionConfig = getFunctionById(currentFunction);
 
-    // 验证音频文件类型
-    const validateAudioFile = (file: File): boolean => {
-        const supportedFormats = ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'];
-        const extension = file.name.split('.').pop()?.toLowerCase();
-        return supportedFormats.includes(extension || '');
-    };
+    // 初始化 FFmpeg
+    useEffect(() => {
+        initFFmpeg();
+    }, [initFFmpeg]);
 
-    // 处理文件选择
-    const handleFileSelect = (file: File) => {
-        if (!validateAudioFile(file)) {
-            return;
-        }
-        setInputAudio(file);
-    };
+    // 语音转文字不需要显示音频技术信息
+    const showMediaInfo = currentFunction !== 'speech-to-text';
 
     return (
         <div className="min-h-screen text-foreground">
             <div className="container mx-auto px-4 py-8 max-w-6xl">
                 {/* 分类导航 */}
-                <CategoryNavigation
-                    currentCategory="audio"
-                    onCategoryChange={(category) => {
-                        // 在独立视图中，分类变更将导航到对应页面
-                        window.location.href = `/media/${category}`;
-                    }}
-                />
+                <CategoryNavigation />
 
                 {/* 页面标题 */}
                 <div className="text-center mb-8">
@@ -57,7 +45,7 @@ const AudioProcessorView: React.FC = ({ children }: Props) => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* 左侧：音频输入区域 */}
                     <div className="lg:col-span-2 space-y-6">
-                        <AudioInputArea />
+                        <AudioInputArea showMediaInfo={showMediaInfo} />
                     </div>
 
                     {/* 右侧：控制面板 */}

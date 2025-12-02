@@ -186,7 +186,8 @@ export const AUDIO_COPY_COMPATIBILITY = {
 } as const;
 
 // 检查音频流是否可以直接复制
-export const canCopyAudioStream = (originalCodec: string, targetFormat: AudioFormat): boolean => {
+export const canCopyAudioStream = (originalCodec: string | undefined, targetFormat: AudioFormat): boolean => {
+    if (!originalCodec) return false;
     const codecUpper = originalCodec.toUpperCase();
     const compatibility = AUDIO_COPY_COMPATIBILITY[codecUpper as keyof typeof AUDIO_COPY_COMPATIBILITY];
     return compatibility?.[targetFormat] || false;
@@ -195,7 +196,7 @@ export const canCopyAudioStream = (originalCodec: string, targetFormat: AudioFor
 // 生成智能音频编码参数
 export const generateSmartAudioParams = (
     audioInfo: AudioInfo | null,
-    originalCodec: string,
+    originalCodec: string | undefined,
     targetFormat: AudioFormat,
     qualityMode: QualityMode
 ): { params: string[], description: string } => {

@@ -9,11 +9,13 @@ import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
 interface AudioInputAreaProps {
   maxFileSize?: number; // MB
   disabled?: boolean;
+  showMediaInfo?: boolean; // 是否显示音频技术信息（时长、比特率等）
 }
 
 export const AudioInputArea: React.FC<AudioInputAreaProps> = ({
   maxFileSize = 50,
-  disabled = false
+  disabled = false,
+  showMediaInfo = true
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -179,7 +181,7 @@ export const AudioInputArea: React.FC<AudioInputAreaProps> = ({
       )}
 
       {/* 音频元数据信息 */}
-      {mediaMetadata && (
+      {showMediaInfo && mediaMetadata && (
         <Card className="p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Film className="w-5 h-5 text-purple-500" />
