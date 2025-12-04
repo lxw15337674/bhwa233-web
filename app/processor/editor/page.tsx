@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
+import { PageHeader } from '@/components/media-processor/PageHeader';
 
 // 动态导入 FilerobotImageEditor（仅客户端）
 const FilerobotImageEditor = dynamic(
@@ -222,10 +223,17 @@ const ImageEditorPage: React.FC = () => {
     // 未上传图片时显示上传区域
     if (!imageUrl) {
         return (
-            <ImageUploadArea
-                onFileSelect={handleFileSelect}
-                showPreview={false}
-            />
+            <>
+                <PageHeader
+                    title="图片编辑器"
+                    description="支持裁剪、滤镜、标注、水印等高级编辑功能"
+                    gradient="from-purple-400 to-pink-400"
+                />
+                <ImageUploadArea
+                    onFileSelect={handleFileSelect}
+                    showPreview={false}
+                />
+            </>
         );
     }
 

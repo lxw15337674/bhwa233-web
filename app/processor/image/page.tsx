@@ -7,6 +7,7 @@ import { useImageProcessorStore } from '@/stores/media-processor/image-store';
 import { ImageInputArea } from '@/components/media-processor/ImageInputArea';
 import { ImageOutputPreview } from '@/components/media-processor/ImageOutputPreview';
 import { ImageEditorPanel } from '@/components/media-processor/ImageEditorPanel';
+import { PageHeader } from '@/components/media-processor/PageHeader';
 
 const ImageProcessorPage: React.FC = () => {
     const {
@@ -16,6 +17,12 @@ const ImageProcessorPage: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* 页面标题 */}
+            <PageHeader
+                title="图片处理器"
+                description="支持压缩、格式转换、尺寸调整、旋转翻转等功能"
+            />
+
             {/* 错误提示 */}
             {processError && (
                 <Alert variant="destructive">
