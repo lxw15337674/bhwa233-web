@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     RotateCw,
     RotateCcw,
@@ -11,6 +11,7 @@ import {
     Loader2,
     AlertTriangle,
     Zap,
+    Pencil,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,10 +23,18 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useImageProcessorStore } from '@/stores/media-processor/image-store';
 import { ImageProcessingOptions } from '@/utils/imageProcessor';
+import dynamic from 'next/dynamic';
+
+// 动态导入编辑器组件，避免 SSR 问题
+const ImageCanvasEditor = dynamic(
+    () => import('./ImageCanvasEditor'),
+    { ssr: false }
+);
 
 export const ImageEditorPanel: React.FC = () => {
     const {
         inputFile,
+        inputUrl,
         inputMetadata,
         options,
         autoProcess,
@@ -37,7 +46,11 @@ export const ImageEditorPanel: React.FC = () => {
         setAutoProcess,
         processImage,
         downloadOutput,
+        setInputFile,
     } = useImageProcessorStore();
+
+    // 编辑器弹窗状态
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
 
     // 防抖定时器
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,19 +128,38 @@ export const ImageEditorPanel: React.FC = () => {
 
     const scaledDimensions = getScaledDimensions();
 
+    // 处理编辑器保存
+    const handleEditorSave = useCallback((file: File) => {
+        setInputFile(file);
+        setIsEditorOpen(false);
+    }, [setInputFile]);
+
     if (!inputFile) {
         return null;
     }
 
     return (
-        <Card className="p-4 space-y-6">
-            {/* 错误提示 */}
-            {processError && (
-                <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{processError}</AlertDescription>
-                </Alert>
-            )}
+        <>
+            <Card className="p-4 space-y-6">
+                {/* 进入编辑模式按钮 */}
+                <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setIsEditorOpen(true)}
+                >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    进入编辑模式
+                </Button>
+
+                <Separator />
+
+                {/* 错误提示 */}
+                {processError && (
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>{processError}</AlertDescription>
+                    </Alert>
+                )}
 
             {/* 压缩质量 */}
             <div className="space-y-3">
@@ -302,5 +334,15 @@ export const ImageEditorPanel: React.FC = () => {
                 </div>
             </div>
         </Card>
+
+            {/* 图片编辑器弹窗 */}
+            {isEditorOpen && inputUrl && (
+                <ImageCanvasEditor
+                    imageUrl={inputUrl}
+                    onSave={handleEditorSave}
+                    onClose={() => setIsEditorOpen(false)}
+                />
+            )}
+        </>
     );
 };
