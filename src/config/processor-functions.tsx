@@ -11,7 +11,7 @@ const audioFileValidator = (file: File): boolean => {
 };
 
 const imageFileValidator = (file: File): boolean => {
-    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'bmp'];
+    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp'];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 };

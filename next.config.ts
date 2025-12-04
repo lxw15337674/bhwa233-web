@@ -13,6 +13,8 @@ const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Turbopack 配置（Next.js 16 默认使用 Turbopack）
+  turbopack: {},
   webpack: (config, { isServer }) => {
     // FFmpeg.wasm 配置
     config.resolve.fallback = {

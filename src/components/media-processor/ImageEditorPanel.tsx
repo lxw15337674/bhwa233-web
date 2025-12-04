@@ -1,53 +1,79 @@
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
     RotateCw,
     RotateCcw,
-    FlipHorizontal,
-    FlipVertical,
     RefreshCw,
     Download,
-    Lock,
-    Unlock
+    ShieldX,
+    Play,
+    Loader2,
+    AlertTriangle,
+    Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useImageProcessorStore } from '@/stores/media-processor/image-store';
 import { ImageProcessingOptions } from '@/utils/imageProcessor';
-import { useThrottle } from '@/hooks/useThrottle';
 
 export const ImageEditorPanel: React.FC = () => {
     const {
         inputFile,
         inputMetadata,
         options,
+        autoProcess,
         outputBlob,
         isProcessing,
-        vipsLoaded,
+        processError,
         updateOptions,
         resetOptions,
+        setAutoProcess,
         processImage,
         downloadOutput,
     } = useImageProcessorStore();
 
-    // 防抖处理图片
-    const throttledProcess = useThrottle(() => {
-        if (inputFile && vipsLoaded) {
-            processImage();
-        }
-    }, 500);
+    // 防抖定时器
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // 上一次 options 的序列化值，用于检测变化
+    const prevOptionsRef = useRef<string>('');
 
-    // 当选项变化时自动处理
+    // 自动处理：当开启自动处理且 options 变化时，防抖触发处理
     useEffect(() => {
-        if (inputFile && vipsLoaded) {
-            throttledProcess();
+        if (!autoProcess || !inputFile) return;
+
+        const currentOptionsStr = JSON.stringify(options);
+
+        // 首次加载或 options 没变化时不触发
+        if (prevOptionsRef.current === '' || prevOptionsRef.current === currentOptionsStr) {
+            prevOptionsRef.current = currentOptionsStr;
+            return;
         }
-    }, [options, inputFile, vipsLoaded]);
+
+        prevOptionsRef.current = currentOptionsStr;
+
+        // 清除之前的定时器
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+
+        // 500ms 防抖
+        debounceTimerRef.current = setTimeout(() => {
+            processImage();
+        }, 500);
+
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, [autoProcess, inputFile, options, processImage]);
 
     // 处理旋转
     const handleRotate = (direction: 'cw' | 'ccw' | '180') => {
@@ -63,15 +89,6 @@ export const ImageEditorPanel: React.FC = () => {
         }
 
         updateOptions({ rotation: newRotation });
-    };
-
-    // 处理翻转
-    const handleFlip = (direction: 'horizontal' | 'vertical') => {
-        if (direction === 'horizontal') {
-            updateOptions({ flipHorizontal: !options.flipHorizontal });
-        } else {
-            updateOptions({ flipVertical: !options.flipVertical });
-        }
     };
 
     // 处理格式变化
@@ -104,6 +121,14 @@ export const ImageEditorPanel: React.FC = () => {
 
     return (
         <Card className="p-4 space-y-6">
+            {/* 错误提示 */}
+            {processError && (
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>{processError}</AlertDescription>
+                </Alert>
+            )}
+
             {/* 压缩质量 */}
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -141,9 +166,6 @@ export const ImageEditorPanel: React.FC = () => {
                     <ToggleGroupItem value="webp" aria-label="WebP">
                         WebP
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="avif" aria-label="AVIF">
-                        AVIF
-                    </ToggleGroupItem>
                 </ToggleGroup>
             </div>
 
@@ -167,9 +189,9 @@ export const ImageEditorPanel: React.FC = () => {
                 )}
             </div>
 
-            {/* 旋转/翻转 */}
+            {/* 旋转 */}
             <div className="space-y-3">
-                <Label>旋转 / 翻转</Label>
+                <Label>旋转</Label>
                 <div className="flex flex-wrap gap-2">
                     <Button
                         variant="outline"
@@ -183,64 +205,101 @@ export const ImageEditorPanel: React.FC = () => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleRotate('180')}
-                        title="旋转 180°"
-                    >
-                        180°
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
                         onClick={() => handleRotate('cw')}
                         title="顺时针旋转 90°"
                     >
                         <RotateCw className="w-4 h-4 mr-1" />
                         +90°
                     </Button>
-                    <Button
-                        variant={options.flipHorizontal ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleFlip('horizontal')}
-                        title="水平翻转"
-                    >
-                        <FlipHorizontal className="w-4 h-4" />
-                    </Button>
-                    <Button
-                        variant={options.flipVertical ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleFlip('vertical')}
-                        title="垂直翻转"
-                    >
-                        <FlipVertical className="w-4 h-4" />
-                    </Button>
                 </div>
-                {(options.rotation !== 0 || options.flipHorizontal || options.flipVertical) && (
+                {options.rotation !== 0 && (
                     <p className="text-xs text-muted-foreground">
                         当前: 旋转 {options.rotation}°
-                        {options.flipHorizontal && ' + 水平翻转'}
-                        {options.flipVertical && ' + 垂直翻转'}
                     </p>
                 )}
             </div>
 
+            <Separator />
+
+            {/* 其他选项 */}
+            <div className="space-y-4">
+                <Label>其他选项</Label>
+
+                {/* 去除 EXIF */}
+                <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer">
+                        <ShieldX className="w-4 h-4" />
+                        去除 EXIF 信息
+                    </Label>
+                    <Switch
+                        checked={options.stripMetadata}
+                        onCheckedChange={(checked) => updateOptions({ stripMetadata: checked })}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground -mt-2">
+                    移除 GPS 位置、拍摄设备等隐私信息
+                </p>
+            </div>
+
+            <Separator />
+
             {/* 操作按钮 */}
-            <div className="flex gap-2 pt-2">
-                <Button
-                    variant="outline"
-                    onClick={resetOptions}
-                    className="flex-1"
-                >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    重置参数
-                </Button>
-                <Button
-                    onClick={downloadOutput}
-                    disabled={!outputBlob || isProcessing}
-                    className="flex-1"
-                >
-                    <Download className="w-4 h-4 mr-2" />
-                    下载图片
-                </Button>
+            <div className="flex flex-col gap-2 pt-2">
+                {/* 自动处理开关 */}
+                <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 font-normal cursor-pointer">
+                        <Zap className="w-4 h-4" />
+                        自动处理
+                    </Label>
+                    <Switch
+                        checked={autoProcess}
+                        onCheckedChange={setAutoProcess}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground -mt-1 mb-2">
+                    调整参数后自动处理图片
+                </p>
+
+                {/* 手动处理按钮 - 仅在关闭自动处理时显示 */}
+                {!autoProcess && (
+                    <Button
+                        onClick={processImage}
+                        disabled={isProcessing}
+                        className="w-full"
+                    >
+                        {isProcessing ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                处理中...
+                            </>
+                        ) : (
+                            <>
+                                <Play className="w-4 h-4 mr-2" />
+                                开始处理
+                            </>
+                        )}
+                    </Button>
+                )}
+
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={resetOptions}
+                        className="flex-1"
+                        disabled={isProcessing}
+                    >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        重置参数
+                    </Button>
+                    <Button
+                        onClick={downloadOutput}
+                        disabled={!outputBlob || isProcessing}
+                        className="flex-1"
+                    >
+                        <Download className="w-4 h-4 mr-2" />
+                        下载图片
+                    </Button>
+                </div>
             </div>
         </Card>
     );

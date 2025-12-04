@@ -31,7 +31,7 @@ export const ImageInputArea: React.FC<ImageInputAreaProps> = ({
         reset,
     } = useImageProcessorStore();
 
-    const supportedFormats = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp'];
+    const supportedFormats = ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
 
     const handleValidateFile = (file: File): boolean => {
         if (!validateFile(file)) {

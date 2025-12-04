@@ -1,0 +1,416 @@
+/**
+ * 图片处理 Web Worker
+ * 在后台线程中处理图片，避免阻塞主线程
+ */
+
+// Worker 消息类型
+export interface WorkerRequest {
+    type: 'process';
+    id: string;
+    buffer: ArrayBuffer;
+    fileName: string;
+    options: ImageProcessingOptions;
+}
+
+export interface WorkerProgressResponse {
+    type: 'progress';
+    id: string;
+    percent: number;
+    message: string;
+}
+
+export interface WorkerSuccessResponse {
+    type: 'success';
+    id: string;
+    buffer: ArrayBuffer;
+    metadata: ImageMetadata;
+}
+
+export interface WorkerErrorResponse {
+    type: 'error';
+    id: string;
+    error: string;
+}
+
+export type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerErrorResponse;
+
+// 类型定义（与 imageProcessor.ts 保持一致）
+interface ImageProcessingOptions {
+    quality: number;
+    outputFormat: 'jpeg' | 'png' | 'webp';
+    scale: number;
+    targetWidth: number | null;
+    targetHeight: number | null;
+    keepAspectRatio: boolean;
+    rotation: 0 | 90 | 180 | 270;
+    flipHorizontal: boolean;
+    flipVertical: boolean;
+    crop: {
+        enabled: boolean;
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+    };
+    brightness: number;
+    contrast: number;
+    blur: number;
+    sharpen: number;
+    autoRotate: boolean;
+    stripMetadata: boolean;
+}
+
+interface ImageMetadata {
+    width: number;
+    height: number;
+    size: number;
+    format: string;
+    name: string;
+    isAnimated?: boolean;
+    frameCount?: number;
+}
+
+// VipsImage 接口
+interface VipsImage {
+    width: number;
+    height: number;
+    getInt(name: string): number;
+    getArrayInt(name: string): number[];
+    resize(scale: number): VipsImage;
+    rot90(): VipsImage;
+    rot180(): VipsImage;
+    rot270(): VipsImage;
+    autorot(): VipsImage;
+    flipHor(): VipsImage;
+    flipVer(): VipsImage;
+    crop(left: number, top: number, width: number, height: number): VipsImage;
+    extractArea(left: number, top: number, width: number, height: number): VipsImage;
+    linear(a: number | number[], b: number | number[]): VipsImage;
+    gaussblur(sigma: number): VipsImage;
+    sharpen(options?: { sigma?: number }): VipsImage;
+    join(other: VipsImage, direction: string, options?: { expand?: boolean }): VipsImage;
+    writeToBuffer(suffix: string, options?: Record<string, unknown>): Uint8Array;
+    delete(): void;
+}
+
+interface VipsInstance {
+    Image: {
+        newFromBuffer(buffer: ArrayBuffer, options?: string): VipsImage;
+    };
+}
+
+// Vips 实例（懒加载）
+let vipsInstance: VipsInstance | null = null;
+let vipsLoading: Promise<VipsInstance> | null = null;
+
+/**
+ * 获取基础 URL
+ */
+function getBaseUrl(): string {
+    // Worker 中使用 self.location.origin
+    return self.location.origin;
+}
+
+/**
+ * 加载 wasm-vips
+ */
+async function loadVips(): Promise<VipsInstance> {
+    if (vipsInstance) {
+        return vipsInstance;
+    }
+
+    if (vipsLoading) {
+        return vipsLoading;
+    }
+
+    const baseUrl = getBaseUrl();
+
+    vipsLoading = (async () => {
+        // 动态导入 wasm-vips - 使用完整 URL
+        const Vips = (await import(/* webpackIgnore: true */ `${baseUrl}/wasm-vips/vips-es6.js`)).default;
+
+        const vips = await Vips({
+            dynamicLibraries: [],
+            locateFile: (fileName: string) => `${baseUrl}/wasm-vips/${fileName}`,
+        });
+
+        vipsInstance = vips as VipsInstance;
+        return vipsInstance;
+    })();
+
+    return vipsLoading;
+}
+
+/**
+ * 发送进度消息
+ */
+function sendProgress(id: string, percent: number, message: string) {
+    self.postMessage({
+        type: 'progress',
+        id,
+        percent,
+        message,
+    } as WorkerProgressResponse);
+}
+
+/**
+ * 处理静态图片
+ */
+async function processStaticImage(
+    vips: VipsInstance,
+    buffer: ArrayBuffer,
+    options: ImageProcessingOptions,
+    requestId: string
+): Promise<{ outputBuffer: Uint8Array; width: number; height: number }> {
+    sendProgress(requestId, 10, '读取图片...');
+
+    let image: VipsImage = vips.Image.newFromBuffer(buffer);
+
+    try {
+        // 自动旋转（根据 EXIF）
+        if (options.autoRotate) {
+            sendProgress(requestId, 15, '自动旋转...');
+            try {
+                const rotated = image.autorot();
+                image.delete();
+                image = rotated;
+            } catch {
+                // 忽略错误
+            }
+        }
+
+        // 裁剪
+        if (options.crop.enabled) {
+            sendProgress(requestId, 20, '裁剪...');
+            const left = Math.max(0, Math.min(options.crop.left, image.width - 1));
+            const top = Math.max(0, Math.min(options.crop.top, image.height - 1));
+            const width = Math.min(options.crop.width, image.width - left);
+            const height = Math.min(options.crop.height, image.height - top);
+
+            if (width > 0 && height > 0) {
+                const cropped = image.crop(left, top, width, height);
+                image.delete();
+                image = cropped;
+            }
+        }
+
+        // 旋转
+        if (options.rotation !== 0) {
+            sendProgress(requestId, 30, '旋转...');
+            let rotatedImage: VipsImage;
+            switch (options.rotation) {
+                case 90:
+                    rotatedImage = image.rot90();
+                    break;
+                case 180:
+                    rotatedImage = image.rot180();
+                    break;
+                case 270:
+                    rotatedImage = image.rot270();
+                    break;
+                default:
+                    rotatedImage = image;
+            }
+            if (rotatedImage !== image) {
+                image.delete();
+                image = rotatedImage;
+            }
+        }
+
+        // 翻转
+        if (options.flipHorizontal || options.flipVertical) {
+            sendProgress(requestId, 40, '翻转...');
+            if (options.flipHorizontal) {
+                const flipped = image.flipHor();
+                image.delete();
+                image = flipped;
+            }
+            if (options.flipVertical) {
+                const flipped = image.flipVer();
+                image.delete();
+                image = flipped;
+            }
+        }
+
+        // 缩放
+        if (options.scale !== 1 || options.targetWidth || options.targetHeight) {
+            sendProgress(requestId, 50, '缩放...');
+
+            let scale = options.scale;
+
+            if (options.targetWidth || options.targetHeight) {
+                const targetW = options.targetWidth || image.width;
+                const targetH = options.targetHeight || image.height;
+                const scaleW = targetW / image.width;
+                const scaleH = targetH / image.height;
+                scale = options.keepAspectRatio ? Math.min(scaleW, scaleH) : scaleW;
+            }
+
+            if (scale !== 1) {
+                const resized = image.resize(scale);
+                image.delete();
+                image = resized;
+            }
+        }
+
+        // 亮度/对比度
+        if (options.brightness !== 0 || options.contrast !== 0) {
+            sendProgress(requestId, 60, '调整亮度对比度...');
+            const a = 1 + options.contrast / 100;
+            const b = options.brightness * 1.28;
+            const adjusted = image.linear(a, b);
+            image.delete();
+            image = adjusted;
+        }
+
+        // 模糊
+        if (options.blur > 0) {
+            sendProgress(requestId, 70, '模糊...');
+            const blurred = image.gaussblur(Math.min(options.blur, 20));
+            image.delete();
+            image = blurred;
+        }
+
+        // 锐化
+        if (options.sharpen > 0) {
+            sendProgress(requestId, 75, '锐化...');
+            const sharpened = image.sharpen({ sigma: 1 + options.sharpen * 0.3 });
+            image.delete();
+            image = sharpened;
+        }
+
+        sendProgress(requestId, 85, '导出...');
+
+        // 导出
+        const formatSuffix = `.${options.outputFormat === 'jpeg' ? 'jpg' : options.outputFormat}`;
+        const exportOptions: Record<string, unknown> = {};
+
+        if (['jpeg', 'webp'].includes(options.outputFormat)) {
+            exportOptions.Q = options.quality;
+        }
+
+        if (options.stripMetadata) {
+            exportOptions.strip = true;
+        }
+
+        const outputBuffer = image.writeToBuffer(formatSuffix, exportOptions);
+
+        return {
+            outputBuffer,
+            width: image.width,
+            height: image.height,
+        };
+    } finally {
+        image.delete();
+    }
+}
+
+/**
+ * 获取 MIME 类型
+ */
+function getMimeType(format: string): string {
+    const mimeTypes: Record<string, string> = {
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        webp: 'image/webp',
+    };
+    return mimeTypes[format] || 'image/jpeg';
+}
+
+/**
+ * 获取文件扩展名
+ */
+function getFileExtension(format: string): string {
+    const extensions: Record<string, string> = {
+        jpeg: '.jpg',
+        png: '.png',
+        webp: '.webp',
+    };
+    return extensions[format] || '.jpg';
+}
+
+/**
+ * 处理图片主函数
+ */
+async function handleProcessRequest(request: WorkerRequest) {
+    const { id, buffer, fileName, options } = request;
+
+    try {
+        sendProgress(id, 0, '加载处理引擎...');
+
+        const vips = await loadVips();
+
+        sendProgress(id, 5, '分析图片...');
+
+        // 处理静态图片
+        const result = await processStaticImage(vips, buffer, options, id);
+
+        sendProgress(id, 95, '完成处理...');
+
+        // 生成输出文件名
+        const baseName = fileName.replace(/\.[^/.]+$/, '');
+        const extension = getFileExtension(options.outputFormat);
+        const outputName = `${baseName}_edited${extension}`;
+
+        // 创建 ArrayBuffer 副本用于传输
+        const transferBuffer = result.outputBuffer.buffer.slice(
+            result.outputBuffer.byteOffset,
+            result.outputBuffer.byteOffset + result.outputBuffer.byteLength
+        );
+
+        const metadata: ImageMetadata = {
+            width: result.width,
+            height: result.height,
+            size: result.outputBuffer.byteLength,
+            format: getMimeType(options.outputFormat),
+            name: outputName,
+            isAnimated: false,
+            frameCount: 1,
+        };
+
+        self.postMessage(
+            {
+                type: 'success',
+                id,
+                buffer: transferBuffer,
+                metadata,
+            } as WorkerSuccessResponse,
+            { transfer: [transferBuffer] }
+        );
+    } catch (error) {
+        let errorMessage = '处理失败';
+
+        if (error instanceof Error) {
+            // 提供更友好的错误信息
+            if (error.message.includes('Array buffer allocation failed') ||
+                error.message.includes('out of memory') ||
+                error.message.includes('OOM')) {
+                errorMessage = '图片太大，内存不足。请尝试使用较小的图片或减少缩放比例。';
+            } else if (error.message.includes('VipsForeignLoad')) {
+                errorMessage = '无法读取图片，格式可能不支持或文件已损坏。';
+            } else if (error.message.includes('VipsForeignSave')) {
+                errorMessage = '导出图片失败，请尝试其他输出格式。';
+            } else {
+                errorMessage = error.message;
+            }
+        }
+
+        self.postMessage({
+            type: 'error',
+            id,
+            error: errorMessage,
+        } as WorkerErrorResponse);
+    }
+}
+
+// 监听消息
+self.onmessage = (event: MessageEvent<WorkerRequest>) => {
+    const request = event.data;
+
+    if (request.type === 'process') {
+        handleProcessRequest(request);
+    }
+};
+
+// 导出空对象使 TypeScript 将此文件视为模块
+export { };

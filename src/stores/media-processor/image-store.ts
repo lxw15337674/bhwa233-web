@@ -1,22 +1,66 @@
 import { create } from 'zustand';
-import { vipsManager, VipsInstance } from '@/lib/vips-instance';
 import {
     ImageMetadata,
     ImageProcessingOptions,
     defaultImageOptions,
     getImageMetadata,
-    processImage,
     generateOutputFilename,
     validateImageFile,
 } from '@/utils/imageProcessor';
 
-interface ImageProcessorStore {
-    // Vips 实例状态
-    vips: VipsInstance | null;
-    vipsLoading: boolean;
-    vipsLoaded: boolean;
-    vipsError: string | null;
+// 最大文件大小 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
+// Worker 消息类型
+interface WorkerRequest {
+    type: 'process';
+    id: string;
+    buffer: ArrayBuffer;
+    fileName: string;
+    options: ImageProcessingOptions;
+}
+
+interface WorkerProgressResponse {
+    type: 'progress';
+    id: string;
+    percent: number;
+    message: string;
+}
+
+interface WorkerSuccessResponse {
+    type: 'success';
+    id: string;
+    buffer: ArrayBuffer;
+    metadata: ImageMetadata;
+}
+
+interface WorkerErrorResponse {
+    type: 'error';
+    id: string;
+    error: string;
+}
+
+type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerErrorResponse;
+
+// Worker 单例
+let workerInstance: Worker | null = null;
+let currentRequestId: string = '';
+
+function getWorker(): Worker {
+    if (!workerInstance) {
+        workerInstance = new Worker(
+            new URL('@/workers/image-processor.worker.ts', import.meta.url)
+        );
+    }
+    return workerInstance;
+}
+
+interface ProcessingProgress {
+    percent: number;
+    message: string;
+}
+
+interface ImageProcessorStore {
     // 输入状态
     inputFile: File | null;
     inputUrl: string | null;
@@ -24,6 +68,9 @@ interface ImageProcessorStore {
 
     // 处理选项
     options: ImageProcessingOptions;
+
+    // 自动处理
+    autoProcess: boolean;
 
     // 输出状态
     outputBlob: Blob | null;
@@ -33,30 +80,29 @@ interface ImageProcessorStore {
     // 处理状态
     isProcessing: boolean;
     processError: string | null;
+    progress: ProcessingProgress | null;
 
     // Actions
-    initVips: () => Promise<void>;
     setInputFile: (file: File) => Promise<void>;
     updateOptions: (options: Partial<ImageProcessingOptions>) => void;
     resetOptions: () => void;
+    setAutoProcess: (auto: boolean) => void;
     processImage: () => Promise<void>;
     downloadOutput: () => void;
     reset: () => void;
-    validateFile: (file: File) => boolean;
+    validateFile: (file: File) => { valid: boolean; error?: string };
+    cancelProcessing: () => void;
 }
 
 export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) => ({
     // 初始状态
-    vips: null,
-    vipsLoading: false,
-    vipsLoaded: false,
-    vipsError: null,
-
     inputFile: null,
     inputUrl: null,
     inputMetadata: null,
 
     options: { ...defaultImageOptions },
+
+    autoProcess: true, // 默认开启自动处理
 
     outputBlob: null,
     outputUrl: null,
@@ -64,40 +110,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
 
     isProcessing: false,
     processError: null,
-
-    /**
-     * 初始化 Vips
-     */
-    initVips: async () => {
-        const { vipsLoaded, vipsLoading } = get();
-
-        if (vipsLoaded || vipsLoading) {
-            return;
-        }
-
-        // 先检查浏览器支持
-        const support = vipsManager.checkBrowserSupport();
-        if (!support.supported) {
-            set({ vipsError: support.error || '浏览器不支持' });
-            return;
-        }
-
-        set({ vipsLoading: true, vipsError: null });
-
-        try {
-            const vips = await vipsManager.getInstance();
-            set({
-                vips,
-                vipsLoaded: true,
-                vipsLoading: false,
-            });
-        } catch (error) {
-            set({
-                vipsError: error instanceof Error ? error.message : '加载失败',
-                vipsLoading: false,
-            });
-        }
-    },
+    progress: null,
 
     /**
      * 设置输入文件
@@ -121,8 +134,6 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 defaultFormat = 'png';
             } else if (metadata.format.includes('webp')) {
                 defaultFormat = 'webp';
-            } else if (metadata.format.includes('avif')) {
-                defaultFormat = 'avif';
             }
 
             set({
@@ -133,6 +144,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 outputUrl: null,
                 outputMetadata: null,
                 processError: null,
+                progress: null,
                 options: {
                     ...defaultImageOptions,
                     outputFormat: defaultFormat,
@@ -166,8 +178,6 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             defaultFormat = 'png';
         } else if (inputMetadata?.format.includes('webp')) {
             defaultFormat = 'webp';
-        } else if (inputMetadata?.format.includes('avif')) {
-            defaultFormat = 'avif';
         }
 
         set({
@@ -179,12 +189,19 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
     },
 
     /**
-     * 处理图片
+     * 设置自动处理
+     */
+    setAutoProcess: (auto: boolean) => {
+        set({ autoProcess: auto });
+    },
+
+    /**
+     * 处理图片（使用 Web Worker）
      */
     processImage: async () => {
-        const { vips, inputFile, options, outputUrl } = get();
+        const { inputFile, options, outputUrl } = get();
 
-        if (!vips || !inputFile) {
+        if (!inputFile) {
             return;
         }
 
@@ -193,10 +210,66 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             URL.revokeObjectURL(outputUrl);
         }
 
-        set({ isProcessing: true, processError: null });
+        set({ isProcessing: true, processError: null, progress: { percent: 0, message: '准备中...' } });
 
         try {
-            const result = await processImage(vips, inputFile, options);
+            const worker = getWorker();
+
+            // 生成请求 ID
+            const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            currentRequestId = requestId;
+
+            // 读取文件
+            const buffer = await inputFile.arrayBuffer();
+
+            // 创建 Promise 等待 Worker 响应
+            const result = await new Promise<{ blob: Blob; metadata: ImageMetadata }>((resolve, reject) => {
+                const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+                    const response = event.data;
+
+                    // 检查请求 ID
+                    if (response.id !== requestId) {
+                        return;
+                    }
+
+                    switch (response.type) {
+                        case 'progress':
+                            set({
+                                progress: {
+                                    percent: response.percent,
+                                    message: response.message,
+                                },
+                            });
+                            break;
+
+                        case 'success':
+                            worker.removeEventListener('message', handleMessage);
+                            const blob = new Blob([response.buffer], {
+                                type: response.metadata.format,
+                            });
+                            resolve({ blob, metadata: response.metadata });
+                            break;
+
+                        case 'error':
+                            worker.removeEventListener('message', handleMessage);
+                            reject(new Error(response.error));
+                            break;
+                    }
+                };
+
+                worker.addEventListener('message', handleMessage);
+
+                // 发送请求
+                const request: WorkerRequest = {
+                    type: 'process',
+                    id: requestId,
+                    buffer,
+                    fileName: inputFile.name,
+                    options,
+                };
+
+                worker.postMessage(request, { transfer: [buffer] });
+            });
 
             const url = URL.createObjectURL(result.blob);
 
@@ -205,13 +278,28 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 outputUrl: url,
                 outputMetadata: result.metadata,
                 isProcessing: false,
+                progress: { percent: 100, message: '完成' },
             });
         } catch (error) {
-            set({
-                processError: error instanceof Error ? error.message : '处理失败',
-                isProcessing: false,
-            });
+            if ((error as Error).message !== '已取消') {
+                set({
+                    processError: error instanceof Error ? error.message : '处理失败',
+                    isProcessing: false,
+                    progress: null,
+                });
+            }
         }
+    },
+
+    /**
+     * 取消处理
+     */
+    cancelProcessing: () => {
+        currentRequestId = ''; // 使当前请求的响应被忽略
+        set({
+            isProcessing: false,
+            progress: null,
+        });
     },
 
     /**
@@ -256,11 +344,31 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             outputMetadata: null,
             isProcessing: false,
             processError: null,
+            progress: null,
         });
     },
 
     /**
      * 验证文件
      */
-    validateFile: validateImageFile,
+    validateFile: (file: File) => {
+        // 检查文件大小
+        if (file.size > MAX_FILE_SIZE) {
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+            return {
+                valid: false,
+                error: `文件过大 (${sizeMB}MB)，最大支持 50MB`,
+            };
+        }
+
+        // 检查格式
+        if (!validateImageFile(file)) {
+            return {
+                valid: false,
+                error: '不支持的文件格式',
+            };
+        }
+
+        return { valid: true };
+    },
 }));

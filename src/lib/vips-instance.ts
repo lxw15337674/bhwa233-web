@@ -6,6 +6,9 @@
 // wasm-vips 本地路径
 const VIPS_LOCAL_URL = '/wasm-vips/vips-es6.js';
 
+// 是否为开发环境
+const isDev = process.env.NODE_ENV === 'development';
+
 export interface VipsInstance {
     Image: {
         newFromBuffer: (buffer: ArrayBuffer) => VipsImage;
@@ -27,13 +30,32 @@ export interface VipsImage {
     rot90: () => VipsImage;
     rot180: () => VipsImage;
     rot270: () => VipsImage;
+    autorot: () => VipsImage;  // 根据 EXIF 自动旋转
 
-    // 翻转
-    fliphor: () => VipsImage;
-    flipver: () => VipsImage;
+    // 翻转（注意：使用 camelCase 命名）
+    flipHor: () => VipsImage;
+    flipVer: () => VipsImage;
+
+    // 裁剪
+    crop: (left: number, top: number, width: number, height: number) => VipsImage;
+    extractArea: (left: number, top: number, width: number, height: number) => VipsImage;
+    smartcrop: (width: number, height: number, options?: { interesting?: string }) => VipsImage;
+
+    // 颜色调整
+    linear: (a: number | number[], b: number | number[]) => VipsImage;  // 亮度/对比度
+    invert: () => VipsImage;  // 反色
+
+    // 滤镜
+    gaussblur: (sigma: number) => VipsImage;  // 高斯模糊
+    sharpen: (options?: { sigma?: number; x1?: number; y2?: number; y3?: number; m1?: number; m2?: number }) => VipsImage;  // 锐化
+
+    // 元数据
+    getFields: () => string[];  // 获取所有元数据字段
+    remove: (field: string) => boolean;  // 移除元数据
+    copy: (options?: { interpretation?: string; xres?: number; yres?: number }) => VipsImage;  // 复制图像
 
     // 导出
-    writeToBuffer: (suffix: string, options?: { Q?: number }) => Uint8Array;
+    writeToBuffer: (suffix: string, options?: { Q?: number; strip?: boolean }) => Uint8Array;
 
     // 资源释放
     delete: () => void;
@@ -112,30 +134,23 @@ class VipsManager {
      */
     private async loadVips(): Promise<VipsInstance> {
         try {
-            console.log('[vips] 开始加载 wasm-vips...');
-            console.time('[vips] 总加载时间');
+            if (isDev) console.time('[vips] 总加载时间');
 
             // 从本地 public 目录动态导入 wasm-vips ES6 模块
-            console.time('[vips] 导入 wasm-vips');
             const Vips = (await import(/* webpackIgnore: true */ VIPS_LOCAL_URL)).default;
-            console.timeEnd('[vips] 导入 wasm-vips');
 
             // 初始化 Vips，配置动态库路径
-            console.time('[vips] Vips 初始化');
-            console.log('[vips] 开始初始化 Vips...');
             const vips = await Vips({
                 // 禁用动态库加载，避免加载 HEIF/JXL 等格式的额外 wasm 文件
                 dynamicLibraries: [],
                 // 指定文件路径
                 locateFile: (fileName: string) => `/wasm-vips/${fileName}`,
-                // 打印日志便于调试
-                print: (text: string) => console.log('[vips]', text),
-                printErr: (text: string) => console.error('[vips]', text),
             });
-            console.timeEnd('[vips] Vips 初始化');
 
-            console.log('[vips] wasm-vips 加载完成!');
-            console.timeEnd('[vips] 总加载时间');
+            if (isDev) {
+                console.timeEnd('[vips] 总加载时间');
+                console.log('[vips] wasm-vips 加载完成!');
+            }
 
             return vips as VipsInstance;
         } catch (error) {
