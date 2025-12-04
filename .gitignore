@@ -46,4 +46,6 @@ next-env.d.ts
 
 public/sw*
 public/swe-worker*
+public/wasm-vips
 .vercel
+

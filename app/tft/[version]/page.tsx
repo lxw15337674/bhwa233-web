@@ -105,7 +105,7 @@ export default async function Page({
     getRaceData(currentVersion.urlRaceData),
     getEquipData(currentVersion.urlEquipData),
   ]);
-
+  console.log(jobs, races, equipData)
   // 处理装备数据
   const equips = equipData.reduce(
     (acc: EquipsByType, equip: TFTEquip) => {
