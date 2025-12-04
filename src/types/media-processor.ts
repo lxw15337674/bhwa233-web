@@ -2,7 +2,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { AudioInfo, MediaMetadata, ConversionState } from '@/utils/audioConverter';
 
 // 媒体处理分类
-export type ProcessorCategory = 'audio' | 'image';
+export type ProcessorCategory = 'audio' | 'image' | 'editor';
 
 // 处理状态接口
 export interface ProcessingState {

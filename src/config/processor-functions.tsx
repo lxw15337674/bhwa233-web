@@ -18,7 +18,8 @@ const imageFileValidator = (file: File): boolean => {
 
 export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string; default: string }> = {
     audio: { label: '音频', icon: '🎵', default: 'audio-convert' },
-    image: { label: '图片', icon: '🖼️', default: '' },
+    image: { label: '图片处理', icon: '🖼️', default: '' },
+    editor: { label: '图片编辑', icon: '✏️', default: '' },
 };
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
