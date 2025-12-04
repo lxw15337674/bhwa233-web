@@ -122,6 +122,15 @@ const nextConfig: NextConfig = withSerwist({
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
         ],
       },
+      // wasm-vips 静态文件也需要 COEP 头
+      {
+        source: '/wasm-vips/:path*',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+        ],
+      },
     ];
   },
 });
