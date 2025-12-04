@@ -2,8 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { Card } from '@/components/ui/card';
-import { Upload, ImageIcon } from 'lucide-react';
+import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
 
 // 动态导入 FilerobotImageEditor（仅客户端）
 const FilerobotImageEditor = dynamic(
@@ -189,7 +188,6 @@ const translations = {
 
 const ImageEditorPage: React.FC = () => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
 
     // 处理文件选择
     const handleFileSelect = useCallback((file: File) => {
@@ -200,37 +198,9 @@ const ImageEditorPage: React.FC = () => {
         setImageUrl(url);
     }, []);
 
-    // 处理拖拽
-    const handleDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-    }, []);
-
-    const handleDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) {
-            handleFileSelect(file);
-        }
-    }, [handleFileSelect]);
-
-    // 处理文件输入
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            handleFileSelect(file);
-        }
-    }, [handleFileSelect]);
-
     // 处理保存
     const handleSave = useCallback((editedImageObject: any) => {
-        const { imageBase64, fullName, mimeType } = editedImageObject;
+        const { imageBase64, fullName } = editedImageObject;
 
         // 下载图片
         const link = document.createElement('a');
@@ -252,40 +222,10 @@ const ImageEditorPage: React.FC = () => {
     // 未上传图片时显示上传区域
     if (!imageUrl) {
         return (
-            <Card
-                className={`p-8 border-2 border-dashed transition-colors cursor-pointer ${isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
-                    }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => document.getElementById('image-upload')?.click()}
-            >
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                        {isDragging ? (
-                            <ImageIcon className="w-8 h-8 text-primary" />
-                        ) : (
-                            <Upload className="w-8 h-8 text-primary" />
-                        )}
-                    </div>
-                    <h3 className="text-lg font-medium mb-2">
-                        {isDragging ? '松开以上传图片' : '上传图片开始编辑'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        拖拽图片到此处，或点击选择文件
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                        支持 JPG、PNG、WebP、BMP 等常见格式
-                    </p>
-                    <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleInputChange}
-                    />
-                </div>
-            </Card>
+            <ImageUploadArea
+                onFileSelect={handleFileSelect}
+                showPreview={false}
+            />
         );
     }
 
