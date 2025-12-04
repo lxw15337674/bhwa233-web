@@ -31,15 +31,9 @@ const ImageProcessorPage: React.FC = () => {
             ) : (
                 // 已上传图片时，显示编辑界面
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* 左侧：图片对比预览 */}
-                    <div className="lg:col-span-2 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* 原图预览 */}
-                            <ImageInputArea />
-
-                            {/* 处理后预览 */}
+                        {/* 左侧：处理后预览 */}
+                        <div className="lg:col-span-2">
                             <ImageOutputPreview />
-                        </div>
                     </div>
 
                     {/* 右侧：编辑面板 */}

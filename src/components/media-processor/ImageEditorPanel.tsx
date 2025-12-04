@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, ChangeEvent } from 'react';
 import {
     RotateCw,
     RotateCcw,
@@ -11,6 +11,7 @@ import {
     Loader2,
     AlertTriangle,
     Zap,
+    Replace,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -37,7 +38,29 @@ export const ImageEditorPanel: React.FC = () => {
         setAutoProcess,
         processImage,
         downloadOutput,
+        setInputFile,
+        validateFile,
     } = useImageProcessorStore();
+
+    // 更换图片的文件输入引用
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // 处理文件选择
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && validateFile(file)) {
+            setInputFile(file);
+        }
+        // 清空 input 以便重复选择同一文件
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    // 触发文件选择
+    const handleChangeImage = () => {
+        fileInputRef.current?.click();
+    };
 
     // 防抖定时器
     const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -128,6 +151,27 @@ export const ImageEditorPanel: React.FC = () => {
                     <AlertDescription>{processError}</AlertDescription>
                 </Alert>
             )}
+
+            {/* 更换图片 */}
+            <div className="flex justify-end">
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleChangeImage}
+                >
+                    <Replace className="w-4 h-4 mr-1" />
+                    更换图片
+                </Button>
+            </div>
+
+            <Separator />
 
             {/* 压缩质量 */}
             <div className="space-y-3">

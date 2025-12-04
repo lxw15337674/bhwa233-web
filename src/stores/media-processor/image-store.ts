@@ -11,9 +11,50 @@ import {
 // 最大文件大小 50MB
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
+// EXIF 元数据接口
+export interface ExifMetadata {
+    // 设备信息
+    make?: string;           // 相机品牌
+    model?: string;          // 相机型号
+    software?: string;       // 编辑软件
+    lensModel?: string;      // 镜头型号
+
+    // 拍摄时间
+    dateTime?: string;       // 拍摄时间
+    dateTimeOriginal?: string;
+
+    // 拍摄参数
+    exposureTime?: string;   // 快门速度
+    fNumber?: number;        // 光圈
+    iso?: number;            // ISO
+    focalLength?: number;    // 焦距
+    focalLength35mm?: number;
+    whiteBalance?: number;   // 白平衡 (0=自动, 1=手动)
+    flash?: number;          // 闪光灯状态
+    exposureBias?: number;   // 曝光补偿
+    meteringMode?: number;   // 测光模式
+
+    // 图像信息
+    colorSpace?: string;     // 色彩空间
+    xResolution?: number;    // X 分辨率 (DPI)
+    yResolution?: number;    // Y 分辨率 (DPI)
+    orientation?: number;    // 方向 (1-8)
+
+    // GPS 信息 (隐私敏感)
+    gpsLatitude?: number;    // 纬度
+    gpsLongitude?: number;   // 经度
+    gpsAltitude?: number;    // 海拔
+    gpsLatitudeRef?: string; // N/S
+    gpsLongitudeRef?: string;// E/W
+
+    // 其他
+    artist?: string;         // 作者
+    copyright?: string;      // 版权
+}
+
 // Worker 消息类型
 interface WorkerRequest {
-    type: 'process';
+    type: 'process' | 'getExif';
     id: string;
     buffer: ArrayBuffer;
     fileName: string;
@@ -34,13 +75,19 @@ interface WorkerSuccessResponse {
     metadata: ImageMetadata;
 }
 
+interface WorkerExifResponse {
+    type: 'exif';
+    id: string;
+    exifData: ExifMetadata;
+}
+
 interface WorkerErrorResponse {
     type: 'error';
     id: string;
     error: string;
 }
 
-type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerErrorResponse;
+type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerExifResponse | WorkerErrorResponse;
 
 // Worker 单例
 let workerInstance: Worker | null = null;
@@ -65,6 +112,7 @@ interface ImageProcessorStore {
     inputFile: File | null;
     inputUrl: string | null;
     inputMetadata: ImageMetadata | null;
+    exifMetadata: ExifMetadata | null;
 
     // 处理选项
     options: ImageProcessingOptions;
@@ -88,6 +136,7 @@ interface ImageProcessorStore {
     resetOptions: () => void;
     setAutoProcess: (auto: boolean) => void;
     processImage: () => Promise<void>;
+    loadExifMetadata: () => Promise<void>;
     downloadOutput: () => void;
     reset: () => void;
     validateFile: (file: File) => { valid: boolean; error?: string };
@@ -99,6 +148,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
     inputFile: null,
     inputUrl: null,
     inputMetadata: null,
+    exifMetadata: null,
 
     options: { ...defaultImageOptions },
 
@@ -140,6 +190,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 inputFile: file,
                 inputUrl: url,
                 inputMetadata: metadata,
+                exifMetadata: null,
                 outputBlob: null,
                 outputUrl: null,
                 outputMetadata: null,
@@ -150,6 +201,10 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                     outputFormat: defaultFormat,
                 },
             });
+
+            // 上传后立即进行一次处理和读取 EXIF
+            get().processImage();
+            get().loadExifMetadata();
         } catch (error) {
             set({
                 processError: error instanceof Error ? error.message : '读取图片失败',
@@ -303,6 +358,57 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
     },
 
     /**
+     * 读取 EXIF 元数据
+     */
+    loadExifMetadata: async () => {
+        const { inputFile } = get();
+
+        if (!inputFile) {
+            return;
+        }
+
+        try {
+            const worker = getWorker();
+            const buffer = await inputFile.arrayBuffer();
+            const requestId = `exif-${Date.now()}`;
+
+            const result = await new Promise<ExifMetadata>((resolve, reject) => {
+                const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+                    const response = event.data;
+
+                    if (response.id !== requestId) return;
+
+                    if (response.type === 'exif') {
+                        worker.removeEventListener('message', handleMessage);
+                        resolve(response.exifData);
+                    } else if (response.type === 'error') {
+                        worker.removeEventListener('message', handleMessage);
+                        reject(new Error(response.error));
+                    }
+                };
+
+                worker.addEventListener('message', handleMessage);
+
+                const request: WorkerRequest = {
+                    type: 'getExif',
+                    id: requestId,
+                    buffer,
+                    fileName: inputFile.name,
+                    options: get().options,
+                };
+
+                worker.postMessage(request, { transfer: [buffer] });
+            });
+
+            set({ exifMetadata: result });
+        } catch (error) {
+            // EXIF 读取失败不影响主流程，静默处理
+            console.warn('读取 EXIF 失败:', error);
+            set({ exifMetadata: null });
+        }
+    },
+
+    /**
      * 下载输出文件
      */
     downloadOutput: () => {
@@ -338,6 +444,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             inputFile: null,
             inputUrl: null,
             inputMetadata: null,
+            exifMetadata: null,
             options: { ...defaultImageOptions },
             outputBlob: null,
             outputUrl: null,

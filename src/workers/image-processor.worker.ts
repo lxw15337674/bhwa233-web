@@ -5,7 +5,7 @@
 
 // Worker 消息类型
 export interface WorkerRequest {
-    type: 'process';
+    type: 'process' | 'getExif';
     id: string;
     buffer: ArrayBuffer;
     fileName: string;
@@ -26,13 +26,60 @@ export interface WorkerSuccessResponse {
     metadata: ImageMetadata;
 }
 
+export interface WorkerExifResponse {
+    type: 'exif';
+    id: string;
+    exifData: ExifMetadata;
+}
+
 export interface WorkerErrorResponse {
     type: 'error';
     id: string;
     error: string;
 }
 
-export type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerErrorResponse;
+export type WorkerResponse = WorkerProgressResponse | WorkerSuccessResponse | WorkerExifResponse | WorkerErrorResponse;
+
+// EXIF 元数据接口
+export interface ExifMetadata {
+    // 设备信息
+    make?: string;           // 相机品牌
+    model?: string;          // 相机型号
+    software?: string;       // 编辑软件
+    lensModel?: string;      // 镜头型号
+
+    // 拍摄时间
+    dateTime?: string;       // 拍摄时间
+    dateTimeOriginal?: string;
+
+    // 拍摄参数
+    exposureTime?: string;   // 快门速度
+    fNumber?: number;        // 光圈
+    iso?: number;            // ISO
+    focalLength?: number;    // 焦距
+    focalLength35mm?: number;
+    whiteBalance?: number;   // 白平衡 (0=自动, 1=手动)
+    flash?: number;          // 闪光灯状态
+    exposureBias?: number;   // 曝光补偿
+    meteringMode?: number;   // 测光模式
+
+    // 图像信息
+    colorSpace?: string;     // 色彩空间
+    xResolution?: number;    // X 分辨率 (DPI)
+    yResolution?: number;    // Y 分辨率 (DPI)
+    orientation?: number;    // 方向 (1-8)
+
+    // GPS 信息 (隐私敏感)
+    gpsLatitude?: number;    // 纬度
+    gpsLongitude?: number;   // 经度
+    gpsAltitude?: number;    // 海拔
+    gpsLatitudeRef?: string; // N/S
+    gpsLongitudeRef?: string;// E/W
+
+    // 其他
+    artist?: string;         // 作者
+    copyright?: string;      // 版权
+}
 
 // 类型定义（与 imageProcessor.ts 保持一致）
 interface ImageProcessingOptions {
@@ -75,7 +122,10 @@ interface VipsImage {
     width: number;
     height: number;
     getInt(name: string): number;
+    getDouble(name: string): number;
+    getString(name: string): string;
     getArrayInt(name: string): number[];
+    getFields(): string[];
     resize(scale: number): VipsImage;
     rot90(): VipsImage;
     rot180(): VipsImage;
@@ -151,6 +201,139 @@ function sendProgress(id: string, percent: number, message: string) {
         percent,
         message,
     } as WorkerProgressResponse);
+}
+
+/**
+ * 清理 EXIF 字符串值
+ * vips 返回的 EXIF 字符串格式: "值 (值, 类型, 组件数, 字节数)"
+ * 例如: "DJI (DJI, ASCII, 4 components, 4 bytes)" → "DJI"
+ * 多值: "DJI (DJI, ASCII, 4 bytes) FC8582 (FC8582, ASCII, 7 bytes)" → "DJI FC8582"
+ */
+function cleanExifString(value: string): string {
+    // 移除所有括号及其内容: (xxx, xxx, xxx)
+    const cleaned = value.replace(/\s*\([^)]*\)/g, '').trim();
+    return cleaned || value; // 如果清理后为空，返回原值
+}
+
+/**
+ * 安全获取图片字符串属性
+ */
+function safeGetString(image: VipsImage, name: string): string | undefined {
+    try {
+        const value = image.getString(name);
+        if (!value) return undefined;
+        return cleanExifString(value);
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * 安全获取图片整数属性
+ */
+function safeGetInt(image: VipsImage, name: string): number | undefined {
+    try {
+        const value = image.getInt(name);
+        return value || undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * 安全获取图片浮点数属性
+ */
+function safeGetDouble(image: VipsImage, name: string): number | undefined {
+    try {
+        const value = image.getDouble(name);
+        return value || undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+/**
+ * 从图片读取 EXIF 元数据
+ */
+function extractExifMetadata(image: VipsImage): ExifMetadata {
+    const exif: ExifMetadata = {};
+
+    // 设备信息
+    exif.make = safeGetString(image, 'exif-ifd0-Make');
+    exif.model = safeGetString(image, 'exif-ifd0-Model');
+    exif.software = safeGetString(image, 'exif-ifd0-Software');
+    exif.lensModel = safeGetString(image, 'exif-ifd2-LensModel');
+
+    // 拍摄时间
+    exif.dateTime = safeGetString(image, 'exif-ifd0-DateTime');
+    exif.dateTimeOriginal = safeGetString(image, 'exif-ifd2-DateTimeOriginal');
+
+    // 拍摄参数
+    exif.exposureTime = safeGetString(image, 'exif-ifd2-ExposureTime');
+    exif.fNumber = safeGetDouble(image, 'exif-ifd2-FNumber');
+    exif.iso = safeGetInt(image, 'exif-ifd2-ISOSpeedRatings');
+    exif.focalLength = safeGetDouble(image, 'exif-ifd2-FocalLength');
+    exif.focalLength35mm = safeGetInt(image, 'exif-ifd2-FocalLengthIn35mmFilm');
+    exif.whiteBalance = safeGetInt(image, 'exif-ifd2-WhiteBalance');
+    exif.flash = safeGetInt(image, 'exif-ifd2-Flash');
+    exif.exposureBias = safeGetDouble(image, 'exif-ifd2-ExposureBiasValue');
+    exif.meteringMode = safeGetInt(image, 'exif-ifd2-MeteringMode');
+
+    // 图像信息
+    exif.orientation = safeGetInt(image, 'exif-ifd0-Orientation');
+    exif.xResolution = safeGetDouble(image, 'exif-ifd0-XResolution');
+    exif.yResolution = safeGetDouble(image, 'exif-ifd0-YResolution');
+
+    // 色彩空间
+    const colorSpace = safeGetInt(image, 'exif-ifd2-ColorSpace');
+    if (colorSpace === 1) {
+        exif.colorSpace = 'sRGB';
+    } else if (colorSpace === 65535) {
+        exif.colorSpace = 'Uncalibrated';
+    }
+
+    // GPS 信息
+    exif.gpsLatitude = safeGetDouble(image, 'exif-ifd3-GPSLatitude');
+    exif.gpsLongitude = safeGetDouble(image, 'exif-ifd3-GPSLongitude');
+    exif.gpsAltitude = safeGetDouble(image, 'exif-ifd3-GPSAltitude');
+    exif.gpsLatitudeRef = safeGetString(image, 'exif-ifd3-GPSLatitudeRef');
+    exif.gpsLongitudeRef = safeGetString(image, 'exif-ifd3-GPSLongitudeRef');
+
+    // 其他
+    exif.artist = safeGetString(image, 'exif-ifd0-Artist');
+    exif.copyright = safeGetString(image, 'exif-ifd0-Copyright');
+
+    return exif;
+}
+
+/**
+ * 处理 EXIF 读取请求
+ */
+async function handleGetExifRequest(request: WorkerRequest) {
+    const { id, buffer } = request;
+
+    try {
+        const vips = await loadVips();
+        const image = vips.Image.newFromBuffer(buffer);
+
+        try {
+            const exifData = extractExifMetadata(image);
+
+            self.postMessage({
+                type: 'exif',
+                id,
+                exifData,
+            } as WorkerExifResponse);
+        } finally {
+            image.delete();
+        }
+    } catch (error) {
+        self.postMessage({
+            type: 'error',
+            id,
+            error: error instanceof Error ? error.message : '读取 EXIF 失败',
+        } as WorkerErrorResponse);
+    }
 }
 
 /**
@@ -409,6 +592,8 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
 
     if (request.type === 'process') {
         handleProcessRequest(request);
+    } else if (request.type === 'getExif') {
+        handleGetExifRequest(request);
     }
 };
 
