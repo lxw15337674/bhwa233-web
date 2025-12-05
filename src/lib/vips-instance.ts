@@ -23,7 +23,7 @@ export interface VipsImage {
     format: string;
 
     // 缩放
-    resize: (scale: number) => VipsImage;
+    resize: (scale: number, options?: { vscale?: number; kernel?: string }) => VipsImage;
     thumbnailImage: (width: number, options?: { height?: number }) => VipsImage;
 
     // 旋转

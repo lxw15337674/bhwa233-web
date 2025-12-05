@@ -199,6 +199,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 options: {
                     ...defaultImageOptions,
                     outputFormat: defaultFormat,
+                    outputFilename: generateOutputFilename(file.name, defaultFormat), // Pre-fill with suggested edited name
                 },
             });
 
@@ -331,7 +332,10 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             set({
                 outputBlob: result.blob,
                 outputUrl: url,
-                outputMetadata: result.metadata,
+                outputMetadata: {
+                    ...result.metadata,
+                    name: generateOutputFilename(inputFile.name, options.outputFormat, options.outputFilename),
+                },
                 isProcessing: false,
                 progress: { percent: 100, message: '完成' },
             });
@@ -418,7 +422,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             return;
         }
 
-        const filename = generateOutputFilename(inputFile.name, options.outputFormat);
+        const filename = generateOutputFilename(inputFile.name, options.outputFormat, options.outputFilename);
 
         const url = URL.createObjectURL(outputBlob);
         const a = document.createElement('a');

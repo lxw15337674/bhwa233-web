@@ -1,28 +1,32 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, ChangeEvent } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     RotateCw,
     RotateCcw,
     RefreshCw,
     Download,
-    ShieldX,
     Play,
     Loader2,
     AlertTriangle,
     Zap,
     Replace,
+    GalleryHorizontalEnd,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useImageProcessorStore } from '@/stores/media-processor/image-store';
 import { ImageProcessingOptions } from '@/utils/imageProcessor';
+import { QualitySlider } from './shared/QualitySlider';
+import { FormatSelector } from './shared/FormatSelector';
+import { ResizeControl } from './shared/ResizeControl';
+import { ExifSwitch } from './shared/ExifSwitch';
 
 export const ImageEditorPanel: React.FC = () => {
     const {
@@ -114,30 +118,6 @@ export const ImageEditorPanel: React.FC = () => {
         updateOptions({ rotation: newRotation });
     };
 
-    // 处理格式变化
-    const handleFormatChange = (value: string) => {
-        if (value) {
-            updateOptions({ outputFormat: value as ImageProcessingOptions['outputFormat'] });
-        }
-    };
-
-    // 计算缩放后的尺寸
-    const getScaledDimensions = useCallback(() => {
-        if (!inputMetadata) return { width: 0, height: 0 };
-
-        // 考虑旋转
-        const isRotated = options.rotation === 90 || options.rotation === 270;
-        const baseWidth = isRotated ? inputMetadata.height : inputMetadata.width;
-        const baseHeight = isRotated ? inputMetadata.width : inputMetadata.height;
-
-        return {
-            width: Math.round(baseWidth * options.scale),
-            height: Math.round(baseHeight * options.scale),
-        };
-    }, [inputMetadata, options.rotation, options.scale]);
-
-    const scaledDimensions = getScaledDimensions();
-
     if (!inputFile) {
         return null;
     }
@@ -153,7 +133,7 @@ export const ImageEditorPanel: React.FC = () => {
             )}
 
             {/* 更换图片 */}
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -169,69 +149,35 @@ export const ImageEditorPanel: React.FC = () => {
                     <Replace className="w-4 h-4 mr-1" />
                     更换图片
                 </Button>
+                <Button variant="outline" size="sm" asChild>
+                    <Link href="/processor/image/batch">
+                        <GalleryHorizontalEnd className="w-4 h-4 mr-1" />
+                        批量处理
+                    </Link>
+                </Button>
             </div>
 
             <Separator />
 
             {/* 压缩质量 */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                    <Label>压缩质量</Label>
-                    <span className="text-sm font-medium">{options.quality}%</span>
-                </div>
-                <Slider
-                    value={[options.quality]}
-                    onValueChange={(value) => updateOptions({ quality: value[0] })}
-                    min={1}
-                    max={100}
-                    step={1}
-                    disabled={options.outputFormat === 'png'}
-                />
-                {options.outputFormat === 'png' && (
-                    <p className="text-xs text-muted-foreground">PNG 格式为无损压缩，质量设置不生效</p>
-                )}
-            </div>
+            <QualitySlider
+                value={options.quality}
+                onChange={(val) => updateOptions({ quality: val })}
+                disabled={options.outputFormat === 'png'}
+            />
 
             {/* 输出格式 */}
-            <div className="space-y-3">
-                <Label>输出格式</Label>
-                <ToggleGroup
-                    type="single"
-                    value={options.outputFormat}
-                    onValueChange={handleFormatChange}
-                    className="justify-start flex-wrap"
-                >
-                    <ToggleGroupItem value="jpeg" aria-label="JPEG">
-                        JPEG
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="png" aria-label="PNG">
-                        PNG
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="webp" aria-label="WebP">
-                        WebP
-                    </ToggleGroupItem>
-                </ToggleGroup>
-            </div>
+            <FormatSelector
+                value={options.outputFormat}
+                onChange={(val) => updateOptions({ outputFormat: val })}
+            />
 
             {/* 尺寸调整 */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                    <Label>缩放比例</Label>
-                    <span className="text-sm font-medium">{Math.round(options.scale * 100)}%</span>
-                </div>
-                <Slider
-                    value={[options.scale * 100]}
-                    onValueChange={(value) => updateOptions({ scale: value[0] / 100 })}
-                    min={10}
-                    max={200}
-                    step={5}
-                />
-                {inputMetadata && (
-                    <p className="text-xs text-muted-foreground">
-                        输出尺寸: {scaledDimensions.width} × {scaledDimensions.height}
-                    </p>
-                )}
-            </div>
+            <ResizeControl
+                options={options}
+                updateOptions={updateOptions}
+                inputMetadata={inputMetadata}
+            />
 
             {/* 旋转 */}
             <div className="space-y-3">
@@ -270,19 +216,25 @@ export const ImageEditorPanel: React.FC = () => {
                 <Label>其他选项</Label>
 
                 {/* 去除 EXIF */}
-                <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-2 font-normal cursor-pointer">
-                        <ShieldX className="w-4 h-4" />
-                        去除 EXIF 信息
-                    </Label>
-                    <Switch
-                        checked={options.stripMetadata}
-                        onCheckedChange={(checked) => updateOptions({ stripMetadata: checked })}
+                <ExifSwitch
+                    checked={options.stripMetadata}
+                    onCheckedChange={(checked) => updateOptions({ stripMetadata: checked })}
+                />
+
+                {/* 输出文件名 */}
+                <div className="space-y-2">
+                    <Label htmlFor="output-filename">输出文件名</Label>
+                    <Input
+                        id="output-filename"
+                        type="text"
+                        placeholder={inputMetadata?.name ? `例如: ${inputMetadata.name.split('.').slice(0, -1).join('.')}_edited` : '自定义文件名'}
+                        value={options.outputFilename || ''}
+                        onChange={(e) => updateOptions({ outputFilename: e.target.value })}
                     />
+                    <p className="text-xs text-muted-foreground">
+                        留空则自动生成文件名
+                    </p>
                 </div>
-                <p className="text-xs text-muted-foreground -mt-2">
-                    移除 GPS 位置、拍摄设备等隐私信息
-                </p>
             </div>
 
             <Separator />

@@ -53,6 +53,7 @@ export interface ImageProcessingOptions {
     // 其他
     autoRotate: boolean;       // 根据 EXIF 自动旋转
     stripMetadata: boolean;    // 去除 EXIF 信息
+    outputFilename: string;    // 输出文件名，如果为空则自动生成
 }
 
 export const defaultImageOptions: ImageProcessingOptions = {
@@ -78,6 +79,7 @@ export const defaultImageOptions: ImageProcessingOptions = {
     sharpen: 0,
     autoRotate: false,
     stripMetadata: false,
+    outputFilename: '', // Add default empty string for output filename
 };
 
 /**
@@ -135,7 +137,17 @@ export function getFileExtension(format: ImageProcessingOptions['outputFormat'])
 /**
  * 生成输出文件名
  */
-export function generateOutputFilename(originalName: string, format: ImageProcessingOptions['outputFormat']): string {
+export function generateOutputFilename(
+    originalName: string,
+    format: ImageProcessingOptions['outputFormat'],
+    customFilename?: string // New optional parameter
+): string {
+    if (customFilename) {
+        // Remove existing extension from custom filename if present
+        const baseCustomName = customFilename.replace(/\.[^/.]+$/, '');
+        const extension = getFileExtension(format);
+        return `${baseCustomName}${extension}`;
+    }
     const baseName = originalName.replace(/\.[^/.]+$/, '');
     const extension = getFileExtension(format);
     return `${baseName}_edited${extension}`;
@@ -295,16 +307,27 @@ function applyResize(image: VipsImage, options: ImageProcessingOptions): VipsIma
         const targetW = options.targetWidth || image.width;
         const targetH = options.targetHeight || image.height;
 
-        // 保持比例，取较小的缩放比
         const scaleW = targetW / image.width;
         const scaleH = targetH / image.height;
-        const scale = options.keepAspectRatio ? Math.min(scaleW, scaleH) : scaleW;
 
-        if (scale !== 1) {
-            const resized = image.resize(scale);
-            image.delete();
-            return resized;
+        let resized: VipsImage;
+        if (options.keepAspectRatio) {
+            const scale = Math.min(scaleW, scaleH);
+            if (scale !== 1) {
+                resized = image.resize(scale);
+            } else {
+                return image;
+            }
+        } else {
+            // If aspect ratio is not kept, apply both horizontal and vertical scales
+            if (scaleW !== 1 || scaleH !== 1) {
+                resized = image.resize(scaleW, { vscale: scaleH });
+            } else {
+                return image;
+            }
         }
+        image.delete();
+        return resized;
     } else if (options.scale !== 1) {
         // 比例缩放模式
         const resized = image.resize(options.scale);

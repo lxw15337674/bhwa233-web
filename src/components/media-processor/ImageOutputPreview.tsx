@@ -74,7 +74,7 @@ export const ImageOutputPreview: React.FC = () => {
             {/* 图片预览 */}
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
                 <img
-                    src={outputUrl}
+                    src={displayUrl}
                     alt="处理后预览"
                     className="w-full h-full object-contain"
                 />
