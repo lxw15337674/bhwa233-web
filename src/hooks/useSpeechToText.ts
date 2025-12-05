@@ -1,106 +1,72 @@
-import { useSetState, useRequest, useMemoizedFn } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
+import { useProcessingTask } from './common/useProcessingTask';
 
-interface SpeechToTextState {
-    isProcessing: boolean;
-    progress: number;
-    currentStep: string;
-    error: string | null;
-    result: string | null;
-    outputFileName: string;
+interface SpeechToTextResult {
+    text: string;
+    fileName: string;
 }
 
 export const useSpeechToText = () => {
-    const [state, setState] = useSetState<SpeechToTextState>({
-        isProcessing: false,
-        progress: 0,
-        currentStep: '',
-        error: null,
-        result: null,
-        outputFileName: ''
-    });
+    const {
+        state,
+        start,
+        updateProgress,
+        complete,
+        fail,
+        reset
+    } = useProcessingTask<SpeechToTextResult>();
 
-    const { loading: isProcessing, run: runTranscription } = useRequest(
-        async (file: File) => {
-            setState({
-                isProcessing: true,
-                progress: 0,
-                currentStep: '正在上传音频文件...',
-                error: null
-            });
-
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                // 上传文件阶段 - 50%
-                setState({
-                    progress: 50,
-                    currentStep: '正在识别音频内容...'
-                });
-
-                const response = await fetch('/api/siliconflow/transcribe', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `识别失败: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-
-                // 识别完成阶段 - 100%
-                setState({
-                    isProcessing: false,
-                    progress: 100,
-                    currentStep: '识别完成！',
-                    result: result.text || result,
-                    outputFileName: `${file.name.split('.')[0]}.txt`
-                });
-
-                return result;
-            } catch (error) {
-                throw error;
-            }
-        },
-        {
-            manual: true,
-            onError: (error) => {
-                setState({
-                    isProcessing: false,
-                    progress: 0,
-                    error: error.message,
-                    currentStep: '识别失败'
-                });
-            }
-        }
-    );
-
-    const startTranscription = useMemoizedFn((file: File) => {
+    const startTranscription = useMemoizedFn(async (file: File) => {
         if (!file) {
-            setState({
-                error: '请选择音频文件'
-            });
+            fail(new Error('请选择音频文件'), '请选择音频文件');
             return;
         }
-        runTranscription(file);
+
+        try {
+            start('正在上传音频文件...');
+            updateProgress(0, '正在上传音频文件...');
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 上传文件阶段 - 50% (模拟，因为 fetch 没有上传进度)
+            updateProgress(50, '正在识别音频内容...');
+
+            const response = await fetch('/api/siliconflow/transcribe', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `识别失败: ${response.statusText}`);
+            }
+
+            const resultData = await response.json();
+            const resultText = resultData.text || resultData;
+            const fileName = `${file.name.split('.')[0]}.txt`;
+
+            complete({
+                text: resultText,
+                fileName: fileName
+            }, '识别完成！');
+
+        } catch (error: any) {
+            fail(error instanceof Error ? error : new Error(error.message || '识别失败'), '识别失败');
+        }
     });
 
     const resetState = useMemoizedFn(() => {
-        setState({
-            isProcessing: false,
-            progress: 0,
-            currentStep: '',
-            error: null,
-            result: null,
-            outputFileName: ''
-        });
+        reset();
     });
 
     return {
-        ...state,
-        isProcessing,
+        isProcessing: state.status === 'processing',
+        progress: state.progress,
+        currentStep: state.message,
+        error: state.error?.message || null,
+        result: state.result?.text || null,
+        outputFileName: state.result?.fileName || '',
         startTranscription,
         resetState
     };

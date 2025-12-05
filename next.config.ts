@@ -83,6 +83,17 @@ const nextConfig: NextConfig = withSerwist({
         destination: '/zh/tft/:path*',
         permanent: true,
       },
+      // Deprecated routes
+      {
+        source: '/audio-converter',
+        destination: '/media-processor',
+        permanent: true,
+      },
+      {
+        source: '/audio-format-converter',
+        destination: '/media-processor',
+        permanent: true,
+      },
     ];
   },
   rewrites: async () => {

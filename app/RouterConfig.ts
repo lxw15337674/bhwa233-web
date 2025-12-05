@@ -24,11 +24,6 @@ export const Apps: MenuItem[] = [
     url: '/media-processor',
     icon: Video
   },
-  {
-    name: '音频转换',
-    url: '/audio-format-converter',
-    icon: Music
-  },
   // {
   //   name: '图床',
   //   url: '/gallery',
