@@ -12,6 +12,7 @@ import type {
     WorkerErrorResponse,
 } from '@/workers/image-processor.worker';
 import { ImageProcessingOptions, ImageMetadata } from '@/utils/imageProcessor';
+import { useProcessingTask } from './common/useProcessingTask';
 
 // 最大文件大小 50MB
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -48,11 +49,16 @@ export function useImageWorker(): UseImageWorkerReturn {
         reject: (error: Error) => void;
     } | null>(null);
     const requestIdRef = useRef<string>('');
-
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [progress, setProgress] = useState<ProcessingProgress | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [isWorkerReady, setIsWorkerReady] = useState(false);
+
+    const {
+        state,
+        start,
+        updateProgress: updateTaskProgress,
+        complete,
+        fail,
+        reset
+    } = useProcessingTask<ProcessingResult>();
 
     // 初始化 Worker（懒加载）
     const initWorker = useCallback(() => {
@@ -75,10 +81,7 @@ export function useImageWorker(): UseImageWorkerReturn {
             switch (response.type) {
                 case 'progress': {
                     const progressResponse = response as WorkerProgressResponse;
-                    setProgress({
-                        percent: progressResponse.percent,
-                        message: progressResponse.message,
-                    });
+                    updateTaskProgress(progressResponse.percent, progressResponse.message);
                     break;
                 }
                 case 'success': {
@@ -87,29 +90,28 @@ export function useImageWorker(): UseImageWorkerReturn {
                         type: successResponse.metadata.format,
                     });
 
+                    const result = {
+                        blob,
+                        metadata: successResponse.metadata,
+                    };
+
                     if (pendingRequestRef.current) {
-                        pendingRequestRef.current.resolve({
-                            blob,
-                            metadata: successResponse.metadata,
-                        });
+                        pendingRequestRef.current.resolve(result);
                         pendingRequestRef.current = null;
                     }
 
-                    setIsProcessing(false);
-                    setProgress({ percent: 100, message: '完成' });
+                    complete(result, '完成');
                     break;
                 }
                 case 'error': {
                     const errorResponse = response as WorkerErrorResponse;
-                    setError(errorResponse.error);
-
+                    
                     if (pendingRequestRef.current) {
                         pendingRequestRef.current.reject(new Error(errorResponse.error));
                         pendingRequestRef.current = null;
                     }
 
-                    setIsProcessing(false);
-                    setProgress(null);
+                    fail(new Error(errorResponse.error));
                     break;
                 }
             }
@@ -117,21 +119,20 @@ export function useImageWorker(): UseImageWorkerReturn {
 
         worker.onerror = (event) => {
             const errorMessage = event.message || 'Worker 错误';
-            setError(errorMessage);
-
+            
             if (pendingRequestRef.current) {
                 pendingRequestRef.current.reject(new Error(errorMessage));
                 pendingRequestRef.current = null;
             }
 
-            setIsProcessing(false);
+            fail(new Error(errorMessage));
         };
 
         workerRef.current = worker;
         setIsWorkerReady(true);
 
         return worker;
-    }, []);
+    }, [updateTaskProgress, complete, fail]);
 
     // 处理图片
     const processImage = useCallback(
@@ -152,9 +153,7 @@ export function useImageWorker(): UseImageWorkerReturn {
             }
 
             // 重置状态
-            setIsProcessing(true);
-            setProgress({ percent: 0, message: '准备中...' });
-            setError(null);
+            start('准备中...');
 
             // 生成请求 ID
             const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -178,7 +177,7 @@ export function useImageWorker(): UseImageWorkerReturn {
                 worker.postMessage(request, { transfer: [buffer] });
             });
         },
-        [initWorker]
+        [initWorker, start]
     );
 
     // 取消处理
@@ -191,9 +190,8 @@ export function useImageWorker(): UseImageWorkerReturn {
         // 更新请求 ID 使进行中的请求响应被忽略
         requestIdRef.current = '';
 
-        setIsProcessing(false);
-        setProgress(null);
-    }, []);
+        reset();
+    }, [reset]);
 
     // 清理 Worker
     useEffect(() => {
@@ -207,9 +205,12 @@ export function useImageWorker(): UseImageWorkerReturn {
 
     return {
         processImage,
-        isProcessing,
-        progress,
-        error,
+        isProcessing: state.status === 'processing',
+        progress: state.status === 'processing' || state.status === 'success' ? {
+            percent: state.progress,
+            message: state.message
+        } : null,
+        error: state.error?.message || null,
         isWorkerReady,
         cancel,
     };

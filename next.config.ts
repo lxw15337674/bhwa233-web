@@ -94,30 +94,17 @@ const nextConfig: NextConfig = withSerwist({
         destination: '/processor/image',
         permanent: true,
       },
+      // Deprecated routes
       {
-        source: '/media-processor',
-        has: [
-          {
-            type: 'query',
-            key: 'category',
-            value: 'editor',
-          },
-        ],
-        destination: '/processor/editor',
+        source: '/audio-converter',
+        destination: '/media-processor',
         permanent: true,
       },
       {
-        source: '/media-processor',
-        has: [
-          {
-            type: 'query',
-            key: 'category',
-            value: 'batch',
-          },
-        ],
-        destination: '/processor/batchimage',
+        source: '/audio-format-converter',
+        destination: '/media-processor',
         permanent: true,
-      }
+      },
     ];
   },
   rewrites: async () => {

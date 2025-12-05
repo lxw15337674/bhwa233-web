@@ -21,8 +21,8 @@ import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types
 import { getFunctionById, getDefaultFunction } from '@/config/processor-functions';
 import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 
-import { useFileSelection } from '@/hooks/useAudioConverter';
-import { useUnifiedMediaAnalysis } from '@/hooks/useUnifiedMediaAnalysis';
+import { useFileSelection } from '@/hooks/audio-convert/useFileSelection';
+import { useUnifiedMediaAnalysis } from '@/hooks/audio-convert/useUnifiedMediaAnalysis';
 import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 import { useAppStore } from '@/stores/media-processor/app-store';

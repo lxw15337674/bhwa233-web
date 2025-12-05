@@ -89,37 +89,5 @@ export const Categories: CategoryItem[] = [
       }
     ]
   },
-  {
-    id: 'audio-tools',
-    name: '音频工具',
-    translationKey: 'navigation.categories.audioTools',
-    icon: AudioLines,
-    items: [
-      {
-        name: '音频格式转换',
-        translationKey: 'navigation.menuItems.audioFormatConvert',
-        descriptionKey: 'navigation.menuItems.audioFormatConvertDesc',
-        url: '/media-processor?category=audio&function=audio-convert',
-        icon: Music,
-        description: '将音频文件转换为不同的格式和质量，支持多种音频格式'
-      },
-      {
-        name: '音频倍速调整',
-        translationKey: 'navigation.menuItems.audioSpeedChange',
-        descriptionKey: 'navigation.menuItems.audioSpeedChangeDesc',
-        url: '/media-processor?category=audio&function=audio-speed-change',
-        icon: Mic,
-        description: '调整音频的播放速度，同时保持音调不变'
-      },
-      {
-        name: '语音转文字',
-        translationKey: 'navigation.menuItems.speechToText',
-        descriptionKey: 'navigation.menuItems.speechToTextDesc',
-        url: '/media-processor?category=audio&function=speech-to-text',
-        icon: MessageCircle,
-        description: '将音频文件转换为文字，支持自动语言检测'
-      }
-    ]
-  }
 ];
 

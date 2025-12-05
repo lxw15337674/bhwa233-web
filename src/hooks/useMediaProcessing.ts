@@ -1,70 +1,47 @@
-import { useState, useCallback } from 'react';
-import { ProcessingState } from '@/types/media-processor';
+import { useProcessingTask } from './common/useProcessingTask';
+import { ProcessingState as AppProcessingState } from '@/types/media-processor';
+import { useCallback } from 'react';
 
 export const useMediaProcessing = () => {
-  const [processingState, setProcessingState] = useState<ProcessingState>({
-    isProcessing: false,
-    progress: 0,
-    currentStep: '',
-    error: null,
-    outputFile: null,
-    outputFileName: '',
-    remainingTime: null
-  });
+  const {
+    state,
+    start,
+    updateProgress: updateTaskProgress,
+    complete,
+    fail,
+    reset
+  } = useProcessingTask<{ file: Blob; name: string }>();
+
+  const processingState: AppProcessingState = {
+    isProcessing: state.status === 'processing',
+    progress: state.progress,
+    currentStep: state.message,
+    error: state.error?.message || null,
+    outputFile: state.result?.file || null,
+    outputFileName: state.result?.name || '',
+    remainingTime: null, // Info merged into currentStep (message)
+  };
 
   const startProcessing = useCallback(() => {
-    setProcessingState({
-      isProcessing: true,
-      progress: 0,
-      currentStep: '准备处理...',
-      error: null,
-      outputFile: null,
-      outputFileName: '',
-      remainingTime: null
-    });
-  }, []);
+    start('准备处理...');
+  }, [start]);
 
   const finishProcessing = useCallback((outputFile: Blob, outputFileName: string) => {
-    setProcessingState(prev => ({
-      ...prev,
-      isProcessing: false,
-      progress: 100,
-      currentStep: '处理完成！',
-      outputFile,
-      outputFileName,
-      remainingTime: null
-    }));
-  }, []);
+    complete({ file: outputFile, name: outputFileName }, '处理完成！');
+  }, [complete]);
 
   const setError = useCallback((error: string) => {
-    setProcessingState(prev => ({
-      ...prev,
-      isProcessing: false,
-      error,
-      currentStep: '处理失败'
-    }));
-  }, []);
+    fail(new Error(error), '处理失败');
+  }, [fail]);
 
   const updateProgress = useCallback((progress: number, step: string, remainingTime?: string) => {
-    setProcessingState(prev => ({
-      ...prev,
-      progress,
-      currentStep: step,
-      remainingTime: remainingTime || null
-    }));
-  }, []);
+    const message = remainingTime ? `${step} (剩余: ${remainingTime})` : step;
+    updateTaskProgress(progress, message);
+  }, [updateTaskProgress]);
 
   const resetState = useCallback(() => {
-    setProcessingState({
-      isProcessing: false,
-      progress: 0,
-      currentStep: '',
-      error: null,
-      outputFile: null,
-      outputFileName: '',
-      remainingTime: null
-    });
-  }, []);
+    reset();
+  }, [reset]);
 
   return {
     processingState,
