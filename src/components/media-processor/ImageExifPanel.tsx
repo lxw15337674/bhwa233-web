@@ -198,9 +198,17 @@ export const ImageExifPanel: React.FC = () => {
     const { exifMetadata, inputFile, options } = useImageProcessorStore();
     const willBeStripped = options.stripMetadata;
 
-    // 无图片时不显示
+    // 无图片时显示提示
     if (!inputFile) {
-        return null;
+        return (
+            <Card className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <Info className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-sm">元数据</span>
+                </div>
+                <p className="text-sm text-muted-foreground">请上传图片以查看元数据</p>
+            </Card>
+        );
     }
 
     // 无有效 EXIF 数据时显示提示

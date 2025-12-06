@@ -34,8 +34,15 @@ const ImageProcessorPage: React.FC = () => {
 
             {/* 主要内容区域 */}
             {!inputFile ? (
-                // 未上传图片时，显示上传区域
-                <ImageInputArea />
+                // 未上传图片时，显示上传区域和编辑面板
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                        <ImageInputArea />
+                    </div>
+                    <div>
+                        <ImageEditorPanel />
+                    </div>
+                </div>
             ) : (
                 // 已上传图片时，显示编辑界面
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

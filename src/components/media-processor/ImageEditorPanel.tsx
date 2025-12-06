@@ -11,6 +11,7 @@ import {
     AlertTriangle,
     Zap,
     Replace,
+    Clipboard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -25,6 +26,7 @@ import { QualitySlider } from './shared/QualitySlider';
 import { FormatSelector } from './shared/FormatSelector';
 import { ResizeControl } from './shared/ResizeControl';
 import { ExifSwitch } from './shared/ExifSwitch';
+import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 
 export const ImageEditorPanel: React.FC = () => {
     const {
@@ -116,9 +118,20 @@ export const ImageEditorPanel: React.FC = () => {
         updateOptions({ rotation: newRotation });
     };
 
-    if (!inputFile) {
-        return null;
-    }
+    // 使用 useClipboardPaste Hook (只选择第一个图片)
+    const { handlePaste } = useClipboardPaste({
+        onFilesSelected: (files) => {
+            if (files.length > 0) {
+                // 只处理第一张图片，替换当前图片
+                const file = files[0];
+                if (validateFile(file)) {
+                    setInputFile(file);
+                }
+            }
+        },
+        debug: true,
+        fileFilter: (file) => file.type.startsWith('image/')
+    });
 
     return (
         <Card className="p-4 space-y-6">
@@ -130,8 +143,17 @@ export const ImageEditorPanel: React.FC = () => {
                 </Alert>
             )}
 
-            {/* 更换图片 */}
-            <div className="flex justify-end gap-2">
+            {/* 状态提示 */}
+            {!inputFile && (
+                <Alert>
+                    <AlertDescription className="text-center">
+                        请先上传或粘贴图片开始处理
+                    </AlertDescription>
+                </Alert>
+            )}
+
+            {/* 添加/更换图片和粘贴图片 */}
+            <div className="flex gap-2">
                 <input
                     ref={fileInputRef}
                     type="file"
@@ -140,12 +162,24 @@ export const ImageEditorPanel: React.FC = () => {
                     className="hidden"
                 />
                 <Button
+                    onClick={handlePaste}
+                    disabled={isProcessing}
+                    variant="outline"
+                    size="sm"
+                    title="从剪贴板粘贴图片"
+                    className="flex-1"
+                >
+                    <Clipboard className="w-4 h-4 mr-1" />
+                    粘贴图片
+                </Button>
+                <Button
                     variant="destructive"
                     size="sm"
                     onClick={handleChangeImage}
+                    className="flex-1"
                 >
                     <Replace className="w-4 h-4 mr-1" />
-                    更换图片
+                    {inputFile ? '更换图片' : '添加图片'}
                 </Button>
             </div>
 
@@ -172,34 +206,36 @@ export const ImageEditorPanel: React.FC = () => {
             />
 
             {/* 旋转 */}
-            <div className="space-y-3">
-                <Label>旋转</Label>
-                <div className="flex flex-wrap gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRotate('ccw')}
-                        title="逆时针旋转 90°"
-                    >
-                        <RotateCcw className="w-4 h-4 mr-1" />
-                        -90°
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRotate('cw')}
-                        title="顺时针旋转 90°"
-                    >
-                        <RotateCw className="w-4 h-4 mr-1" />
-                        +90°
-                    </Button>
+            {inputFile && (
+                <div className="space-y-3">
+                    <Label>旋转</Label>
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRotate('ccw')}
+                            title="逆时针旋转 90°"
+                        >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            -90°
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRotate('cw')}
+                            title="顺时针旋转 90°"
+                        >
+                            <RotateCw className="w-4 h-4 mr-1" />
+                            +90°
+                        </Button>
+                    </div>
+                    {options.rotation !== 0 && (
+                        <p className="text-xs text-muted-foreground">
+                            当前: 旋转 {options.rotation}°
+                        </p>
+                    )}
                 </div>
-                {options.rotation !== 0 && (
-                    <p className="text-xs text-muted-foreground">
-                        当前: 旋转 {options.rotation}°
-                    </p>
-                )}
-            </div>
+            )}
 
             <Separator />
 
@@ -249,7 +285,7 @@ export const ImageEditorPanel: React.FC = () => {
                 {!autoProcess && (
                     <Button
                         onClick={processImage}
-                        disabled={isProcessing}
+                        disabled={!inputFile || isProcessing}
                         className="w-full"
                     >
                         {isProcessing ? (
@@ -278,7 +314,7 @@ export const ImageEditorPanel: React.FC = () => {
                     </Button>
                     <Button
                         onClick={downloadOutput}
-                        disabled={!outputBlob || isProcessing}
+                        disabled={!inputFile || !outputBlob || isProcessing}
                         className="flex-1"
                     >
                         <Download className="w-4 h-4 mr-2" />
