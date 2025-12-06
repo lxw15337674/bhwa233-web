@@ -1,12 +1,12 @@
 'use client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { Textarea } from '../../ui/textarea';
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
 
 export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => {
@@ -16,34 +16,15 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
   // 优先使用 props，否则使用 store 的数据
   const selectedFile = props.selectedFile ?? inputAudio;
 
-  const {
-    isProcessing,
-    progress,
-    currentStep,
-    error,
-    result,
-    outputFileName,
-    startTranscription,
-    resetState
-  } = useSpeechToText();
-
-  // 通知主容器状态变化
-  useEffect(() => {
-    props.onStateChange?.({
-      isProcessing,
-      progress,
-      currentStep,
-      error
-    });
-  }, [isProcessing, progress, currentStep, error, props.onStateChange]);
-
-  // 通知输出结果
-  useEffect(() => {
-    if (result) {
-      const blob = new Blob([result], { type: 'text/plain;charset=utf-8' });
-      props.onOutputReady?.(blob, outputFileName);
-    }
-  }, [result, outputFileName, props.onOutputReady]);
+  // 从 speech-to-text store 获取状态和方法
+  const isProcessing = useSpeechToTextStore(state => state.isProcessing);
+  const progress = useSpeechToTextStore(state => state.progress);
+  const currentStep = useSpeechToTextStore(state => state.currentStep);
+  const error = useSpeechToTextStore(state => state.error);
+  const result = useSpeechToTextStore(state => state.result);
+  const outputFileName = useSpeechToTextStore(state => state.outputFileName);
+  const startTranscription = useSpeechToTextStore(state => state.startTranscription);
+  const resetState = useSpeechToTextStore(state => state.resetState);
 
   const handleStartTranscription = () => {
     if (!selectedFile) return;

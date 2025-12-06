@@ -80,14 +80,60 @@ export const useSpeechToTextStore = create<SpeechToTextState>((set, get) => ({
   outputFileName: '',
 
   // 操作方法
-  startTranscription: (file: File) => {
-    // 实际的转录逻辑会在组件中处理，这里只更新状态
+  startTranscription: async (file: File) => {
+    if (!file) {
+      set({
+        error: '请选择音频文件'
+      });
+      return;
+    }
+
     set({
       isProcessing: true,
       progress: 0,
-      currentStep: '开始处理',
-      error: null
+      currentStep: '正在上传音频文件...',
+      error: null,
+      result: ''
     });
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // 上传文件阶段 - 50%
+      set({
+        progress: 50,
+        currentStep: '正在识别音频内容...'
+      });
+
+      const response = await fetch('/api/siliconflow/transcribe', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `识别失败: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      // 识别完成阶段 - 100%
+      set({
+        isProcessing: false,
+        progress: 100,
+        currentStep: '识别完成！',
+        result: result.text || result,
+        outputFileName: `${file.name.split('.')[0]}.txt`
+      });
+    } catch (error: any) {
+      set({
+        isProcessing: false,
+        progress: 0,
+        error: error.message || '识别失败',
+        currentStep: '识别失败'
+      });
+    }
   },
   resetState: () => {
     set({

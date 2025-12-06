@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { Upload, ImageIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -146,10 +147,12 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
 
                 {/* 图片预览 */}
                 <div className="relative aspect-video bg-muted rounded-lg overflow-hidden mb-3">
-                    <img
+                    <Image
                         src={previewUrl}
                         alt="原图预览"
-                        className="w-full h-full object-contain"
+                        fill
+                        className="object-contain"
+                        style={{ objectFit: 'contain' }}
                     />
                 </div>
 

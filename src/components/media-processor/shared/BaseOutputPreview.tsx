@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Play, Pause, File } from 'lucide-react';
@@ -86,10 +87,14 @@ export const BaseOutputPreview: React.FC<BaseOutputPreviewProps> = ({
           )}
           
           {mediaType === 'image' && (
-            <img
+            <Image
               src={mediaUrl}
               alt="Output preview"
-              className="w-full h-auto rounded-md max-h-60 object-contain"
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ width: '100%', height: 'auto', maxHeight: '240px', objectFit: 'contain' }}
+              className="rounded-md"
             />
           )}
           

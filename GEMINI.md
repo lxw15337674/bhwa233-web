@@ -1,6 +1,6 @@
 # Todo Web Application (233tools)
 
-This is a comprehensive multi-functional web application built with **Next.js** (App Router). It integrates productivity tools (Todo, Counter) with entertainment features (TFT Guides, Fishing Time) and media processing capabilities.
+This is a comprehensive multi-functional web application built with **Next.js** (App Router). It integrates productivity tools (Todo, Counter) with entertainment features (Fishing Time) and media processing capabilities.
 
 ## Project Overview
 

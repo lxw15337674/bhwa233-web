@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { ImageIcon, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import {
@@ -73,10 +74,13 @@ export const ImageOutputPreview: React.FC = () => {
         <Card className="p-4">
             {/* 图片预览 */}
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                <img
+                <Image
                     src={displayUrl}
                     alt="处理后预览"
-                    className="w-full h-full object-contain"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: 'contain' }}
                 />
             </div>
 

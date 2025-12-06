@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
 import { useBatchImageStore, ImageTask } from '@/stores/media-processor/batch-image-store';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -115,9 +116,11 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 <div className="col-span-5 flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 rounded bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden border">
                      {/* Simple preview if possible, else icon */}
-                     <img 
-                        src={URL.createObjectURL(task.file)} 
+                     <Image
+                        src={URL.createObjectURL(task.file)}
                         alt={task.file.name}
+                        width={40}
+                        height={40}
                         className="w-full h-full object-cover"
                         onLoad={(e) => URL.revokeObjectURL(e.currentTarget.src)}
                      />

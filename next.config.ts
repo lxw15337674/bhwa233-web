@@ -43,7 +43,7 @@ const nextConfig: NextConfig = withSerwist({
   },
   images: {
     dangerouslyAllowSVG: true,
-    unoptimized: true,
+    // 启用图片优化，移除unoptimized配置
     remotePatterns: [
       {
         protocol: 'https',
@@ -57,6 +57,14 @@ const nextConfig: NextConfig = withSerwist({
         protocol: 'https',
         hostname: 'awsl.azureedge.net',
       },
+      {
+        protocol: 'https',
+        hostname: '233tools.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.googletagmanager.com',
+      },
     ],
   },
   async redirects() {
@@ -67,20 +75,10 @@ const nextConfig: NextConfig = withSerwist({
         destination: '/zh/fishingTime',
         permanent: true,
       },
-      {
-        source: '/en/tft/:path*',
-        destination: '/zh/tft/:path*',
-        permanent: true,
-      },
       // 繁体用户访问，重定向到简体中文（因为内容相同）
       {
         source: '/zh-tw/fishingTime',
         destination: '/zh/fishingTime',
-        permanent: true,
-      },
-      {
-        source: '/zh-tw/tft/:path*',
-        destination: '/zh/tft/:path*',
         permanent: true,
       },
     ];
@@ -95,11 +93,6 @@ const nextConfig: NextConfig = withSerwist({
         source: '/jiaqi',
         destination:
           'https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json',
-      },
-      {
-        source: '/routing/tftVersionConfig',
-        destination:
-          'https://lol.qq.com/zmtftzone/public-lib/versionconfig.json',
       },
       {
         source: '/bhwa233-api/:path*',

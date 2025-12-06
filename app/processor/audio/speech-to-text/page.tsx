@@ -15,7 +15,7 @@ import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface SpeechToTextPageWrapperProps {}
 
-// 内部组件，使用 Zustand Store 提供的状态
+// 内部组件,使用 Zustand Store 提供的状态
 const SpeechToTextPageContent: React.FC<SpeechToTextPageWrapperProps> = () => {
   const selectedFile = useAppStore(state => state.selectedFile);
   const setSelectedFile = useAppStore(state => state.setSelectedFile);
@@ -32,20 +32,15 @@ const SpeechToTextPageContent: React.FC<SpeechToTextPageWrapperProps> = () => {
   const handleDragLeave = useAppStore(state => state.handleDragLeave);
   const handleDrop = useAppStore(state => state.handleDrop);
 
-  // 使用独立的状态管理
-  const {
-    isProcessing,
-    progress,
-    currentStep,
-    error,
-    result,
-    outputFileName,
-    startTranscription,
-    resetState,
-    updateProcessingState,
-    setResult,
-    setOutputFileName
-  } = useSpeechToTextStore();
+  // 从语音转文字 store 获取状态
+  const isProcessing = useSpeechToTextStore(state => state.isProcessing);
+  const progress = useSpeechToTextStore(state => state.progress);
+  const currentStep = useSpeechToTextStore(state => state.currentStep);
+  const error = useSpeechToTextStore(state => state.error);
+  const result = useSpeechToTextStore(state => state.result);
+  const outputFileName = useSpeechToTextStore(state => state.outputFileName);
+  const resetState = useSpeechToTextStore(state => state.resetState);
+  const setResult = useSpeechToTextStore(state => state.setResult);
 
   // 初始化 FFmpeg
   useEffect(() => {
@@ -72,14 +67,7 @@ const SpeechToTextPageContent: React.FC<SpeechToTextPageWrapperProps> = () => {
 
     setSelectedFile(file);
     setResult('');
-    updateProcessingState({ error: null });
-
-    // 重置处理状态
-    updateProcessingState({
-      isProcessing: false,
-      progress: 0,
-      currentStep: ''
-    });
+    resetState();
   };
 
   const handlePaste = (e: ClipboardEvent) => {
@@ -96,16 +84,6 @@ const SpeechToTextPageContent: React.FC<SpeechToTextPageWrapperProps> = () => {
     if (selectedFile && ffmpeg) {
       analyzeMedia(selectedFile);
     }
-  };
-
-  // 处理控制面板状态变化
-  const handleStateChange = (updates: Partial<ProcessingState>) => {
-    updateProcessingState(updates);
-  };
-
-  // 处理输出文件就绪
-  const handleOutputReady = (blob: Blob, filename: string) => {
-    setOutputFileName(filename);
   };
 
   const handleDownload = () => {
@@ -175,8 +153,6 @@ const SpeechToTextPageContent: React.FC<SpeechToTextPageWrapperProps> = () => {
             isAnalyzing={isAnalyzing}
             analyzeError={analyzeError}
             onRetryAnalysis={handleRetryAnalysis}
-            onStateChange={handleStateChange}
-            onOutputReady={handleOutputReady}
           />
 
           {/* 处理进度 */}

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -28,15 +27,9 @@ import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
-// 动态导入图片处理和编辑器页面(使用相对路径,因为 app 目录不在 src 下)
-const ImageProcessorPage = dynamic(() => import('../../../app/processor/image/page'), {
-  loading: () => <div>加载中...</div>,
-  ssr: false
-});
-const ImageEditorPage = dynamic(() => import('../../../app/processor/editor/page'), {
-  loading: () => <div>加载中...</div>,
-  ssr: false
-});
+// 直接导入图片处理和编辑器页面
+import ImageProcessorPage from '../../../app/processor/image/page';
+import ImageEditorPage from '../../../app/processor/editor/page';
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;
