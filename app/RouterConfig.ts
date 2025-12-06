@@ -51,26 +51,26 @@ export const Categories: CategoryItem[] = [
   },
   {
     id: 'media-processor',
-    name: '综合媒体处理',
+    name: '图片处理',
     icon: Video,
     items: [
       {
         name: '图片处理',
-        url: '/media-processor?category=image',
+        url: '/processor/image',
         icon: Image,
-        description: '通过综合媒体处理器访问图片处理功能'
+        description: '图片压缩、格式转换、尺寸调整等基础处理功能'
       },
       {
         name: '图片编辑',
-        url: '/media-processor?category=editor',
+        url: '/processor/editor',
         icon: Edit,
-        description: '通过综合媒体处理器访问图片编辑功能'
+        description: '在线图片编辑器，支持裁剪、旋转、滤镜等高级编辑'
       },
       {
         name: '批量处理',
-        url: '/media-processor?category=batch',
+        url: '/processor/batchimage',
         icon: Settings,
-        description: '通过综合媒体处理器访问批量处理功能'
+        description: '批量压缩、格式转换，高效处理多张图片'
       }
     ]
   },
@@ -96,31 +96,6 @@ export const Categories: CategoryItem[] = [
         url: '/processor/audio/speech-to-text',
         icon: MessageCircle,
         description: '独立的语音转文字工具，将音频文件转换为文字，支持自动语言检测'
-      }
-    ]
-  },
-  {
-    id: 'standalone-tools',
-    name: '独立工具',
-    icon: Wrench,
-    items: [
-      {
-        name: '图片处理器',
-        url: '/processor/image',
-        icon: FileImage,
-        description: '独立的图片处理器，支持格式转换、尺寸调整、质量优化、EXIF信息查看等'
-      },
-      {
-        name: '图片编辑器',
-        url: '/processor/editor',
-        icon: Edit,
-        description: '独立的图片编辑器，支持裁剪、滤镜、标注、水印等高级功能'
-      },
-      {
-        name: '批量图片处理',
-        url: '/processor/image/batch',
-        icon: FileImage,
-        description: '独立的批量图片处理工具，批量转换格式、压缩、调整尺寸'
       }
     ]
   }

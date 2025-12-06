@@ -48,6 +48,36 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   const urlCategory = searchParams?.get('category') as ProcessorCategory || defaultCategory;
   const urlFunction = searchParams?.get('function') || defaultFunction || getDefaultFunction(urlCategory);
 
+  // 对于图片处理和编辑类别，重定向到独立页面
+  if (urlCategory === 'image' || urlCategory === 'editor') {
+    if (typeof window !== 'undefined') {
+      let redirectPath = '';
+      if (urlCategory === 'image') {
+        redirectPath = '/processor/image';
+      } else if (urlCategory === 'editor') {
+        redirectPath = '/processor/editor';
+      }
+
+      window.location.href = redirectPath;
+      return null; // 防止进一步渲染
+    }
+  }
+
+  // 对于批量处理类别，根据功能重定向到相应页面
+  if (urlCategory === 'batch') {
+    if (typeof window !== 'undefined') {
+      let redirectPath = '';
+      if (urlFunction && urlFunction.includes('image')) {
+        redirectPath = '/processor/batchimage';
+      } else {
+        redirectPath = '/processor/audio/convert'; // 默认音频处理页
+      }
+
+      window.location.href = redirectPath;
+      return null; // 防止进一步渲染
+    }
+  }
+
   // 简化状态管理 - 只保留真正需要的本地状态
   const [state, setState] = useSetState<{
     category: ProcessorCategory;
@@ -265,18 +295,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
           onCategoryChange={handleCategoryChange}
         />
 
-        {state.category === 'image' && (
-          <div className="mt-8">
-            <ImageProcessorPage />
-          </div>
-        )}
-
-        {state.category === 'editor' && (
-          <div className="mt-8">
-            <ImageEditorPage />
-          </div>
-        )}
-
+  
         {showAudioBatchUI && (
           <>
             {/* 页面标题 */}

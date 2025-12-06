@@ -81,6 +81,43 @@ const nextConfig: NextConfig = withSerwist({
         destination: '/zh/fishingTime',
         permanent: true,
       },
+      // 将旧的媒体处理器图片/编辑路由重定向到新的独立路由
+      {
+        source: '/media-processor',
+        has: [
+          {
+            type: 'query',
+            key: 'category',
+            value: 'image',
+          },
+        ],
+        destination: '/processor/image',
+        permanent: true,
+      },
+      {
+        source: '/media-processor',
+        has: [
+          {
+            type: 'query',
+            key: 'category',
+            value: 'editor',
+          },
+        ],
+        destination: '/processor/editor',
+        permanent: true,
+      },
+      {
+        source: '/media-processor',
+        has: [
+          {
+            type: 'query',
+            key: 'category',
+            value: 'batch',
+          },
+        ],
+        destination: '/processor/batchimage',
+        permanent: true,
+      }
     ];
   },
   rewrites: async () => {
@@ -126,6 +163,20 @@ const nextConfig: NextConfig = withSerwist({
       },
       {
         source: '/media-processor/:path*',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        source: '/processor/batchimage',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        source: '/processor/batchimage/:path*',
         headers: [
           { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
