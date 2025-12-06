@@ -10,7 +10,7 @@ import {
     Loader2,
     AlertTriangle,
     Zap,
-    Replace,
+    Upload,
     Clipboard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -170,7 +170,7 @@ export const ImageEditorPanel: React.FC = () => {
                     className="flex-1"
                 >
                     <Clipboard className="w-4 h-4 mr-1" />
-                    粘贴图片
+                    从剪贴板粘贴
                 </Button>
                 <Button
                     variant="destructive"
@@ -178,7 +178,7 @@ export const ImageEditorPanel: React.FC = () => {
                     onClick={handleChangeImage}
                     className="flex-1"
                 >
-                    <Replace className="w-4 h-4 mr-1" />
+                    <Upload className="w-4 h-4 mr-1" />
                     {inputFile ? '更换图片' : '添加图片'}
                 </Button>
             </div>

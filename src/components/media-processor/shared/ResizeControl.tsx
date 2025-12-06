@@ -39,7 +39,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     useEffect(() => {
          if (options.targetWidth !== null) setCurrentWidth(options.targetWidth);
          if (options.targetHeight !== null) setCurrentHeight(options.targetHeight);
-         if (options.keepAspectRatio !== undefined) setKeepAspectRatioState(options.keepAspectRatio);
+        if (options.keepAspectRatio !== undefined) setKeepAspectRatioState(options.keepAspectRatio);
     }, [options.targetWidth, options.targetHeight, options.keepAspectRatio]);
 
 
@@ -52,19 +52,12 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
         }
         setCurrentWidth(newWidth);
         let newHeight = currentHeight;
-        
-        // Logic differs slightly for batch vs single:
-        // For single (inputMetadata exists), we can calc exact height.
-        // For batch (no inputMetadata), we just set target dimensions. 
-        // If keepAspectRatio is on in batch, it implies "Max Width/Height" or "Scale", 
-        // but here we are setting specific pixels. 
-        // If batch mode uses this component, it implies "Force Resize to X".
-        
+
         if (keepAspectRatioState && inputMetadata && inputMetadata.width > 0) {
             newHeight = Math.round(newWidth / inputMetadata.width * inputMetadata.height);
             setCurrentHeight(newHeight);
         }
-        updateOptions({ targetWidth: newWidth, targetHeight: newHeight, keepAspectRatio: keepAspectRatioState });
+        updateOptions({ targetWidth: newWidth, targetHeight: newHeight || null, keepAspectRatio: keepAspectRatioState });
     }, [currentHeight, keepAspectRatioState, inputMetadata, updateOptions]);
 
     const handleHeightChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -80,16 +73,16 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
             newWidth = Math.round(newHeight / inputMetadata.height * inputMetadata.width);
             setCurrentWidth(newWidth);
         }
-        updateOptions({ targetWidth: newWidth, targetHeight: newHeight, keepAspectRatio: keepAspectRatioState });
+        updateOptions({ targetWidth: newWidth || null, targetHeight: newHeight, keepAspectRatio: keepAspectRatioState });
     }, [currentWidth, keepAspectRatioState, inputMetadata, updateOptions]);
 
     const applyPreset = useCallback((width: number, height: number) => {
         if (width <= 0 || height <= 0) return;
         setCurrentWidth(width);
         setCurrentHeight(height);
-        setKeepAspectRatioState(true);
-        updateOptions({ targetWidth: width, targetHeight: height, keepAspectRatio: true });
-    }, [updateOptions]);
+        // 保持当前的宽高比设置，不强制改变
+        updateOptions({ targetWidth: width, targetHeight: height, keepAspectRatio: keepAspectRatioState });
+    }, [keepAspectRatioState, updateOptions]);
 
     // Calculate scaled dimensions for display (only works if metadata available)
     const getScaledDimensions = () => {
@@ -175,11 +168,11 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                             onCheckedChange={(checked) => {
                                 setKeepAspectRatioState(checked);
                                 updateOptions({ keepAspectRatio: checked });
-                                // Recalc if needed
+                                // 如果开启保持宽高比，重新计算高度
                                 if (checked && inputMetadata && currentWidth > 0) {
-                                     const newHeight = Math.round(currentWidth / inputMetadata.width * inputMetadata.height);
-                                     setCurrentHeight(newHeight);
-                                     updateOptions({ targetHeight: newHeight });
+                                    const newHeight = Math.round(currentWidth / inputMetadata.width * inputMetadata.height);
+                                    setCurrentHeight(newHeight);
+                                    updateOptions({ targetHeight: newHeight });
                                 }
                             }}
                         />
@@ -188,20 +181,17 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                     <div className="space-y-2 mt-4">
                         <Label>常用尺寸</Label>
                         <div className="flex flex-wrap gap-2">
+                            {inputMetadata && (
+                                <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
+                                    原图尺寸
+                                </Button>
+                            )}
                             <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>
                                 1920x1080 (FHD)
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => applyPreset(1280, 720)}>
                                 1280x720 (HD)
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => applyPreset(1080, 1080)}>
-                                1080x1080 (方图)
-                            </Button>
-                            {inputMetadata && (
-                                <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
-                                    原图尺寸
-                                </Button>
-                            )}
                         </div>
                     </div>
                 </TabsContent>

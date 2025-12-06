@@ -419,24 +419,36 @@ async function processStaticImage(
         if (options.scale !== 1 || options.targetWidth || options.targetHeight) {
             sendProgress(requestId, 50, '缩放...');
 
-            let scale = options.scale;
-
             if (options.targetWidth || options.targetHeight) {
+                // 指定尺寸模式
                 const targetW = options.targetWidth || image.width;
                 const targetH = options.targetHeight || image.height;
                 const scaleW = targetW / image.width;
                 const scaleH = targetH / image.height;
-                scale = options.keepAspectRatio ? Math.min(scaleW, scaleH) : scaleW;
-            }
 
-            if (scale !== 1) {
-                const resized = image.resize(scale);
+                if (options.keepAspectRatio) {
+                    // 保持宽高比：等比缩放（适应模式）
+                    const scale = Math.min(scaleW, scaleH);
+                    if (scale !== 1) {
+                        const resized = image.resize(scale);
+                        image.delete();
+                        image = resized;
+                    }
+                } else {
+                    // 不保持宽高比：拉伸到目标尺寸
+                    if (scaleW !== 1 || scaleH !== 1) {
+                        const resized = image.resize(scaleW, { vscale: scaleH });
+                        image.delete();
+                        image = resized;
+                    }
+                }
+            } else if (options.scale !== 1) {
+                // 比例缩放模式
+                const resized = image.resize(options.scale);
                 image.delete();
                 image = resized;
             }
-        }
-
-        // 亮度/对比度
+        }        // 亮度/对比度
         if (options.brightness !== 0 || options.contrast !== 0) {
             sendProgress(requestId, 60, '调整亮度对比度...');
             const a = 1 + options.contrast / 100;

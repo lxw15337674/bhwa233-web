@@ -178,13 +178,9 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
         try {
             const metadata = await getImageMetadata(file);
 
-            // 根据原图格式设置默认输出格式
-            let defaultFormat: ImageProcessingOptions['outputFormat'] = 'jpeg';
-            if (metadata.format.includes('png')) {
-                defaultFormat = 'png';
-            } else if (metadata.format.includes('webp')) {
-                defaultFormat = 'webp';
-            }
+            // 生成默认的输出文件名（不含扩展名）
+            const baseName = file.name.replace(/\.[^/.]+$/, '');
+            const defaultOutputFilename = `${baseName}_edited`;
 
             set({
                 inputFile: file,
@@ -198,8 +194,8 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                 progress: null,
                 options: {
                     ...defaultImageOptions,
-                    outputFormat: defaultFormat,
-                    outputFilename: generateOutputFilename(file.name, defaultFormat), // Pre-fill with suggested edited name
+                    outputFormat: 'jpeg', // 始终默认输出为 JPEG
+                    outputFilename: defaultOutputFilename, // 设置默认文件名（不含扩展名）
                 },
             });
 
@@ -226,20 +222,23 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
      * 重置选项到默认值
      */
     resetOptions: () => {
-        const { inputMetadata } = get();
+        const { inputFile, inputMetadata } = get();
 
-        // 根据原图格式设置默认输出格式
-        let defaultFormat: ImageProcessingOptions['outputFormat'] = 'jpeg';
-        if (inputMetadata?.format.includes('png')) {
-            defaultFormat = 'png';
-        } else if (inputMetadata?.format.includes('webp')) {
-            defaultFormat = 'webp';
+        // 生成默认的输出文件名
+        let defaultOutputFilename = '';
+        if (inputFile) {
+            const baseName = inputFile.name.replace(/\.[^/.]+$/, '');
+            defaultOutputFilename = `${baseName}_edited`;
         }
 
         set({
             options: {
                 ...defaultImageOptions,
-                outputFormat: defaultFormat,
+                outputFormat: 'jpeg', // 始终默认输出为 JPEG
+                outputFilename: defaultOutputFilename,
+                // 如果有原图元数据，将指定尺寸重置为原图尺寸
+                targetWidth: inputMetadata ? inputMetadata.width : null,
+                targetHeight: inputMetadata ? inputMetadata.height : null,
             },
         });
     },

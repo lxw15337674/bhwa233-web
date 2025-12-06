@@ -312,6 +312,7 @@ function applyResize(image: VipsImage, options: ImageProcessingOptions): VipsIma
 
         let resized: VipsImage;
         if (options.keepAspectRatio) {
+            // 保持宽高比：等比缩放（适应模式）
             const scale = Math.min(scaleW, scaleH);
             if (scale !== 1) {
                 resized = image.resize(scale);
@@ -319,7 +320,7 @@ function applyResize(image: VipsImage, options: ImageProcessingOptions): VipsIma
                 return image;
             }
         } else {
-            // If aspect ratio is not kept, apply both horizontal and vertical scales
+            // 不保持宽高比：拉伸到目标尺寸
             if (scaleW !== 1 || scaleH !== 1) {
                 resized = image.resize(scaleW, { vscale: scaleH });
             } else {
