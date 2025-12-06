@@ -81,21 +81,21 @@ export const Categories: CategoryItem[] = [
     items: [
       {
         name: '音频格式转换',
-        url: '/processor/audio/convert',
+        url: '/media-processor?category=audio&function=audio-convert',
         icon: Music,
         description: '将音频文件转换为不同的格式和质量，支持多种音频格式'
       },
       {
         name: '音频倍速调整',
-        url: '/processor/audio/audio-speed-change',
+        url: '/media-processor?category=audio&function=audio-speed-change',
         icon: Mic,
         description: '调整音频的播放速度，同时保持音调不变'
       },
       {
         name: '语音转文字',
-        url: '/processor/audio/speech-to-text',
+        url: '/media-processor?category=audio&function=speech-to-text',
         icon: MessageCircle,
-        description: '独立的语音转文字工具，将音频文件转换为文字，支持自动语言检测'
+        description: '将音频文件转换为文字，支持自动语言检测'
       }
     ]
   }

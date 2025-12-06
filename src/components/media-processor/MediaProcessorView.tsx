@@ -8,7 +8,6 @@ import { AlertCircle } from 'lucide-react';
 import { useMemoizedFn, useSetState, useUpdateEffect } from 'ahooks';
 
 // 导入统一组件
-import { CategoryNavigation } from './CategoryNavigation';
 import { FunctionSelector } from './FunctionSelector';
 import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
@@ -289,12 +288,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   return (
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* 分类导航 */}
-        <CategoryNavigation
-          activeCategory={state.category}
-          onCategoryChange={handleCategoryChange}
-        />
-
   
         {showAudioBatchUI && (
           <>

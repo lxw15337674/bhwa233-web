@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { CategoryNavigation } from '@/components/media-processor/CategoryNavigation';
 
 export { metadata } from './metadata';
 

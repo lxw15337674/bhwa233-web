@@ -17,11 +17,6 @@ const imageFileValidator = (file: File): boolean => {
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 };
 
-export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string; default: string }> = {
-    image: { label: '图片处理', icon: '🖼️', default: '' },
-    editor: { label: '图片编辑', icon: '✏️', default: '' },
-    batch: { label: '批量处理', icon: '📚', default: 'image-batch' },
-};
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
 // 音频功能
