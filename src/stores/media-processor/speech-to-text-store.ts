@@ -123,7 +123,7 @@ export const useSpeechToTextStore = create<SpeechToTextState>((set, get) => ({
         isProcessing: false,
         progress: 100,
         currentStep: '识别完成！',
-        result: result.text || result,
+        result: result.text || '',
         outputFileName: `${file.name.split('.')[0]}.txt`
       });
     } catch (error: any) {
