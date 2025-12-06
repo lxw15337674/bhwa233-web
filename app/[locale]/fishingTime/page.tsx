@@ -1,80 +1,52 @@
 import FishingTimeView from './FishingTimeView';
 import type { Metadata } from 'next';
-import { Locale, getTranslations } from '@/lib/i18n';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: Locale }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations(locale);
-  const baseUrl = 'https://233tools.vercel.app';
-  const path = '/fishingTime';
-  const canonicalUrl = locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`;
-
-  return {
-    title: t.fishingTime.title,
-    description: t.fishingTime.description,
-    authors: [{ name: '233tools' }],
-    creator: '233tools',
-    publisher: t.home.title.split(' - ')[0],
-    keywords: [
-      'fishing time', 'countdown', 'holiday countdown', 'salary countdown',
-      '摸鱼办', '倒计时', '节假日倒计时', '工资倒计时',
-      locale === 'zh' ? '摸鱼工具' : locale === 'zh-tw' ? '摸魚工具' : 'office tools'
-    ],
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'en': `${baseUrl}${path}`,
-        'zh': `${baseUrl}/zh${path}`,
-        'zh-tw': `${baseUrl}/zh-tw${path}`,
-      }
-    },
-    robots: {
+export const metadata: Metadata = {
+  title: '摸鱼办 - 假期工资倒计时工具 | 上班族必备神器',
+  description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排。让您的工作生活更有盼头，摸鱼更有意思！包含春节、国庆、中秋等所有法定假日倒计时。',
+  keywords: [
+    '摸鱼办', '假期倒计时', '工资倒计时', '摸鱼工具', '休假提醒',
+    '上班族工具', '法定假日', '调休安排', '工作日计算', '薪资倒计时',
+    '节假日查询', '春节倒计时', '国庆倒计时', '中秋倒计时', '劳动节倒计时',
+    'fishing time', 'countdown', 'holiday countdown', 'salary countdown'
+  ],
+  authors: [{ name: '233tools', url: 'https://233tools.vercel.app' }],
+  creator: '233tools',
+  publisher: '233工具箱',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
       index: true,
       follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    title: '摸鱼办 - 假期工资倒计时工具',
+    description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
+    url: 'https://233tools.vercel.app/fishingTime',
+    siteName: '233工具箱',
+    locale: 'zh_CN',
+    type: 'website',
+    images: [
+      {
+        url: '/icons/icon-256.png',
+        width: 256,
+        height: 256,
+        alt: '摸鱼办',
       },
-    },
-    openGraph: {
-      title: t.fishingTime.title,
-      description: t.fishingTime.description,
-      url: canonicalUrl,
-      siteName: t.home.title.split(' - ')[0],
-      locale: locale === 'zh' ? 'zh_CN' : locale === 'zh-tw' ? 'zh_TW' : 'en_US',
-      type: 'website',
-      images: [
-        {
-          url: '/icons/icon-256.png',
-          width: 256,
-          height: 256,
-          alt: t.fishingTime.title,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t.fishingTime.title,
-      description: t.fishingTime.description,
-      images: ['/icons/icon-256.png'],
-    },
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'en': `${baseUrl}/en/fishingTime`,
-        'zh': `${baseUrl}/zh/fishingTime`,
-        'zh-TW': `${baseUrl}/zh-tw/fishingTime`,
-      },
-    },
-  };
-}
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '摸鱼办 - 假期工资倒计时工具',
+    description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
+    images: ['/icons/icon-256.png'],
+  },
+};
 
 interface Holiday {
   holiday: string;
@@ -106,10 +78,8 @@ async function getHolidays(): Promise<Holiday[] | undefined> {
   }
 }
 
-const Page = async ({ params }: { params: Promise<{ locale: Locale }> }) => {
-  const { locale } = await params;
+const Page = async () => {
   const nextHolidayData = await getHolidays();
-  const t = await getTranslations(locale);
 
   return (
     <>
@@ -120,16 +90,16 @@ const Page = async ({ params }: { params: Promise<{ locale: Locale }> }) => {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
-            name: t.fishingTime.title,
-            description: t.fishingTime.description,
-            url: `https://233tools.vercel.app/${locale}/fishingTime`,
+            name: '摸鱼办 - 假期工资倒计时工具',
+            description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
+            url: 'https://233tools.vercel.app/fishingTime',
             applicationCategory: 'UtilityApplication',
             operatingSystem: 'Any',
-            inLanguage: locale === 'zh' ? 'zh-CN' : locale === 'zh-tw' ? 'zh-TW' : 'en',
+            inLanguage: 'zh-CN',
             offers: {
               '@type': 'Offer',
               price: '0',
-              priceCurrency: locale === 'zh' || locale === 'zh-tw' ? 'CNY' : 'USD',
+              priceCurrency: 'CNY',
               availability: 'https://schema.org/InStock',
             },
             browserRequirements: 'HTML5, JavaScript enabled',
@@ -140,7 +110,7 @@ const Page = async ({ params }: { params: Promise<{ locale: Locale }> }) => {
             },
             provider: {
               '@type': 'Organization',
-              name: t.home.title.split(' - ')[0],
+              name: '233工具箱',
               url: 'https://233tools.vercel.app',
             },
           }),

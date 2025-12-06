@@ -17,7 +17,6 @@ import {
   getTime,
   getSalaryDayCountdown
 } from '@/utils/time';
-import { useTranslation } from '@/components/TranslationProvider';
 
 interface Holiday {
   holiday: string;
@@ -31,7 +30,6 @@ interface FishingTimeViewProps {
 }
 
 const FishingTimeView = ({ nextHolidayData }: FishingTimeViewProps) => {
-  const { t } = useTranslation();
   const fishingTime = useMemo(() => getTime(), []);
   const salaryDays = useMemo(() => getSalaryDayCountdown(), []);
 
@@ -39,74 +37,50 @@ const FishingTimeView = ({ nextHolidayData }: FishingTimeViewProps) => {
     <div className='p-2'>
       <div className="[&_>p]:text-base">
         <div className="m-2">
-          <h1 className="text-lg">{t.fishingTime.reminderTitle}</h1>
+          <h1 className="text-lg">【摸鱼办】提醒您:</h1>
           <p>
-            {t.fishingTime.today
-              .replace('{{year}}', fishingTime.year.toString())
-              .replace('{{month}}', fishingTime.month.toString())
-              .replace('{{day}}', fishingTime.day.toString())
-              .replace('{{weekday}}', fishingTime.weekday)}
+            今天是{fishingTime.year}年{fishingTime.month}月{fishingTime.day}日，{fishingTime.weekday}。
           </p>
         </div>
         <div className="m-2">
-          <h1 className="text-lg">{t.fishingTime.salary}</h1>
+          <h1 className="text-lg">【工资】</h1>
           <ul>
-            <li>{t.fishingTime.salaryEndOfMonth.replace('{{days}}', salaryDays.endOfMonth.toString())}</li>
-            <li>{t.fishingTime.salaryDay5.replace('{{days}}', salaryDays.day5.toString())}</li>
-            <li>{t.fishingTime.salaryDay10.replace('{{days}}', salaryDays.day10.toString())}</li>
-            <li>{t.fishingTime.salaryDay15.replace('{{days}}', salaryDays.day15.toString())}</li>
-            <li>{t.fishingTime.salaryDay20.replace('{{days}}', salaryDays.day20.toString())}</li>
+            <li>月底工资：还有{salaryDays.endOfMonth}天</li>
+            <li>5号工资：还有{salaryDays.day5}天</li>
+            <li>10号工资：还有{salaryDays.day10}天</li>
+            <li>15号工资：还有{salaryDays.day15}天</li>
+            <li>20号工资：还有{salaryDays.day20}天</li>
           </ul>
         </div>
         <div className="m-2">
-          <h1 className="text-lg">{t.fishingTime.countdown}</h1>
+          <h1 className="text-lg">【倒计时】</h1>
           <ul>
             <div className="w-100">
-              <li>{t.fishingTime.weekEnd
-                .replace('{{remaining}}', daysUntilEndOfWeek.toString())
-                .replace('{{passed}}', daysPassedInWeek.toString())}
-              </li>
+              <li>周末：还有{daysUntilEndOfWeek}天（已过{daysPassedInWeek}天）</li>
               <Progress value={percentageCompletedOfWeek} />
-              <li>{t.fishingTime.monthEnd
-                .replace('{{remaining}}', daysUntilEndOfMonth.toString())
-                .replace('{{passed}}', daysPassedInMonth.toString())}
-              </li>
+              <li>月底：还有{daysUntilEndOfMonth}天（已过{daysPassedInMonth}天）</li>
               <Progress value={percentageCompletedOfMonth} />
-              <li>{t.fishingTime.yearEnd
-                .replace('{{remaining}}', daysUntilEndOfYear.toString())
-                .replace('{{passed}}', daysPassedInYear.toString())}
-              </li>
+              <li>年底：还有{daysUntilEndOfYear}天（已过{daysPassedInYear}天）</li>
               <Progress value={percentageCompletedOfYear} />
             </div>
           </ul>
         </div>
         <div className="m-2">
-          <h1 className="text-lg">{t.fishingTime.holiday}</h1>
+          <h1 className="text-lg">【假期】</h1>
           <ul>
-            <li>{t.fishingTime.weekend.replace('{{days}}', fishingTime.day_to_weekend.toString())}</li>
+            <li>下个周六：还有{fishingTime.day_to_weekend}天</li>
             {nextHolidayData?.map((item, index) => {
               const restDays = calculateRestDays(item.holiday);
               if (restDays < 0) {
                 return null;
               }
               if (!item.start || !item.end) {
-                return (
-                  <li key={index}>
-                    {t.fishingTime.holidayCountdown
-                      .replace('{{name}}', item.name)
-                      .replace('{{days}}', restDays.toString())}
-                  </li>
-                );
+                return <li key={index}>{item.name}：还有{restDays}天。</li>;
               }
               const totalDays = calculateDaysDifference(item.start, item.end);
               return (
                 <li key={index}>
-                  {t.fishingTime.holidayDetail
-                    .replace('{{name}}', item.name)
-                    .replace('{{days}}', restDays.toString())
-                    .replace('{{start}}', item.start)
-                    .replace('{{end}}', item.end)
-                    .replace('{{total}}', totalDays.toString())}
+                  {item.name}：还有{restDays}天。{item.start}至{item.end}放假，共{totalDays}天。
                 </li>
               );
             })}

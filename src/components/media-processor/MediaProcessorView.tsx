@@ -27,9 +27,9 @@ import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
-// 直接导入图片处理和编辑器页面
-import ImageProcessorPage from '../../../app/processor/image/page';
-import ImageEditorPage from '../../../app/processor/editor/page';
+// 直接导入图片处理和编辑器客户端组件
+import ImageProcessorPage from '../../../app/[locale]/processor/image/ImageProcessorClientPage';
+import ImageEditorPage from '../../../app/[locale]/processor/editor/EditorClientPage';
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;
