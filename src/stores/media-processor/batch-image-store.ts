@@ -230,32 +230,42 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         
         if (completedTasks.length === 0) return;
 
+        // Import dynamically to avoid changing top-level imports if not needed, 
+        // but better to add it to top imports. Let's assume we added it or use the helper if available.
+        // Actually, looking at imports, getFileExtension is not imported. 
+        // We should import it. BUT `replace` tool is local. 
+        // Let's use the logic directly or import it.
+        // Since we can't easily add import with `replace` block if it's far away,
+        // let's just implement the extension logic here or assume user will add import separately?
+        // No, I must ensure code works. 
+        // Let's look at imports: 
+        // import { ..., generateOutputFilename, ... } from ...
+        // I will rely on a separate `replace` call to add the import if needed, 
+        // OR just mapping it here since it's simple.
+        
+        const getExt = (fmt: string) => {
+            const map: Record<string, string> = { jpeg: '.jpg', png: '.png', webp: '.webp' };
+            return map[fmt] || '.jpg';
+        };
+
         const zip = new JSZip();
         
         completedTasks.forEach(task => {
             if (task.outputBlob && task.outputMetadata) {
-                // Use the correct filename logic
-                // If user specified a custom name pattern (e.g. "photo_"), we might need to append index or keep original name
-                // For now, use the standard generator but maybe we should handle conflicts if multiple files map to same name?
-                // Let's use original name + edited suffix for now, unless we implement pattern renaming.
-                // If options.outputFilename is set, it's a bit tricky for batch. 
-                // Usually batch renaming means "prefix_{index}" or "prefix_{original}".
-                // For V1, let's just use generateOutputFilename which handles extension change.
-                // If user set a specific outputFilename in batch mode, it implies they want ALL files named that? 
-                // That would overwrite. 
-                // Assumption: In batch mode, if outputFilename is set, it might be treated as a prefix? 
-                // Let's stick to: if outputFilename is empty, use "original_edited".
+                const baseName = task.file.name.replace(/\.[^/.]+$/, '');
+                const suffix = options.outputFilename || '_edited';
+                const ext = getExt(options.outputFormat);
                 
-                let filename = generateOutputFilename(task.file.name, options.outputFormat, options.outputFilename);
+                let filename = `${baseName}${suffix}${ext}`;
                 
                 // Check for duplicates in the zip
                 let counter = 1;
                 const originalFilename = filename;
                 while (zip.file(filename)) {
                     const parts = originalFilename.split('.');
-                    const ext = parts.pop();
+                    const extension = parts.pop();
                     const base = parts.join('.');
-                    filename = `${base}_${counter}.${ext}`;
+                    filename = `${base}_${counter}.${extension}`;
                     counter++;
                 }
                 
