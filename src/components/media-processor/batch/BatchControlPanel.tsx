@@ -3,7 +3,7 @@ import { useBatchImageStore } from '@/stores/media-processor/batch-image-store';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Play, Loader2, Trash2, Download, Plus } from 'lucide-react';
+import { Play, Loader2, Trash2, Download, Plus, Clipboard } from 'lucide-react';
 import { QualitySlider } from '../shared/QualitySlider';
 import { FormatSelector } from '../shared/FormatSelector';
 import { ResizeControl } from '../shared/ResizeControl';
@@ -21,6 +21,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 
 export const BatchControlPanel: React.FC = () => {
     const {
@@ -40,6 +41,14 @@ export const BatchControlPanel: React.FC = () => {
 
     const hasPending = tasks.some(t => t.status === 'pending');
     const hasSuccess = tasks.some(t => t.status === 'success');
+
+    // 使用 useClipboardPaste Hook
+    const { handlePaste } = useClipboardPaste({
+        onFilesSelected: (files) => {
+            addFiles(files);
+        },
+        debug: true
+    });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -62,7 +71,7 @@ export const BatchControlPanel: React.FC = () => {
     return (
         <Card className="h-full flex flex-col">
             {/* Top: File Management */}
-            <div className="p-4 space-y-4 flex-shrink-0">
+            <div className="p-4 space-y-2 flex-shrink-0">
                 <div className="flex gap-2">
                     <Button
                         onClick={handleAddClick}
@@ -73,34 +82,44 @@ export const BatchControlPanel: React.FC = () => {
                         <Plus className="w-4 h-4 mr-2" />
                         添加图片
                     </Button>
-                    <AlertDialog open={showClearConfirmDialog} onOpenChange={setShowClearConfirmDialog}>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                variant="destructive" // Changed to destructive
-                                onClick={() => setShowClearConfirmDialog(true)}
-                                disabled={isProcessing || tasks.length === 0}
-                                className="flex-1"
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                清空列表
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>确认清空列表？</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    此操作将移除所有已添加和已处理的图片任务，且无法撤销。
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel  >取消</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleClearListConfirm}  >
-                                    清空
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                        onClick={handlePaste}
+                        disabled={isProcessing}
+                        className="flex-1"
+                        variant="outline"
+                        title="从剪贴板粘贴图片"
+                    >
+                        <Clipboard className="w-4 h-4 mr-2" />
+                        粘贴图片
+                    </Button>
                 </div>
+                <AlertDialog open={showClearConfirmDialog} onOpenChange={setShowClearConfirmDialog}>
+                    <AlertDialogTrigger asChild>
+                        <Button
+                            variant="destructive"
+                            onClick={() => setShowClearConfirmDialog(true)}
+                            disabled={isProcessing || tasks.length === 0}
+                            className="w-full"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            清空列表
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>确认清空列表？</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                此操作将移除所有已添加和已处理的图片任务，且无法撤销。
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>取消</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleClearListConfirm}>
+                                清空
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
 
             <Separator />
@@ -145,7 +164,7 @@ export const BatchControlPanel: React.FC = () => {
 
                         {/* Output Filename - slightly different context for batch */}
                         <div className="space-y-2">
-                            <Label htmlFor="batch-filename">文件名后缀 (可选)</Label>
+                            <Label htmlFor="batch-filename">文件名后缀</Label>
                             <Input
                                 id="batch-filename"
                                 type="text"

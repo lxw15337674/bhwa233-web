@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatFileSize } from '@/utils/imageProcessor';
-import { X, FileImage, CheckCircle2, AlertCircle, Upload, Info } from 'lucide-react';
+import { X, FileImage, CheckCircle2, AlertCircle, Upload, Info, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BatchExifPopover } from './BatchExifPopover';
 
 export const BatchTaskGrid: React.FC = () => {
-    const { tasks, removeTask, addFiles, isProcessing } = useBatchImageStore();
+    const { tasks, removeTask, addFiles, isProcessing, downloadSingle } = useBatchImageStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,10 +62,9 @@ export const BatchTaskGrid: React.FC = () => {
         <div className="flex flex-col h-full border rounded-lg bg-background" onDrop={handleDrop} onDragOver={handleDragOver}>
             {/* Header */}
             <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/40 text-sm font-medium text-muted-foreground">
-                <div className="col-span-4">文件名</div>
-                <div className="col-span-2">原始大小</div>
-                <div className="col-span-2">处理后</div>
-                <div className="col-span-2">状态</div>
+                <div className="col-span-5">文件名</div>
+                <div className="col-span-4">尺寸与大小</div>
+                <div className="col-span-1">状态</div>
                 <div className="col-span-1 text-center">EXIF</div>
                 <div className="col-span-1 text-right">操作</div>
             </div>
@@ -113,7 +112,7 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
         <>
             <div className={cn("grid grid-cols-12 gap-4 p-4 items-center text-sm hover:bg-muted/50 transition-colors", disabled && "opacity-70")}>
                 {/* File Name & Preview */}
-                <div className="col-span-4 flex items-center gap-3 overflow-hidden">
+                <div className="col-span-5 flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 rounded bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden border">
                      {/* Simple preview if possible, else icon */}
                      <img 
@@ -128,24 +127,68 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 </div>
             </div>
 
-            {/* Original Size */}
-            <div className="col-span-2 text-muted-foreground">
-                {formatFileSize(task.file.size)}
-            </div>
-
-            {/* Output Size */}
-            <div className="col-span-2">
-                {task.status === 'success' && task.outputBlob ? (
-                    <span className="text-green-600 font-medium">
-                        {formatFileSize(task.outputBlob.size)}
-                    </span>
-                ) : (
-                    <span className="text-muted-foreground">-</span>
-                )}
-            </div>
+                {/* Size & Dimensions */}
+                <div className="col-span-4">
+                    <div className="space-y-0.5">
+                        {/* File Size Comparison */}
+                        <div className="text-xs flex items-center gap-1">
+                            <span className="text-muted-foreground">{formatFileSize(task.file.size)}</span>
+                            {task.status === 'success' && task.outputBlob ? (
+                                <>
+                                    <span className="text-muted-foreground">→</span>
+                                    <span className="font-medium">{formatFileSize(task.outputBlob.size)}</span>
+                                    {(() => {
+                                        const percent = Math.round((1 - task.outputBlob.size / task.file.size) * 100);
+                                        const isReduced = percent > 0;
+                                        return (
+                                            <span className={cn(
+                                                "text-xs font-semibold ml-0.5",
+                                                isReduced ? "text-green-600" : "text-red-500"
+                                            )}>
+                                                ({isReduced ? '-' : '+'}{Math.abs(percent)}%)
+                                            </span>
+                                        );
+                                    })()}
+                                </>
+                            ) : task.status === 'processing' ? (
+                                <>
+                                    <span className="text-muted-foreground">→</span>
+                                    <span className="text-muted-foreground">处理中...</span>
+                                </>
+                                ) : (
+                                        <>
+                                            <span className="text-muted-foreground">→</span>
+                                            <span className="text-muted-foreground">-</span>
+                                </>
+                            )}
+                        </div>
+                        {/* Dimensions Comparison */}
+                        {task.inputMetadata && (
+                            <div className="text-xs flex items-center gap-1 text-muted-foreground">
+                                <span>{task.inputMetadata.width}×{task.inputMetadata.height}</span>
+                                {task.status === 'success' && task.outputMetadata ? (
+                                    <>
+                                        <span>→</span>
+                                        <span>{task.outputMetadata.width}×{task.outputMetadata.height}</span>
+                                    </>
+                                ) : task.status === 'processing' ? (
+                                    <>
+                                        <span>→</span>
+                                        <span>...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>→</span>
+                                        <span>-</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
 
             {/* Status */}
-            <div className="col-span-2">
+                <div className="col-span-1">
                 {task.status === 'pending' && <span className="text-muted-foreground">等待中</span>}
                 {task.status === 'processing' && (
                     <div className="space-y-1">
@@ -187,7 +230,18 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 </div>
 
             {/* Actions */}
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-1 flex justify-end gap-1">
+                    {task.status === 'success' && task.outputBlob && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-green-600"
+                            onClick={() => downloadSingle(task.id)}
+                            title="下载此文件"
+                        >
+                            <Download className="w-4 h-4" />
+                        </Button>
+                    )}
                 <Button
                     variant="ghost"
                     size="icon"

@@ -122,8 +122,6 @@ export const ImageOutputPreview: React.FC = () => {
                     </TableBody>
                 </Table>
 
-                {/* 元数据面板 */}
-                <ImageExifPanel />
             </div>
         </Card>
     );

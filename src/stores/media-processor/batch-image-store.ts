@@ -40,6 +40,7 @@ interface BatchImageStore {
     cancelProcessing: () => void;
     resetTaskStatus: () => void; // Reset all to pending (for retry)
     downloadAll: () => Promise<void>;
+    downloadSingle: (taskId: string) => void; // 下载单个文件
     loadExifForTask: (taskId: string) => Promise<void>; // 加载单个任务的 EXIF
 }
 
@@ -278,6 +279,34 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         const a = document.createElement('a');
         a.href = url;
         a.download = `batch_processed_${new Date().getTime()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
+
+    downloadSingle: (taskId: string) => {
+        const { tasks, options } = get();
+        const task = tasks.find(t => t.id === taskId);
+
+        if (!task || task.status !== 'success' || !task.outputBlob) {
+            return;
+        }
+
+        const getExt = (fmt: string) => {
+            const map: Record<string, string> = { jpeg: '.jpg', png: '.png', webp: '.webp', avif: '.avif' };
+            return map[fmt] || '.jpg';
+        };
+
+        const baseName = task.file.name.replace(/\.[^/.]+$/, '');
+        const suffix = options.outputFilename || '_edited';
+        const ext = getExt(options.outputFormat);
+        const filename = `${baseName}${suffix}${ext}`;
+
+        const url = URL.createObjectURL(task.outputBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

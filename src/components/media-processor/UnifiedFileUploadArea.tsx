@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X, FileAudio, ImageIcon, Film } from 'lucide-react';
+import { Upload, X, FileAudio, ImageIcon, Film, Clipboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProcessorCategory } from '@/types/media-processor';
 import { SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
@@ -20,6 +20,7 @@ interface UnifiedFileUploadAreaProps {
     onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     fileInputRef: React.RefObject<HTMLInputElement | null>;
     disabled?: boolean;
+    onPasteFromClipboard?: () => void;
 }
 
 export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
@@ -33,7 +34,8 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
     onDrop,
     onFileInputChange,
     fileInputRef,
-    disabled = false
+    disabled = false,
+    onPasteFromClipboard
 }) => {
     // 根据分类配置上传参数
     const getConfig = () => {
@@ -126,6 +128,21 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                     选择文件
                                 </Button>
 
+                                {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
+                                    <Button
+                                        variant="outline"
+                                        className="mb-4 ml-2"
+                                        disabled={disabled}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onPasteFromClipboard();
+                                        }}
+                                    >
+                                        <Clipboard className="w-4 h-4 mr-2" />
+                                        粘贴图片
+                                    </Button>
+                                )}
+
                                 <div className="text-xs text-muted-foreground">
                                     <p className="mb-1">支持的格式：</p>
                                     <p className="font-mono">
@@ -165,7 +182,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                     <span>类型: {getMediaType(selectedFile.name)}</span>
                                 </div>
 
-                                <div className="mt-2">
+                                    <div className="mt-2 flex gap-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -174,17 +191,29 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                     >
                                         更换文件
                                     </Button>
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept={acceptTypes}
-                                        onChange={onFileInputChange}
-                                        className="hidden"
-                                        disabled={disabled}
-                                    />
+                                        {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={onPasteFromClipboard}
+                                                disabled={disabled}
+                                            >
+                                                <Clipboard className="w-3 h-3 mr-1" />
+                                                粘贴
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept={acceptTypes}
+                                onChange={onFileInputChange}
+                                className="hidden"
+                                disabled={disabled}
+                            />
                     </div>
                 )}
             </CardContent>

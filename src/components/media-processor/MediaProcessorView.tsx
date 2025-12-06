@@ -25,8 +25,9 @@ import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 import { useFileSelection } from '@/hooks/useAudioConverter';
 import { useUnifiedMediaAnalysis } from '@/hooks/useUnifiedMediaAnalysis';
 import { useFFmpegManager } from '../../hooks/useFFmpeg';
+import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 
-// 动态导入图片处理和编辑器页面（使用相对路径，因为 app 目录不在 src 下）
+// 动态导入图片处理和编辑器页面(使用相对路径,因为 app 目录不在 src 下)
 const ImageProcessorPage = dynamic(() => import('../../../app/processor/image/page'), {
   loading: () => <div>加载中...</div>,
   ssr: false
@@ -106,6 +107,17 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
+
+  // 使用 useClipboardPaste Hook (只选择第一个图片)
+  const { handlePaste } = useClipboardPaste({
+    onFilesSelected: (files) => {
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    },
+    debug: true,
+    fileFilter: (file) => file.type.startsWith('image/')
+  });
 
   // 分类切换处理
   const handleCategoryChange = useMemoizedFn((category: ProcessorCategory) => {
@@ -290,6 +302,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
                       onFileInputChange={handleFileInputChange}
                       fileInputRef={fileInputRef}
                       disabled={state.isProcessing}
+                        onPasteFromClipboard={handlePaste}
                     />
 
                     <UnifiedMediaMetadataCard
