@@ -34,22 +34,27 @@ export default function HomePage() {
         <section>
           <h2 className="text-lg font-semibold mb-4">{t('home.appNavigation')}</h2>
           <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {filteredCategories.flatMap(category => category.items).map((app) => (
-              <Link
-                key={app.url}
-                href={`/${locale}${app.url}`}
-                className="flex flex-col items-center justify-center p-2 rounded-lg border hover:bg-accent transition-colors"
-                title={app.description || t('home.useToolTitle', { name: app.name })}
-              >
-                {app.icon && <app.icon className="w-8 h-8 mb-4" aria-hidden="true" />}
-                <span className="text-center">{app.name}</span>
-                {app.description && (
-                  <span className="text-xs text-muted-foreground mt-1 text-center">
-                    {app.description}
-                  </span>
-                )}
-              </Link>
-            ))}
+            {filteredCategories.flatMap(category => category.items).map((app) => {
+              const appName = app.translationKey ? t(app.translationKey) : app.name
+              const appDesc = app.descriptionKey ? t(app.descriptionKey) : app.description
+              
+              return (
+                <Link
+                  key={app.url}
+                  href={`/${locale}${app.url}`}
+                  className="flex flex-col items-center justify-center p-2 rounded-lg border hover:bg-accent transition-colors"
+                  title={appDesc || appName}
+                >
+                  {app.icon && <app.icon className="w-8 h-8 mb-4" aria-hidden="true" />}
+                  <span className="text-center">{appName}</span>
+                  {appDesc && (
+                    <span className="text-xs text-muted-foreground mt-1 text-center">
+                      {appDesc}
+                    </span>
+                  )}
+                </Link>
+              )
+            })}
           </div>
         </section>
       </div>
