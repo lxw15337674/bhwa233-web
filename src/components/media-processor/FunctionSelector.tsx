@@ -15,13 +15,13 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   // 支持两种 URL 格式：
   // 1. /processor/{category}/{function}
   // 2. /media-processor?category={category}&function={function}
   let category: string;
   let selectedFunction: string;
-  
+
   if (pathname.startsWith('/media-processor')) {
     // 查询参数格式
     category = searchParams?.get('category') || 'audio';
@@ -32,7 +32,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
     category = cat;
     selectedFunction = func;
   }
-  
+
   // 调试日志
   console.log('[FunctionSelector] Debug:', {
     pathname,
@@ -40,10 +40,10 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
     selectedFunction,
     searchParams: searchParams?.toString()
   });
-  
+
   const availableFunctions = getFunctionsByCategory(category as ProcessorCategory);
   const currentFunction = getFunctionById(selectedFunction);
-  
+
   console.log('[FunctionSelector] Functions:', {
     availableFunctions: availableFunctions.map(f => ({ id: f.id, label: f.label })),
     currentFunction: currentFunction ? { id: currentFunction.id, label: currentFunction.label } : null
@@ -55,7 +55,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
       // 查询参数格式
       router.push(`/media-processor?category=${category}&function=${functionId}`);
     } else {
-      // 路径参数格式
+    // 路径参数格式
       router.push(`/processor/${category}/${functionId}`);
     }
   };
