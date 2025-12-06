@@ -1,10 +1,10 @@
 'use client';
 
-
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getFunctionById, getFunctionsByCategory } from '../../config/processor-functions';
 import { ProcessorCategory } from '../../types/media-processor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { useTranslation } from '@/components/TranslationProvider';
 
 
 interface FunctionSelectorProps {
@@ -12,6 +12,7 @@ interface FunctionSelectorProps {
 }
 
 export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -63,7 +64,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium text-foreground">
-        功能选择
+        {t('mediaProcessor.functionSelect')}
       </label>
       <Select
         disabled={disabled}
@@ -78,7 +79,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
                 <span>{currentFunction.label}</span>
               </div>
             ) : (
-              '选择功能...'
+              t('mediaProcessor.selectFunction')
             )}
           </SelectValue>
         </SelectTrigger>

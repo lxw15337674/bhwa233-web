@@ -7,6 +7,7 @@ import { Upload, X, FileAudio, ImageIcon, Film, Clipboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProcessorCategory } from '@/types/media-processor';
 import { SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface UnifiedFileUploadAreaProps {
     selectedFile: File | null;
@@ -37,6 +38,8 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
     disabled = false,
     onPasteFromClipboard
 }) => {
+    const { t } = useTranslation();
+    
     // 根据分类配置上传参数
     const getConfig = () => {
         switch (category) {
@@ -46,14 +49,14 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                     supportedFormats: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'],
                     acceptTypes: 'image/*',
                     Icon: ImageIcon,
-                    text: '选择图片文件'
+                    text: t('fileUpload.selectImageFile')
                 };
             case 'audio':
                 return {
                     supportedFormats: SUPPORTED_AUDIO_FORMATS,
                     acceptTypes: 'audio/*',
                     Icon: FileAudio,
-                    text: '选择音频文件'
+                    text: t('fileUpload.selectAudioFile')
                 };
             default:
                 // 默认为通用或根据需求调整
@@ -61,7 +64,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                     supportedFormats: ['.jpg', '.png', '.mp3', '.wav', '.mp4'],
                     acceptTypes: 'image/*,audio/*,video/*',
                     Icon: Film,
-                    text: '选择媒体文件'
+                    text: t('fileUpload.selectMediaFile')
                 };
         }
     };
@@ -116,7 +119,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                     {text}
                                 </h3>
                                 <p className="text-muted-foreground text-sm mb-4">
-                                    拖拽文件到此处或点击选择文件
+                                    {t('fileUpload.dragOrClick')}
                                 </p>
 
                                 <Button
@@ -125,7 +128,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                     disabled={disabled}
                                 >
                                     <Upload className="w-4 h-4 mr-2" />
-                                    选择文件
+                                    {t('fileUpload.selectFile')}
                                 </Button>
 
                                 {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
@@ -139,12 +142,12 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                         }}
                                     >
                                         <Clipboard className="w-4 h-4 mr-2" />
-                                        粘贴图片
+                                        {t('fileUpload.pasteImage')}
                                     </Button>
                                 )}
 
                                 <div className="text-xs text-muted-foreground">
-                                    <p className="mb-1">支持的格式：</p>
+                                    <p className="mb-1">{t('fileUpload.supportedFormats')}</p>
                                     <p className="font-mono">
                                         {supportedFormats.join(', ')}
                                     </p>
@@ -155,7 +158,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                 ) : (
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">已选择文件</h3>
+                            <h3 className="text-lg font-semibold">{t('fileUpload.selectedFile')}</h3>
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -178,8 +181,8 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                 </div>
 
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                    <span>大小: {formatFileSize(selectedFile.size)}</span>
-                                    <span>类型: {getMediaType(selectedFile.name)}</span>
+                                    <span>{t('fileUpload.size')}: {formatFileSize(selectedFile.size)}</span>
+                                    <span>{t('fileUpload.type')}: {getMediaType(selectedFile.name)}</span>
                                 </div>
 
                                     <div className="mt-2 flex gap-2">
@@ -189,7 +192,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                         onClick={() => fileInputRef.current?.click()}
                                         disabled={disabled}
                                     >
-                                        更换文件
+                                        {t('fileUpload.changeFile')}
                                     </Button>
                                         {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
                                             <Button
@@ -199,7 +202,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                                 disabled={disabled}
                                             >
                                                 <Clipboard className="w-3 h-3 mr-1" />
-                                                粘贴
+                                                {t('fileUpload.paste')}
                                             </Button>
                                         )}
                                     </div>

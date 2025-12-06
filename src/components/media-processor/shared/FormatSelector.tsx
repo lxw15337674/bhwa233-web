@@ -2,6 +2,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ImageProcessingOptions } from '@/utils/imageProcessor';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface FormatSelectorProps {
     value: ImageProcessingOptions['outputFormat'];
@@ -9,9 +10,11 @@ interface FormatSelectorProps {
 }
 
 export const FormatSelector: React.FC<FormatSelectorProps> = ({ value, onChange }) => {
+    const { t } = useTranslation();
+    
     return (
         <div className="space-y-3">
-            <Label>输出格式</Label>
+            <Label>{t('imageProcessor.outputFormat')}</Label>
             <ToggleGroup
                 type="single"
                 value={value}

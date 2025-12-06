@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useMemoizedFn, useSetState, useUpdateEffect } from 'ahooks';
+import { useTranslation } from '@/components/TranslationProvider';
 
 // 导入统一组件
 import { FunctionSelector } from './FunctionSelector';
@@ -39,6 +40,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   defaultCategory = 'audio',
   defaultFunction
 }) => {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRef = useRef<HTMLAudioElement>(null);
@@ -294,10 +296,10 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
             {/* 页面标题 */}
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                {currentFunction?.label || '媒体处理器'}
+                {currentFunction?.label || t('mediaProcessor.title')}
               </h1>
               <p className="text-muted-foreground">
-                {currentFunction?.description || '选择功能开始处理'}
+                {currentFunction?.description || t('mediaProcessor.selectFunctionToStart')}
               </p>
             </div>
 

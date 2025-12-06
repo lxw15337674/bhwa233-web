@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
 import { PageHeader } from '@/components/media-processor/PageHeader';
+import { useTranslation } from '@/components/TranslationProvider';
 
 // 动态导入 FilerobotImageEditor（仅客户端）
 const FilerobotImageEditor = dynamic(
@@ -188,7 +189,11 @@ const translations = {
 };
 
 const ImageEditorPage: React.FC = () => {
+    const { t, locale } = useTranslation();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    // 仅中文使用翻译,英文使用编辑器默认
+    const editorTranslations = locale.startsWith('zh') ? translations : undefined;
 
     // 处理文件选择
     const handleFileSelect = useCallback((file: File) => {
@@ -225,8 +230,8 @@ const ImageEditorPage: React.FC = () => {
         return (
             <>
                 <PageHeader
-                    title="图片编辑器"
-                    description="支持裁剪、滤镜、标注、水印等高级编辑功能"
+                    title={t('imageEditor.title')}
+                    description={t('imageEditor.description')}
                     gradient="from-purple-400 to-pink-400"
                 />
                 <ImageUploadArea
@@ -560,7 +565,7 @@ const ImageEditorPage: React.FC = () => {
                     onSave={handleSave}
                     onClose={handleClose}
                     theme={darkTheme}
-                    translations={translations}
+                    translations={editorTranslations}
                     annotationsCommon={{
                         fill: '#ff0000',
                         stroke: '#ff0000',

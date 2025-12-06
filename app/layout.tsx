@@ -6,8 +6,6 @@ import { ClientProviders } from '../src/components/client-providers';
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
-import { getLocale, getTranslations } from '../src/lib/i18n'
-import { TranslationProvider } from '../src/components/TranslationProvider'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://233tools.vercel.app'),
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
     default: 'Toolbox - Online Productivity Tools Collection',
     template: '%s | Toolbox'
   },
-  description: 'Integrated fishing tools, file upload, media processing and other multi-functional online toolbox. Features Chinese workplace tools to enhance your productivity and entertainment experience',
+  description: 'Integrated file upload, media processing and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience',
   keywords: ['online tools', 'toolbox', 'file upload', 'media processing', 'productivity tools', '摸鱼办', 'Chinese tools'],
   authors: [{ name: '233tools' }],
   creator: '233tools',
@@ -37,7 +35,7 @@ export const metadata: Metadata = {
     url: 'https://233tools.vercel.app',
     siteName: 'Toolbox',
     title: 'Toolbox - Online Productivity Tools Collection',
-    description: 'Integrated fishing tools, file upload, media processing and other multi-functional online toolbox with Chinese workplace tools',
+    description: 'Integrated file upload, media processing and other multi-functional online toolbox with tools to enhance productivity',
     images: [
       {
         url: '/icons/icon-256.png',
@@ -50,7 +48,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Toolbox - Online Productivity Tools Collection',
-    description: 'Integrated fishing tools, file upload, media processing and other multi-functional online toolbox with Chinese workplace tools',
+    description: 'Integrated file upload, media processing and other multi-functional online toolbox with productivity tools',
     images: ['/icons/icon-256.png'],
   },
   verification: {
@@ -61,18 +59,13 @@ export const metadata: Metadata = {
   },
 };
 
-
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
-  const locale = await getLocale()
-  const translations = await getTranslations(locale)
-
+  }) {
   return (
-    <html suppressHydrationWarning lang={locale}>
+    <html suppressHydrationWarning lang="en">
       <body>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-LDWSSHPH6W"
@@ -86,17 +79,14 @@ export default async function RootLayout({
             gtag('config', 'G-LDWSSHPH6W');
           `}
         </Script>
-        <TranslationProvider locale={locale} translations={translations}>
-          <ClientProviders>
-            <main className='min-h-screen h-full w-screen'>
-              <Header />
-              {children}
-              <Toaster />
-              <SpeedInsights />
-              <Analytics />
-            </main>
-          </ClientProviders>
-        </TranslationProvider>
+        <ClientProviders>
+          <main className='min-h-screen h-full w-screen'>
+            {children}
+            <Toaster />
+            <SpeedInsights />
+            <Analytics />
+          </main>
+        </ClientProviders>
       </body>
     </html>
   );

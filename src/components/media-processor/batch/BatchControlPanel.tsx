@@ -22,8 +22,10 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const BatchControlPanel: React.FC = () => {
+    const { t } = useTranslation();
     const {
         options,
         updateOptions,
@@ -80,17 +82,17 @@ export const BatchControlPanel: React.FC = () => {
                         variant="outline"
                     >
                         <Plus className="w-4 h-4 mr-2" />
-                        添加图片
+                        {t('batchImageProcessor.addImage')}
                     </Button>
                     <Button
                         onClick={handlePaste}
                         disabled={isProcessing}
                         className="flex-1"
                         variant="outline"
-                        title="从剪贴板粘贴图片"
+                        title={t('imageProcessor.pasteFromClipboard')}
                     >
                         <Clipboard className="w-4 h-4 mr-2" />
-                        粘贴图片
+                        {t('batchImageProcessor.pasteImage')}
                     </Button>
                 </div>
                 <AlertDialog open={showClearConfirmDialog} onOpenChange={setShowClearConfirmDialog}>
@@ -102,20 +104,20 @@ export const BatchControlPanel: React.FC = () => {
                             className="w-full"
                         >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            清空列表
+                            {t('batchImageProcessor.clearList')}
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>确认清空列表？</AlertDialogTitle>
+                            <AlertDialogTitle>{t('batchImageProcessor.confirmClear')}</AlertDialogTitle>
                             <AlertDialogDescription>
-                                此操作将移除所有已添加和已处理的图片任务，且无法撤销。
+                                {t('batchImageProcessor.clearWarning')}
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>取消</AlertDialogCancel>
+                            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                             <AlertDialogAction onClick={handleClearListConfirm}>
-                                清空
+                                {t('common.confirm')}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
@@ -156,7 +158,7 @@ export const BatchControlPanel: React.FC = () => {
 
                     {/* Output & Privacy */}
                     <div className="space-y-4">
-                        <Label>其他选项</Label>
+                        <Label>{t('imageProcessor.otherOptions')}</Label>
                         <ExifSwitch
                             checked={options.stripMetadata}
                             onCheckedChange={(checked) => updateOptions({ stripMetadata: checked })}
@@ -164,16 +166,16 @@ export const BatchControlPanel: React.FC = () => {
 
                         {/* Output Filename - slightly different context for batch */}
                         <div className="space-y-2">
-                            <Label htmlFor="batch-filename">文件名后缀</Label>
+                            <Label htmlFor="batch-filename">{t('batchImageProcessor.filenameSuffix')}</Label>
                             <Input
                                 id="batch-filename"
                                 type="text"
-                                placeholder="例如: _compressed"
+                                placeholder={t('batchImageProcessor.suffixPlaceholder')}
                                 value={options.outputFilename || ''}
                                 onChange={(e) => updateOptions({ outputFilename: e.target.value })}
                             />
                             <p className="text-xs text-muted-foreground">
-                                设置文件后缀，将追加在原文件名之后
+                                {t('batchImageProcessor.suffixHint')}
                             </p>
                         </div>
                     </div>
@@ -203,12 +205,12 @@ export const BatchControlPanel: React.FC = () => {
                     {isProcessing ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            停止处理
+                            {t('batchImageProcessor.stopProcessing')}
                         </>
                     ) : (
                         <>
                             <Play className="w-4 h-4 mr-2" />
-                            开始批量处理
+                            {t('batchImageProcessor.startBatchProcessing')}
                         </>
                     )}
                 </Button>
@@ -219,7 +221,7 @@ export const BatchControlPanel: React.FC = () => {
                     className="w-full"
                 >
                     <Download className="w-4 h-4 mr-2" />
-                    打包下载
+                    {t('batchImageProcessor.downloadAll')}
                 </Button>
             </div>
         </Card>
