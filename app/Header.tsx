@@ -12,7 +12,7 @@ import {
 } from '../src/components/ui/navigation-menu';
 import { Button } from '../src/components/ui/button';
 import { LayoutGrid } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Categories, CategoryItem } from './RouterConfig';
 import Link from 'next/link';
 import { ScrollToTop } from '../src/components/ScrollToTop';
@@ -24,6 +24,7 @@ import { locales } from '../src/lib/i18n';
 export default function Header() {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // 从路径中提取当前语言
   const currentLocale = locales.find(locale =>
@@ -70,7 +71,24 @@ export default function Header() {
                       <div className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                         {category.items.map((item) => {
                           const ItemIcon = item.icon;
-                          const isActive = pathname?.includes(item.url.split('?')[0]);
+
+                          // 更精确的激活状态判断
+                          let isActive = false;
+                          const baseUrl = item.url.split('?')[0];
+
+                          if (item.url.includes('?')) {
+                            // 对于带查询参数的 URL（如 /media-processor?category=audio&function=xxx）
+                            const urlParams = new URLSearchParams(item.url.split('?')[1]);
+                            const itemFunction = urlParams.get('function');
+                            const currentFunction = searchParams?.get('function');
+
+                            // 必须路径匹配且 function 参数也匹配
+                            isActive = pathname?.includes(baseUrl) && itemFunction === currentFunction;
+                          } else {
+                            // 对于普通路径 URL（如 /processor/image）
+                            isActive = pathname === `/${currentLocale}${item.url}` || pathname?.startsWith(`/${currentLocale}${item.url}/`);
+                          }
+
                           const itemName = item.translationKey ? t(item.translationKey) : item.name;
                           const itemDesc = item.descriptionKey ? t(item.descriptionKey) : item.description;
                           return (

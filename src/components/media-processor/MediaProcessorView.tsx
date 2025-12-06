@@ -145,6 +145,36 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
 
+  // 监听 URL 参数变化，同步功能切换
+  useEffect(() => {
+    const urlFunc = searchParams?.get('function');
+    const urlCat = searchParams?.get('category') as ProcessorCategory;
+
+    if (urlFunc && urlFunc !== state.currentFunction) {
+      console.log('[MediaProcessorView] 检测到功能切换:', state.currentFunction, '->', urlFunc);
+
+      // 更新当前功能
+      setState({ currentFunction: urlFunc });
+
+      // 验证已上传文件是否与新功能兼容
+      if (selectedFile) {
+        const newFunction = getFunctionById(urlFunc);
+        if (newFunction && !newFunction.fileValidator(selectedFile)) {
+          console.log('[MediaProcessorView] 文件类型不兼容，清空文件');
+          clearFile();
+          resetProcessing();
+        } else {
+          console.log('[MediaProcessorView] 文件类型兼容，保留文件');
+        }
+      }
+    }
+
+    // 同步 category 变化
+    if (urlCat && urlCat !== state.category) {
+      setState({ category: urlCat });
+    }
+  }, [searchParams, state.currentFunction, state.category, selectedFile]);
+
   // 使用 useClipboardPaste Hook (只选择第一个图片)
   const { handlePaste } = useClipboardPaste({
     onFilesSelected: (files) => {
@@ -180,14 +210,12 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     }
   });
 
-  // 功能切换处理
+  // 功能切换处理（已废弃 - 现在由 FunctionSelector 直接 router.push + useEffect 监听）
+  // 保留此函数以防某些地方还在调用，但实际逻辑已移到 useEffect
   const handleFunctionChange = useMemoizedFn((functionId: string) => {
-    setState({ currentFunction: functionId });
-
-    // 更新URL
-    const url = new URL(window.location.href);
-    url.searchParams.set('function', functionId);
-    window.history.replaceState({}, '', url.toString());
+    // FunctionSelector 会调用 router.push 更新 URL
+    // useEffect 会监听 searchParams 变化并同步 state
+    console.log('[MediaProcessorView] handleFunctionChange 被调用，但实际由 useEffect 处理:', functionId);
   });
 
   // 文件选择处理
@@ -289,17 +317,17 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   return (
     <div className="min-h-screen text-foreground">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8">{/* 移除 max-w-6xl 以匹配 image 页面 */}
   
         {showAudioBatchUI && (
           <>
             {/* 页面标题 */}
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                {currentFunction?.label || t('mediaProcessor.title')}
+                {currentFunction?.labelKey ? t(currentFunction.labelKey) : (currentFunction?.label || t('mediaProcessor.title'))}
               </h1>
               <p className="text-muted-foreground">
-                {currentFunction?.description || t('mediaProcessor.selectFunctionToStart')}
+                {currentFunction?.descriptionKey ? t(currentFunction.descriptionKey) : (currentFunction?.description || t('mediaProcessor.selectFunctionToStart'))}
               </p>
             </div>
 

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Download, Play } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 import {
   AUDIO_FORMATS,
   QUALITY_MODES,
@@ -28,6 +29,7 @@ interface AudioConvertParams {
 }
 
 export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => {
+  const { t } = useTranslation();
   // 从 app store 获取数据
   const inputAudio = useAppStore(state => state.inputAudio);
   const mediaMetadata = useAppStore(state => state.mediaMetadata);
@@ -107,7 +109,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
       props.onOutputReady?.(outputBlob, outputFileName);
     } catch (error) {
       console.error('Audio conversion failed:', error);
-      setError(error instanceof Error ? error.message : '音频转换失败');
+      setError(error instanceof Error ? error.message : t('audioControlPanels.convert.conversionFailed'));
     }
   };
 
@@ -136,7 +138,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                 size="lg"
               >
                 <Play className="w-4 h-4 mr-2" />
-                {processingState.isProcessing ? '正在转换音频...' : '开始转换音频'}
+                {processingState.isProcessing ? t('audioControlPanels.convert.converting') : t('audioControlPanels.convert.startConvert')}
               </Button>
             ) : (
               <div className="space-y-2">
@@ -147,7 +149,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                   size="lg"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  下载转换结果
+                    {t('audioControlPanels.convert.downloadResult')}
                 </Button>
                 <Button
                   onClick={handleRestart}
@@ -155,7 +157,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                   className="w-full"
                   size="sm"
                 >
-                  重新转换
+                    {t('audioControlPanels.convert.reconvert')}
                 </Button>
               </div>
             )}
@@ -164,10 +166,10 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
             {!canStartProcessing && selectedFile && !processingState.isProcessing && (
               <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-950/20 rounded border border-yellow-200 dark:border-yellow-800">
                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
-                  {!ffmpegLoaded ? '等待 FFmpeg 加载完成...' :
-                    isAnalyzing ? '正在分析文件...' :
+                  {!ffmpegLoaded ? t('audioControlPanels.convert.waitingFFmpeg') :
+                    isAnalyzing ? t('audioControlPanels.convert.analyzingFile') :
                       !SUPPORTED_AUDIO_FORMATS.includes(getFileExtension(selectedFile.name)) ?
-                        '不支持的文件格式，请选择音频文件' : '请选择有效的音频文件'}
+                        t('audioControlPanels.convert.unsupportedFormat') : t('audioControlPanels.convert.selectValidFile')}
                 </div>
               </div>
             )}
@@ -175,7 +177,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-foreground">
-                  目标格式
+                  {t('audioControlPanels.convert.targetFormat')}
                 </label>
 
               </div>
@@ -200,7 +202,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
             {/* 音频质量选择 */}
             <div>
               <label className="text-sm font-medium text-foreground mb-2 block">
-                转换质量
+                {t('audioControlPanels.convert.conversionQuality')}
               </label>
               <div className="space-y-2">
                 {Object.entries(QUALITY_MODES).map(([key, mode]) => (
@@ -216,8 +218,8 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{mode.icon}</span>
                         <div>
-                          <div className="font-medium text-sm">{mode.label}</div>
-                          <div className="text-xs text-muted-foreground">{mode.description}</div>
+                          <div className="font-medium text-sm">{t(`audioConverter.qualityModes.${key}.label`)}</div>
+                          <div className="text-xs text-muted-foreground">{t(`audioConverter.qualityModes.${key}.description`)}</div>
                           {/* 显示智能转换策略 */}
                           {smartParams && qualityMode === key && (
                             <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -239,11 +241,11 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
             {selectedFile && sizeEstimate && (
               <div className="pt-4 border-t border-border/50">
                 <label className="text-sm font-medium text-foreground mb-3 block">
-                  转换预览
+                  {t('audioControlPanels.convert.conversionPreview')}
                 </label>
                 <div className="p-3 bg-muted/30 rounded-lg border">
                   <div className="text-xs text-muted-foreground mb-1">
-                    预估输出文件大小
+                    {t('audioControlPanels.convert.estimatedSize')}
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
@@ -252,12 +254,12 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                       </span>
                       {sizeEstimate.compressionRatio > 0 && (
                         <span className="text-xs text-green-600 ml-2">
-                          压缩 {sizeEstimate.compressionRatio.toFixed(0)}%
+                          {t('audioControlPanels.convert.compressed')} {sizeEstimate.compressionRatio.toFixed(0)}%
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      原文件: {formatFileSize(selectedFile.size / (1024 * 1024))}
+                      {t('audioControlPanels.convert.originalFile')}: {formatFileSize(selectedFile.size / (1024 * 1024))}
                     </div>
                   </div>
                   {sizeEstimate.note && (
@@ -274,7 +276,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
               <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm text-blue-700 dark:text-blue-300">正在分析音频信息...</span>
+                  <span className="text-sm text-blue-700 dark:text-blue-300">{t('audioControlPanels.convert.analyzingAudio')}</span>
                 </div>
               </div>
             )}
@@ -285,7 +287,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
                   {analyzeError}
                   <div className="mt-1 text-yellow-600 dark:text-yellow-400">
-                    无法显示精确预估，请直接进行转换
+                    {t('audioControlPanels.convert.cannotAnalyze')}
                   </div>
                 </div>
               </div>
@@ -298,10 +300,10 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
                   {!ffmpegLoaded ? (
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 border border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
-                      等待 FFmpeg 加载完成后分析音频信息...
+                      {t('audioControlPanels.convert.waitingFFmpegAnalysis')}
                     </div>
                   ) : (
-                    '无法获取详细的音频信息，将使用默认设置进行转换'
+                      t('audioControlPanels.convert.noAudioInfo')
                   )}
                 </div>
               </div>

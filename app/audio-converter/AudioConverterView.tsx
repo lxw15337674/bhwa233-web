@@ -7,8 +7,8 @@ import { AlertCircle } from 'lucide-react';
 import { useMemoizedFn, useUpdateEffect } from 'ahooks';
 
 // Hooks
+import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import {
-    useFFmpegManager,
     useUnifiedMediaAnalysis,
     useAudioConversion,
     useFileSelection,

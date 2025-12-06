@@ -8,8 +8,10 @@ import { Textarea } from '../../ui/textarea';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => {
+  const { t } = useTranslation();
   // 从 app store 获取数据
   const inputAudio = useAppStore(state => state.inputAudio);
 
@@ -49,7 +51,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
         await navigator.clipboard.writeText(result);
         // 可以添加一个toast提示
       } catch (error) {
-        console.error('复制失败:', error);
+        console.error(t('audioControlPanels.speechToText.copyFailed'), error);
       }
     }
   };
@@ -69,15 +71,15 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
               {isProcessing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  识别中...
+                  {t('audioControlPanels.speechToText.recognizing')}
                 </>
               ) : (
-                '开始语音识别'
+                  t('audioControlPanels.speechToText.startRecognition')
               )}
             </Button>
 
             <Button onClick={resetState} variant="outline" size="lg">
-              重置
+              {t('audioControlPanels.speechToText.reset')}
             </Button>
           </div>
         </CardContent>
@@ -90,7 +92,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 <FileText className="w-4 h-4" />
-                识别结果
+                {t('audioControlPanels.speechToText.recognitionResult')}
               </CardTitle>
               <div className="flex gap-2">
                 <Button
@@ -117,7 +119,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
               className="min-h-[300px] resize-none bg-muted/30 border-muted"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              文件将保存为: {outputFileName}
+              {t('audioControlPanels.speechToText.saveAs')}: {outputFileName}
             </p>
           </CardContent>
         </Card>

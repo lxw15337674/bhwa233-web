@@ -139,7 +139,29 @@
     },
     "mediaProcessor": {
         "title": "媒體處理器",
-        "description": "強大的線上媒體處理工具，支援視訊音訊擷取、格式轉換、壓縮等功能"
+        "description": "強大的線上媒體處理工具，支援影片音訊擷取、格式轉換、壓縮等功能",
+        "functionSelect": "功能選擇",
+        "selectFunction": "選擇功能...",
+        "selectFunctionToStart": "選擇功能開始處理",
+        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}",
+        "functions": {
+            "audioConvert": {
+                "label": "音頻格式轉換",
+                "description": "將音頻檔案轉換為不同的格式和質量。"
+            },
+            "audioSpeedChange": {
+                "label": "音頻倍速調整",
+                "description": "調整音頻的播放速度，同時保持音調不變。"
+            },
+            "speechToText": {
+                "label": "語音轉文字",
+                "description": "將音頻檔案轉換為文字，支援自動語言檢測。"
+            },
+            "imageBatch": {
+                "label": "批量圖片處理",
+                "description": "批量轉換格式、壓縮、調整尺寸。"
+            }
+        }
     },
     "audioFormatConverter": {
         "title": "音訊格式轉換",
@@ -182,14 +204,6 @@
         "keepAspectRatio": "保持寬高比",
         "finalSize": "最終尺寸",
         "willBe": "將為"
-    },
-    "mediaProcessor": {
-        "title": "媒體處理器",
-        "description": "強大的線上媒體處理工具，支援影片音訊擷取、格式轉換、壓縮等功能",
-        "functionSelect": "功能選擇",
-        "selectFunction": "選擇功能...",
-        "selectFunctionToStart": "選擇功能開始處理",
-        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}"
     },
     "batchImageProcessor": {
         "title": "圖片批次處理器",
@@ -273,6 +287,109 @@
     },
     "imageEditor": {
         "title": "圖片編輯器",
-        "description": "支援裁剪、濾鏡、標註、浮水印等進階編輯功能"
+        "description": "支援裁切、濾鏡、標注、浮水印等進階編輯功能"
+    },
+    "audioControlPanels": {
+        "convert": {
+            "startConvert": "開始轉換音訊",
+            "converting": "正在轉換音訊...",
+            "downloadResult": "下載轉換結果",
+            "reconvert": "重新轉換",
+            "targetFormat": "目標格式",
+            "conversionQuality": "轉換品質",
+            "conversionPreview": "轉換預覽",
+            "estimatedSize": "預估輸出檔案大小",
+            "compressed": "壓縮",
+            "originalFile": "原檔案",
+            "analyzingAudio": "正在分析音訊資訊...",
+            "cannotAnalyze": "無法顯示精確預估，請直接進行轉換",
+            "waitingFFmpeg": "等待 FFmpeg 載入完成...",
+            "analyzingFile": "正在分析檔案...",
+            "unsupportedFormat": "不支援的檔案格式，請選擇音訊檔案",
+            "selectValidFile": "請選擇有效的音訊檔案",
+            "waitingFFmpegAnalysis": "等待 FFmpeg 載入完成後分析音訊資訊...",
+            "noAudioInfo": "無法取得詳細的音訊資訊，將使用預設設定進行轉換",
+            "conversionFailed": "音訊轉換失敗"
+        },
+        "speed": {
+            "startAdjust": "開始調整倍速",
+            "adjusting": "正在調整倍速...",
+            "downloadResult": "下載調整結果",
+            "readjust": "重新調整",
+            "quickSelect": "快速選擇倍速",
+            "customSpeed": "自訂倍速 (0.5x - 4.0x)",
+            "times": "倍",
+            "preservePitch": "保持音調不變 (推薦)",
+            "preservePitchDesc": "勾選後音調保持不變，僅調整播放速度。取消勾選會同時改變音調和速度。",
+            "adjustPreview": "調整預覽",
+            "durationChange": "時長變化",
+            "shortened": "縮短",
+            "extended": "延長",
+            "originalDuration": "原時長",
+            "estimatedSize": "預估輸出檔案大小",
+            "reduced": "減小",
+            "originalFile": "原檔案",
+            "analyzingAudio": "正在分析音訊資訊...",
+            "retry": "重試",
+            "waitingFFmpeg": "等待 FFmpeg 載入完成...",
+            "analyzingFile": "正在分析檔案...",
+            "unsupportedFormat": "不支援的檔案格式，請選擇音訊檔案",
+            "selectValidFile": "請選擇有效的音訊檔案",
+            "adjustFailed": "音訊倍速調整失敗"
+        },
+        "speechToText": {
+            "startRecognition": "開始語音辨識",
+            "recognizing": "辨識中...",
+            "reset": "重設",
+            "recognitionResult": "辨識結果",
+            "saveAs": "檔案將儲存為",
+            "copyFailed": "複製失敗"
+        },
+        "conversionSettings": {
+            "selectFormat": "選擇格式",
+            "startConvert": "開始轉換",
+            "preparingConvert": "準備轉換",
+            "convertingTo": "正在轉換為",
+            "convertComplete": "轉換完成",
+            "convertFailed": "轉換失敗"
+        }
+    },
+    "audioConverter": {
+        "qualityModes": {
+            "original": {
+                "label": "原品質",
+                "description": "保持原始音訊品質"
+            },
+            "compressed": {
+                "label": "壓縮模式",
+                "description": "檔案大小減少約50%"
+            }
+        },
+        "speedPresets": {
+            "speed_0_5": {
+                "label": "0.5x (慢速)",
+                "description": "適合學習和仔細聆聽"
+            },
+            "speed_0_75": {
+                "label": "0.75x (慢放)",
+                "description": "略慢，保持清晰度"
+            },
+            "speed_1_0": {
+                "label": "1.0x (原速)",
+                "description": "正常播放速度"
+            },
+            "speed_1_25": {
+                "label": "1.25x (快放)",
+                "description": "略快，提高效率"
+            },
+            "speed_1_5": {
+                "label": "1.5x (快速)",
+                "description": "適合快速瀏覽"
+            },
+            "speed_2_0": {
+                "label": "2.0x (高速)",
+                "description": "最大2倍速度"
+            }
+        }
     }
 }

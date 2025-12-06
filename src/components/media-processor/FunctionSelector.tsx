@@ -18,20 +18,29 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
   const searchParams = useSearchParams();
 
   // 支持两种 URL 格式：
-  // 1. /processor/{category}/{function}
-  // 2. /media-processor?category={category}&function={function}
+  // 1. /[locale]/processor/{category}/{function}
+  // 2. /[locale]/media-processor?category={category}&function={function}
   let category: string;
   let selectedFunction: string;
 
-  if (pathname.startsWith('/media-processor')) {
+  if (pathname.includes('/media-processor')) {
     // 查询参数格式
     category = searchParams?.get('category') || 'audio';
     selectedFunction = searchParams?.get('function') || '';
   } else {
-    // 路径参数格式
-    const [, , cat = 'text', func = ''] = pathname.split('/');
-    category = cat;
-    selectedFunction = func;
+    // 路径参数格式 - 处理 [locale] 前缀
+    const pathParts = pathname.split('/').filter(Boolean); // 移除空字符串
+    // pathParts: ['zh', 'processor', 'audio', 'convert'] 或 ['en', 'media-processor']
+    const processorIndex = pathParts.findIndex(part => part === 'processor' || part === 'media-processor');
+
+    if (processorIndex !== -1 && pathParts[processorIndex] === 'processor') {
+      category = pathParts[processorIndex + 1] || 'audio';
+      selectedFunction = pathParts[processorIndex + 2] || '';
+    } else {
+      // 回退到查询参数
+      category = searchParams?.get('category') || 'audio';
+      selectedFunction = searchParams?.get('function') || '';
+    }
   }
 
   // 调试日志
@@ -51,13 +60,17 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
   });
 
   const handleFunctionChange = (functionId: string) => {
-    // 跳转到新功能的 url
-    if (pathname.startsWith('/media-processor')) {
+    // 提取当前语言前缀
+    const pathParts = pathname.split('/').filter(Boolean);
+    const locale = pathParts[0] || 'en'; // 第一个部分是 locale
+
+    // 跳转到新功能的 url，保留 locale
+    if (pathname.includes('/media-processor')) {
       // 查询参数格式
-      router.push(`/media-processor?category=${category}&function=${functionId}`);
+      router.push(`/${locale}/media-processor?category=${category}&function=${functionId}`);
     } else {
-    // 路径参数格式
-      router.push(`/processor/${category}/${functionId}`);
+      // 路径参数格式
+      router.push(`/${locale}/processor/${category}/${functionId}`);
     }
   };
 
@@ -76,7 +89,11 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
             {currentFunction ? (
               <div className="flex items-center gap-2">
                 <span>{currentFunction.icon}</span>
-                <span>{currentFunction.label}</span>
+                <span>
+                  {currentFunction.labelKey
+                    ? t(currentFunction.labelKey)
+                    : currentFunction.label}
+                </span>
               </div>
             ) : (
               t('mediaProcessor.selectFunction')
@@ -93,9 +110,11 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
               <div className="flex items-center gap-2">
                 <span>{func.icon}</span>
                 <div className="flex flex-col">
-                  <span className="font-medium">{func.label}</span>
+                  <span className="font-medium">
+                    {func.labelKey ? t(func.labelKey) : func.label}
+                  </span>
                   <span className="text-xs text-muted-foreground">
-                    {func.description}
+                    {func.descriptionKey ? t(func.descriptionKey) : func.description}
                   </span>
                 </div>
               </div>

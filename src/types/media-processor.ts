@@ -35,7 +35,9 @@ export interface ControlPanelProps {
 export interface ProcessorFunction {
   id: string;
   label: string;
+  labelKey?: string; // 翻译键
   description: string;
+  descriptionKey?: string; // 翻译键
   category: ProcessorCategory;
   icon: string;
   component: React.ComponentType<ControlPanelProps>;

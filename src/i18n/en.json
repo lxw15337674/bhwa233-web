@@ -138,7 +138,29 @@
     },
     "mediaProcessor": {
         "title": "Media Processor",
-        "description": "Powerful online media processing tool, supporting video/audio extraction, format conversion, compression and more"
+        "description": "Powerful online media processing tools supporting video/audio extraction, format conversion, compression and more",
+        "functionSelect": "Function Selection",
+        "selectFunction": "Select a function...",
+        "selectFunctionToStart": "Select a function to start processing",
+        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}",
+        "functions": {
+            "audioConvert": {
+                "label": "Audio Format Conversion",
+                "description": "Convert audio files to different formats and quality levels."
+            },
+            "audioSpeedChange": {
+                "label": "Audio Speed Adjustment",
+                "description": "Adjust audio playback speed while maintaining pitch."
+            },
+            "speechToText": {
+                "label": "Speech to Text",
+                "description": "Convert audio files to text with automatic language detection."
+            },
+            "imageBatch": {
+                "label": "Batch Image Processing",
+                "description": "Batch format conversion, compression, and size adjustment."
+            }
+        }
     },
     "audioFormatConverter": {
         "title": "Audio Format Converter",
@@ -181,14 +203,6 @@
         "keepAspectRatio": "Keep Aspect Ratio",
         "finalSize": "Final Size",
         "willBe": "will be"
-    },
-    "mediaProcessor": {
-        "title": "Media Processor",
-        "description": "Powerful online media processing tools supporting video/audio extraction, format conversion, compression and more",
-        "functionSelect": "Function Selection",
-        "selectFunction": "Select a function...",
-        "selectFunctionToStart": "Select a function to start processing",
-        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}"
     },
     "batchImageProcessor": {
         "title": "Batch Image Processor",
@@ -273,5 +287,108 @@
     "imageEditor": {
         "title": "Image Editor",
         "description": "Support cropping, filters, annotations, watermarks and advanced editing"
+    },
+    "audioControlPanels": {
+        "convert": {
+            "startConvert": "Start Audio Conversion",
+            "converting": "Converting audio...",
+            "downloadResult": "Download Result",
+            "reconvert": "Reconvert",
+            "targetFormat": "Target Format",
+            "conversionQuality": "Conversion Quality",
+            "conversionPreview": "Conversion Preview",
+            "estimatedSize": "Estimated Output File Size",
+            "compressed": "Compressed",
+            "originalFile": "Original file",
+            "analyzingAudio": "Analyzing audio information...",
+            "cannotAnalyze": "Unable to show precise estimate, please proceed with conversion",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "analyzingFile": "Analyzing file...",
+            "unsupportedFormat": "Unsupported file format, please select an audio file",
+            "selectValidFile": "Please select a valid audio file",
+            "waitingFFmpegAnalysis": "Waiting for FFmpeg to load before analyzing audio information...",
+            "noAudioInfo": "Unable to get detailed audio information, will use default settings for conversion",
+            "conversionFailed": "Audio conversion failed"
+        },
+        "speed": {
+            "startAdjust": "Start Speed Adjustment",
+            "adjusting": "Adjusting speed...",
+            "downloadResult": "Download Result",
+            "readjust": "Readjust",
+            "quickSelect": "Quick Speed Selection",
+            "customSpeed": "Custom Speed (0.5x - 4.0x)",
+            "times": "x",
+            "preservePitch": "Preserve Pitch (Recommended)",
+            "preservePitchDesc": "When checked, pitch remains unchanged and only playback speed is adjusted. Unchecking will change both pitch and speed.",
+            "adjustPreview": "Adjustment Preview",
+            "durationChange": "Duration Change",
+            "shortened": "Shortened",
+            "extended": "Extended",
+            "originalDuration": "Original duration",
+            "estimatedSize": "Estimated Output File Size",
+            "reduced": "Reduced",
+            "originalFile": "Original file",
+            "analyzingAudio": "Analyzing audio information...",
+            "retry": "Retry",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "analyzingFile": "Analyzing file...",
+            "unsupportedFormat": "Unsupported file format, please select an audio file",
+            "selectValidFile": "Please select a valid audio file",
+            "adjustFailed": "Audio speed adjustment failed"
+        },
+        "speechToText": {
+            "startRecognition": "Start Speech Recognition",
+            "recognizing": "Recognizing...",
+            "reset": "Reset",
+            "recognitionResult": "Recognition Result",
+            "saveAs": "File will be saved as",
+            "copyFailed": "Copy failed"
+        },
+        "conversionSettings": {
+            "selectFormat": "Select Format",
+            "startConvert": "Start Conversion",
+            "preparingConvert": "Preparing conversion",
+            "convertingTo": "Converting to",
+            "convertComplete": "Conversion complete",
+            "convertFailed": "Conversion failed"
+        }
+    },
+    "audioConverter": {
+        "qualityModes": {
+            "original": {
+                "label": "Original Quality",
+                "description": "Maintain original audio quality"
+            },
+            "compressed": {
+                "label": "Compressed",
+                "description": "Reduce file size by approximately 50%"
+            }
+        },
+        "speedPresets": {
+            "speed_0_5": {
+                "label": "0.5x (Slow)",
+                "description": "Ideal for learning and careful listening"
+            },
+            "speed_0_75": {
+                "label": "0.75x (Slower)",
+                "description": "Slightly slower, maintains clarity"
+            },
+            "speed_1_0": {
+                "label": "1.0x (Normal)",
+                "description": "Normal playback speed"
+            },
+            "speed_1_25": {
+                "label": "1.25x (Faster)",
+                "description": "Slightly faster, improves efficiency"
+            },
+            "speed_1_5": {
+                "label": "1.5x (Fast)",
+                "description": "Suitable for quick browsing"
+            },
+            "speed_2_0": {
+                "label": "2.0x (High Speed)",
+                "description": "Maximum 2x speed"
+            }
+        }
     }
 }
