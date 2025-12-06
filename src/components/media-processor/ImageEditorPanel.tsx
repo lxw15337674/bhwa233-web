@@ -11,10 +11,8 @@ import {
     AlertTriangle,
     Zap,
     Replace,
-    GalleryHorizontalEnd,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -149,12 +147,6 @@ export const ImageEditorPanel: React.FC = () => {
                     <Replace className="w-4 h-4 mr-1" />
                     更换图片
                 </Button>
-                <Button variant="outline" size="sm" asChild>
-                    <Link href="/media-processor?category=batch">
-                        <GalleryHorizontalEnd className="w-4 h-4 mr-1" />
-                        批量处理
-                    </Link>
-                </Button>
             </div>
 
             <Separator />
@@ -231,9 +223,6 @@ export const ImageEditorPanel: React.FC = () => {
                         value={options.outputFilename || ''}
                         onChange={(e) => updateOptions({ outputFilename: e.target.value })}
                     />
-                    <p className="text-xs text-muted-foreground">
-                        留空则自动生成文件名
-                    </p>
                 </div>
             </div>
 
