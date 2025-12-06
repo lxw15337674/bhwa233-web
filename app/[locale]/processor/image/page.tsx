@@ -19,7 +19,7 @@ const ImageProcessorPage: React.FC = () => {
     } = useImageProcessorStore();
     
     return (
-        <div className="space-y-6">
+        <div className="container mx-auto px-4 py-8 ">
             {/* 页面标题 */}
             <PageHeader
                 title={t('imageProcessor.title')}
