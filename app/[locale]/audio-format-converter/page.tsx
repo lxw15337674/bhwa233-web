@@ -9,13 +9,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations(locale);
+    const baseUrl = 'https://233tools.vercel.app';
+    const path = '/audio-format-converter';
     
     return {
         title: t.audioFormatConverter.title,
         description: t.audioFormatConverter.description,
+        alternates: {
+            canonical: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
+            languages: {
+                'en': `${baseUrl}${path}`,
+                'zh': `${baseUrl}/zh${path}`,
+                'zh-tw': `${baseUrl}/zh-tw${path}`,
+            }
+        },
         openGraph: {
             title: t.audioFormatConverter.title,
             description: t.audioFormatConverter.description,
+            url: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
             type: 'website',
         },
     };

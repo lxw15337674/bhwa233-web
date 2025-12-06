@@ -1,67 +1,36 @@
-'use client';
+import type { Metadata } from 'next';
+import { Locale, getTranslations } from '@/lib/i18n';
+import ImageProcessorClientPage from './ImageProcessorClientPage';
 
-import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { useImageProcessorStore } from '@/stores/media-processor/image-store';
-import { ImageInputArea } from '@/components/media-processor/ImageInputArea';
-import { ImageOutputPreview } from '@/components/media-processor/ImageOutputPreview';
-import { ImageEditorPanel } from '@/components/media-processor/ImageEditorPanel';
-import { PageHeader } from '@/components/media-processor/PageHeader';
-import { ImageExifPanel } from '@/components/media-processor/ImageExifPanel';
-import { useTranslation } from '@/components/TranslationProvider';
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations(locale);
+    const baseUrl = 'https://233tools.vercel.app';
+    const path = '/processor/image';
 
-const ImageProcessorPage: React.FC = () => {
-    const { t } = useTranslation();
-    const {
-        inputFile,
-        processError
-    } = useImageProcessorStore();
-    
-    return (
-        <div className="container mx-auto px-4 py-8 ">
-            {/* 页面标题 */}
-            <PageHeader
-                title={t('imageProcessor.title')}
-                description={t('imageProcessor.description')}
-            />
+    return {
+        title: t.imageProcessor?.title || 'Image Processor',
+        description: t.imageProcessor?.description || 'Online image processing tool',
+        alternates: {
+            canonical: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
+            languages: {
+                'en': `${baseUrl}${path}`,
+                'zh': `${baseUrl}/zh${path}`,
+                'zh-tw': `${baseUrl}/zh-tw${path}`,
+            }
+        },
+        openGraph: {
+            title: t.imageProcessor?.title || 'Image Processor',
+            description: t.imageProcessor?.description || 'Online image processing tool',
+            type: 'website',
+        },
+    };
+}
 
-            {/* 错误提示 */}
-            {processError && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{t('imageProcessor.errorOccurred')}: {processError}</AlertDescription>
-                </Alert>
-            )}
-
-            {/* 主要内容区域 */}
-            {!inputFile ? (
-                // 未上传图片时，显示上传区域和编辑面板
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        <ImageInputArea />
-                    </div>
-                    <div>
-                        <ImageEditorPanel />
-                    </div>
-                </div>
-            ) : (
-                // 已上传图片时，显示编辑界面
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* 左侧：处理后预览 */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <ImageOutputPreview />
-                        <ImageExifPanel />
-                    </div>
-
-                    {/* 右侧：编辑面板 */}
-                    <div>
-                        <ImageEditorPanel />
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default ImageProcessorPage;
+export default function ImageProcessorPage() {
+    return <ImageProcessorClientPage />;
+}

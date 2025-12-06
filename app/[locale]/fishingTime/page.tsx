@@ -10,7 +10,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations(locale);
   const baseUrl = 'https://233tools.vercel.app';
-  const canonicalUrl = `${baseUrl}/${locale}/fishingTime`;
+  const path = '/fishingTime';
+  const canonicalUrl = locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`;
 
   return {
     title: t.fishingTime.title,
@@ -18,6 +19,19 @@ export async function generateMetadata({
     authors: [{ name: '233tools' }],
     creator: '233tools',
     publisher: t.home.title.split(' - ')[0],
+    keywords: [
+      'fishing time', 'countdown', 'holiday countdown', 'salary countdown',
+      '摸鱼办', '倒计时', '节假日倒计时', '工资倒计时',
+      locale === 'zh' ? '摸鱼工具' : locale === 'zh-tw' ? '摸魚工具' : 'office tools'
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'en': `${baseUrl}${path}`,
+        'zh': `${baseUrl}/zh${path}`,
+        'zh-tw': `${baseUrl}/zh-tw${path}`,
+      }
+    },
     robots: {
       index: true,
       follow: true,
