@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,6 +15,7 @@ import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
 import { UnifiedProgressDisplay } from './UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from './UnifiedOutputPreview';
+import { BatchTaskGrid } from './batch/BatchTaskGrid';
 
 // 导入类型和配置
 import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';
@@ -23,6 +25,16 @@ import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 import { useFileSelection } from '@/hooks/useAudioConverter';
 import { useUnifiedMediaAnalysis } from '@/hooks/useUnifiedMediaAnalysis';
 import { useFFmpegManager } from '../../hooks/useFFmpeg';
+
+// 动态导入图片处理和编辑器页面（使用相对路径，因为 app 目录不在 src 下）
+const ImageProcessorPage = dynamic(() => import('../../../app/processor/image/page'), {
+  loading: () => <div>加载中...</div>,
+  ssr: false
+});
+const ImageEditorPage = dynamic(() => import('../../../app/processor/editor/page'), {
+  loading: () => <div>加载中...</div>,
+  ssr: false
+});
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;
@@ -35,7 +47,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 }) => {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const messageRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLAudioElement>(null);
 
   // 从URL参数获取初始状态
@@ -96,9 +107,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
 
-  // 判断是否为文本转语音功能（已移除该功能）
-  const isTextToSpeech = false;
-
   // 分类切换处理
   const handleCategoryChange = useMemoizedFn((category: ProcessorCategory) => {
     const newFunction = getDefaultFunction(category);
@@ -110,7 +118,11 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     // 更新URL
     const url = new URL(window.location.href);
     url.searchParams.set('category', category);
-    url.searchParams.set('function', newFunction);
+    if (newFunction) {
+      url.searchParams.set('function', newFunction);
+    } else {
+      url.searchParams.delete('function');
+    }
     window.history.replaceState({}, '', url.toString());
 
     // 清理当前文件如果类型不匹配
@@ -223,100 +235,132 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 获取当前功能配置
   const currentFunction = getFunctionById(state.currentFunction);
   const outputMediaType = 'audio' as const;
+  const isBatchMode = state.category === 'batch';
+  const showAudioBatchUI = state.category !== 'image' && state.category !== 'editor';
 
   return (
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* 分类导航 */}
-        <CategoryNavigation />
+        <CategoryNavigation
+          activeCategory={state.category}
+          onCategoryChange={handleCategoryChange}
+        />
 
-        {/* 页面标题 */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            {currentFunction?.label || '媒体处理器'}
-          </h1>
-          <p className="text-muted-foreground">
-            {currentFunction?.description || '选择功能开始处理'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 左侧：文件上传和媒体信息 */}
-          <div className="lg:col-span-2 space-y-6">
-            <UnifiedFileUploadArea
-              selectedFile={selectedFile}
-              category={state.category}
-              dragOver={dragOver}
-              onFileSelect={handleFileSelect}
-              onReset={reset}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onFileInputChange={handleFileInputChange}
-              fileInputRef={fileInputRef}
-              disabled={state.isProcessing}
-            />
-
-            <UnifiedMediaMetadataCard
-              selectedFile={selectedFile}
-              mediaMetadata={mediaMetadata}
-              isAnalyzing={isAnalyzing}
-              analyzeError={analyzeError}
-              ffmpegLoaded={ffmpegLoaded}
-              onRetryAnalysis={handleRetryAnalysis}
-            />
+        {state.category === 'image' && (
+          <div className="mt-8">
+            <ImageProcessorPage />
           </div>
+        )}
 
-          <div className="space-y-6">
-            {/* 功能选择器 */}
-            <FunctionSelector
-              disabled={state.isProcessing}
-            />
-            {currentFunction && (
-              <currentFunction.component
-                selectedFile={selectedFile}
-                mediaMetadata={mediaMetadata}
-                audioInfo={audioInfo}
-                ffmpeg={ffmpeg || null}
-                isMultiThread={isMultiThread}
-                ffmpegLoaded={ffmpegLoaded}
-                isAnalyzing={isAnalyzing}
-                analyzeError={analyzeError}
-                onRetryAnalysis={handleRetryAnalysis}
-                onStateChange={handleStateChange}
-                onOutputReady={handleOutputReady}
-              />
-            )}
-            {/* 处理进度 */}
-            <UnifiedProgressDisplay
-              processingState={state.processingState}
-            />
-
-            {/* 输出文件预览 */}
-            {state.processingState.outputFile && (
-              <UnifiedOutputPreview
-                outputFile={state.processingState.outputFile}
-                outputFileName={state.processingState.outputFileName}
-                mediaType={outputMediaType}
-                isPlaying={isPlaying}
-                onPlay={() => {
-                  setIsPlaying(true);
-                  if (mediaRef.current) {
-                    (mediaRef.current as any).play();
-                  }
-                }}
-                onPause={() => {
-                  setIsPlaying(false);
-                  if (mediaRef.current) {
-                    (mediaRef.current as any).pause();
-                  }
-                }}
-                onEnded={() => setIsPlaying(false)}
-                mediaRef={mediaRef}
-              />
-            )}
+        {state.category === 'editor' && (
+          <div className="mt-8">
+            <ImageEditorPage />
           </div>
-        </div>
+        )}
+
+        {showAudioBatchUI && (
+          <>
+            {/* 页面标题 */}
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                {currentFunction?.label || '媒体处理器'}
+              </h1>
+              <p className="text-muted-foreground">
+                {currentFunction?.description || '选择功能开始处理'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* 左侧：文件上传和媒体信息 */}
+              <div className="lg:col-span-2 space-y-6">
+                {isBatchMode ? (
+                  <BatchTaskGrid />
+                ) : (
+                  <>
+                    <UnifiedFileUploadArea
+                      selectedFile={selectedFile}
+                      category={state.category}
+                      dragOver={dragOver}
+                      onFileSelect={handleFileSelect}
+                      onReset={reset}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onFileInputChange={handleFileInputChange}
+                      fileInputRef={fileInputRef}
+                      disabled={state.isProcessing}
+                    />
+
+                    <UnifiedMediaMetadataCard
+                      selectedFile={selectedFile}
+                      mediaMetadata={mediaMetadata}
+                      isAnalyzing={isAnalyzing}
+                      analyzeError={analyzeError}
+                      ffmpegLoaded={ffmpegLoaded}
+                      onRetryAnalysis={handleRetryAnalysis}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                {/* 功能选择器 */}
+                {!isBatchMode && (
+                  <FunctionSelector
+                    disabled={state.isProcessing}
+                  />
+                )}
+                {currentFunction && (
+                  <currentFunction.component
+                    selectedFile={selectedFile}
+                    mediaMetadata={mediaMetadata}
+                    audioInfo={audioInfo}
+                    ffmpeg={ffmpeg || null}
+                    isMultiThread={isMultiThread}
+                    ffmpegLoaded={ffmpegLoaded}
+                    isAnalyzing={isAnalyzing}
+                    analyzeError={analyzeError}
+                    onRetryAnalysis={handleRetryAnalysis}
+                    onStateChange={handleStateChange}
+                    onOutputReady={handleOutputReady}
+                    textInput=""
+                  />
+                )}
+                {/* 处理进度 */}
+                {!isBatchMode && (
+                  <UnifiedProgressDisplay
+                    processingState={state.processingState}
+                  />
+                )}
+
+                {/* 输出文件预览 */}
+                {!isBatchMode && state.processingState.outputFile && (
+                  <UnifiedOutputPreview
+                    outputFile={state.processingState.outputFile}
+                    outputFileName={state.processingState.outputFileName}
+                    mediaType={outputMediaType}
+                    isPlaying={isPlaying}
+                    onPlay={() => {
+                      setIsPlaying(true);
+                      if (mediaRef.current) {
+                        (mediaRef.current as any).play();
+                      }
+                    }}
+                    onPause={() => {
+                      setIsPlaying(false);
+                      if (mediaRef.current) {
+                        (mediaRef.current as any).pause();
+                      }
+                    }}
+                    onEnded={() => setIsPlaying(false)}
+                    mediaRef={mediaRef}
+                  />
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

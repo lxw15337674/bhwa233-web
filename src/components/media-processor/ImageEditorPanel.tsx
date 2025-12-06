@@ -150,7 +150,7 @@ export const ImageEditorPanel: React.FC = () => {
                     更换图片
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                    <Link href="/processor/image/batch">
+                    <Link href="/media-processor?category=batch">
                         <GalleryHorizontalEnd className="w-4 h-4 mr-1" />
                         批量处理
                     </Link>

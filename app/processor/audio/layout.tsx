@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getFunctionById } from '@/config/processor-functions';
 import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
-import { CategoryNavigation } from '@/components/media-processor/CategoryNavigation';
 import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
 import { AudioInputArea } from '@/components/media-processor/AudioInputArea';
 
@@ -29,9 +28,6 @@ const AudioProcessorView: React.FC = ({ children }: Props) => {
     return (
         <div className="min-h-screen text-foreground">
             <div className="container mx-auto px-4 py-8 max-w-6xl">
-                {/* 分类导航 */}
-                <CategoryNavigation />
-
                 {/* 页面标题 */}
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">

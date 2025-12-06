@@ -1,6 +1,7 @@
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
+import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 
 // 文件验证器
@@ -20,6 +21,7 @@ export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; ic
     audio: { label: '音频', icon: '🎵', default: 'audio-convert' },
     image: { label: '图片处理', icon: '🖼️', default: '' },
     editor: { label: '图片编辑', icon: '✏️', default: '' },
+    batch: { label: '批量处理', icon: '📚', default: 'image-batch' },
 };
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
@@ -53,6 +55,17 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         component: SpeechToTextControlPanel,
         fileValidator: audioFileValidator,
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
+    },
+    // 批量处理
+    {
+        id: 'image-batch',
+        label: '批量图片处理',
+        category: 'batch',
+        description: '批量转换格式、压缩、调整尺寸。',
+        icon: '📚',
+        component: BatchControlPanel as any, // Cast to any to avoid strict prop type mismatch with ControlPanelProps
+        fileValidator: imageFileValidator,
+        supportedFormats: ['jpg', 'jpeg', 'png', 'webp', 'bmp'],
     },
 ];
 

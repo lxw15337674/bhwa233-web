@@ -1,11 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useBatchImageStore, ImageTask } from '@/stores/media-processor/batch-image-store';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatFileSize } from '@/utils/imageProcessor';
-import { X, FileImage, CheckCircle2, AlertCircle, Upload } from 'lucide-react';
+import { X, FileImage, CheckCircle2, AlertCircle, Upload, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BatchExifPopover } from './BatchExifPopover';
 
 export const BatchTaskGrid: React.FC = () => {
     const { tasks, removeTask, addFiles, isProcessing } = useBatchImageStore();
@@ -61,10 +62,11 @@ export const BatchTaskGrid: React.FC = () => {
         <div className="flex flex-col h-full border rounded-lg bg-background" onDrop={handleDrop} onDragOver={handleDragOver}>
             {/* Header */}
             <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/40 text-sm font-medium text-muted-foreground">
-                <div className="col-span-5">文件名</div>
+                <div className="col-span-4">文件名</div>
                 <div className="col-span-2">原始大小</div>
                 <div className="col-span-2">处理后</div>
                 <div className="col-span-2">状态</div>
+                <div className="col-span-1 text-center">EXIF</div>
                 <div className="col-span-1 text-right">操作</div>
             </div>
 
@@ -94,10 +96,24 @@ export const BatchTaskGrid: React.FC = () => {
 };
 
 const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boolean }> = ({ task, onRemove, disabled }) => {
+    const [isLoadingExif, setIsLoadingExif] = useState(false);
+    const [popoverOpen, setPopoverOpen] = useState(false);
+    const { loadExifForTask } = useBatchImageStore();
+
+    const handlePopoverOpenChange = async (open: boolean) => {
+        setPopoverOpen(open);
+        if (open && !task.exifMetadata && !isLoadingExif) {
+            setIsLoadingExif(true);
+            await loadExifForTask(task.id);
+            setIsLoadingExif(false);
+        }
+    };
+
     return (
-        <div className={cn("grid grid-cols-12 gap-4 p-4 items-center text-sm hover:bg-muted/50 transition-colors", disabled && "opacity-70")}>
-            {/* File Name & Preview */}
-            <div className="col-span-5 flex items-center gap-3 overflow-hidden">
+        <>
+            <div className={cn("grid grid-cols-12 gap-4 p-4 items-center text-sm hover:bg-muted/50 transition-colors", disabled && "opacity-70")}>
+                {/* File Name & Preview */}
+                <div className="col-span-4 flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 rounded bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden border">
                      {/* Simple preview if possible, else icon */}
                      <img 
@@ -151,8 +167,27 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 )}
             </div>
 
+                {/* EXIF */}
+                <div className="col-span-1 flex justify-center">
+                    <BatchExifPopover
+                        fileName={task.file.name}
+                        exifMetadata={task.exifMetadata}
+                        isLoading={isLoadingExif}
+                        onOpenChange={handlePopoverOpenChange}
+                    >
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            title="查看 EXIF 信息（点击或悬停）"
+                        >
+                            <Info className="w-4 h-4" />
+                        </Button>
+                    </BatchExifPopover>
+                </div>
+
             {/* Actions */}
-            <div className="col-span-1 text-right">
+                <div className="col-span-1 flex justify-end">
                 <Button
                     variant="ghost"
                     size="icon"
@@ -164,5 +199,6 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 </Button>
             </div>
         </div>
+        </>
     );
 };

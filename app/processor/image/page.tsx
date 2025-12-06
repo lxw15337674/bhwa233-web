@@ -8,6 +8,7 @@ import { ImageInputArea } from '@/components/media-processor/ImageInputArea';
 import { ImageOutputPreview } from '@/components/media-processor/ImageOutputPreview';
 import { ImageEditorPanel } from '@/components/media-processor/ImageEditorPanel';
 import { PageHeader } from '@/components/media-processor/PageHeader';
+import { ImageExifPanel } from '@/components/media-processor/ImageExifPanel';
 
 const ImageProcessorPage: React.FC = () => {
     const {
@@ -39,8 +40,9 @@ const ImageProcessorPage: React.FC = () => {
                 // 已上传图片时，显示编辑界面
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* 左侧：处理后预览 */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 space-y-6">
                         <ImageOutputPreview />
+                        <ImageExifPanel />
                     </div>
 
                     {/* 右侧：编辑面板 */}

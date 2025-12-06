@@ -8,6 +8,7 @@ import {
     generateOutputFilename,
     validateImageFile,
 } from '@/utils/imageProcessor';
+import { ExifMetadata } from './image-store';
 
 // Max file size (same as single)
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -17,6 +18,7 @@ export interface ImageTask {
     file: File;
     status: 'pending' | 'processing' | 'success' | 'error';
     inputMetadata?: ImageMetadata;
+    exifMetadata?: ExifMetadata;  // EXIF 元数据
     outputBlob?: Blob;
     outputMetadata?: ImageMetadata;
     error?: string;
@@ -38,11 +40,12 @@ interface BatchImageStore {
     cancelProcessing: () => void;
     resetTaskStatus: () => void; // Reset all to pending (for retry)
     downloadAll: () => Promise<void>;
+    loadExifForTask: (taskId: string) => Promise<void>; // 加载单个任务的 EXIF
 }
 
 // Worker types (copied for consistency)
 interface WorkerRequest {
-    type: 'process';
+    type: 'process' | 'getExif';
     id: string;
     buffer: ArrayBuffer;
     fileName: string;
@@ -50,13 +53,14 @@ interface WorkerRequest {
 }
 
 interface WorkerResponse {
-    type: 'progress' | 'success' | 'error';
+    type: 'progress' | 'success' | 'error' | 'exif';
     id: string;
     percent?: number;
     message?: string;
     buffer?: ArrayBuffer;
     metadata?: ImageMetadata;
     error?: string;
+    exifData?: ExifMetadata;
 }
 
 let workerInstance: Worker | null = null;
@@ -268,5 +272,54 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    },
+
+    loadExifForTask: async (taskId: string) => {
+        const { tasks } = get();
+        const task = tasks.find(t => t.id === taskId);
+
+        if (!task || task.exifMetadata) {
+            // 已经加载过或任务不存在
+            return;
+        }
+
+        try {
+            const worker = getWorker();
+            const buffer = await task.file.arrayBuffer();
+
+            return new Promise<void>((resolve) => {
+                const handleMessage = (e: MessageEvent<WorkerResponse>) => {
+                    if (e.data.id !== taskId) return;
+
+                    if (e.data.type === 'exif') {
+                        worker.removeEventListener('message', handleMessage);
+
+                        set((state) => ({
+                            tasks: state.tasks.map(t =>
+                                t.id === taskId
+                                    ? { ...t, exifMetadata: e.data.exifData }
+                                    : t
+                            )
+                        }));
+                        resolve();
+                    } else if (e.data.type === 'error') {
+                        worker.removeEventListener('message', handleMessage);
+                        console.error('Failed to load EXIF for task', taskId, e.data.error);
+                        resolve();
+                    }
+                };
+
+                worker.addEventListener('message', handleMessage);
+                worker.postMessage({
+                    type: 'getExif',
+                    id: taskId,
+                    buffer,
+                    fileName: task.file.name,
+                    options: get().options
+                } as WorkerRequest);
+            });
+        } catch (error) {
+            console.error('Failed to load EXIF:', error);
+        }
     }
 }));
