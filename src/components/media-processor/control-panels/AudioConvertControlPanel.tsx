@@ -20,7 +20,7 @@ import {
 } from '@/utils/audioConverter';
 import { ControlPanelProps } from '@/types/media-processor';
 import { useMediaProcessing } from '@/hooks/useMediaProcessing';
-import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface AudioConvertParams {
   outputFormat: AudioFormat;
@@ -28,18 +28,18 @@ interface AudioConvertParams {
 }
 
 export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => {
-  // 从 store 获取数据
-  const store = useAudioProcessorStore();
+  // 从 app store 获取数据
+  const inputAudio = useAppStore(state => state.inputAudio);
+  const mediaMetadata = useAppStore(state => state.mediaMetadata);
+  const audioInfo = useAppStore(state => state.audioInfo);
+  const ffmpeg = useAppStore(state => state.ffmpeg);
+  const isMultiThread = useAppStore(state => state.isMultiThread);
+  const ffmpegLoaded = useAppStore(state => state.ffmpegLoaded);
+  const isAnalyzing = useAppStore(state => state.isAnalyzing);
+  const analyzeError = useAppStore(state => state.analyzeError);
 
   // 优先使用 props，否则使用 store 的数据
-  const selectedFile = props.selectedFile ?? store.inputAudio;
-  const mediaMetadata = props.mediaMetadata ?? store.mediaMetadata;
-  const audioInfo = props.audioInfo ?? store.audioInfo;
-  const ffmpeg = props.ffmpeg ?? store.ffmpeg;
-  const isMultiThread = props.isMultiThread ?? store.isMultiThread;
-  const ffmpegLoaded = props.ffmpegLoaded ?? store.ffmpegLoaded;
-  const isAnalyzing = props.isAnalyzing ?? store.isAnalyzing;
-  const analyzeError = props.analyzeError ?? store.analyzeError;
+  const selectedFile = props.selectedFile ?? inputAudio;
 
   const [outputFormat, setOutputFormat] = React.useState<AudioFormat>('mp3');
   const [qualityMode, setQualityMode] = React.useState<QualityMode>('original');

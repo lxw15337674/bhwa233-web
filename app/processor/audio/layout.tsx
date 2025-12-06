@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getFunctionById } from '@/config/processor-functions';
-import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
+import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
 import { AudioInputArea } from '@/components/media-processor/AudioInputArea';
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const AudioProcessorView: React.FC = ({ children }: Props) => {
-    const { initFFmpeg } = useAudioProcessorStore();
+    const initFFmpeg = useAppStore(state => state.initFFmpeg);
     const params = useParams<{ function: string }>();
     const currentFunction = params.function;
     const currentFunctionConfig = getFunctionById(currentFunction);

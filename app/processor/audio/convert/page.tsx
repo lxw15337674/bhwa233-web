@@ -6,37 +6,30 @@ import { Button } from '@/components/ui/button';
 import { BaseFileUpload } from '@/components/media-processor/shared/BaseFileUpload';
 import { BaseMediaMetadataCard } from '@/components/media-processor/shared/BaseMediaMetadataCard';
 import { BaseProgressDisplay } from '@/components/media-processor/shared/BaseProgressDisplay';
-import { MediaProcessorProvider, useMediaProcessor } from '@/components/media-processor/providers/MediaProcessorProvider';
-import { UnifiedMediaAnalysisProvider, useUnifiedMediaAnalysisContext } from '@/components/media-processor/providers/UnifiedMediaAnalysisProvider';
-import { FileSelectionProvider, useFileSelectionContext } from '@/components/media-processor/providers/FileSelectionProvider';
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
 import { ProcessingState } from '@/types/media-processor';
 import { Download, FileAudio } from 'lucide-react';
 import { useAudioConvertStore } from '@/stores/media-processor/audio-convert-store';
-import { MediaProcessorBoundary } from '@/components/media-processor/MediaProcessorBoundary';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface AudioConvertPageWrapperProps {}
 
-// 内部组件，使用 Providers 提供的状态
+// 内部组件，使用 Zustand Store 提供的状态
 const AudioConvertPageContent: React.FC<AudioConvertPageWrapperProps> = () => {
-  const {
-    selectedFile,
-    setSelectedFile,
-    mediaMetadata,
-    ffmpeg,
-    ffmpegLoaded,
-    initFFmpeg,
-    isAnalyzing,
-    analyzeError
-  } = useMediaProcessor();
-
-  const {
-    analyzeMedia
-  } = useUnifiedMediaAnalysisContext();
-
-  const {
-    clearFile
-  } = useFileSelectionContext();
+  const selectedFile = useAppStore(state => state.selectedFile);
+  const setSelectedFile = useAppStore(state => state.setSelectedFile);
+  const mediaMetadata = useAppStore(state => state.mediaMetadata);
+  const ffmpeg = useAppStore(state => state.ffmpeg);
+  const ffmpegLoaded = useAppStore(state => state.ffmpegLoaded);
+  const initFFmpeg = useAppStore(state => state.initFFmpeg);
+  const isAnalyzing = useAppStore(state => state.isAnalyzing);
+  const analyzeError = useAppStore(state => state.analyzeError);
+  const analyzeMedia = useAppStore(state => state.analyzeMedia);
+  const clearFile = useAppStore(state => state.clearFile);
+  const dragOver = useAppStore(state => state.dragOver);
+  const handleDragEnter = useAppStore(state => state.handleDragEnter);
+  const handleDragLeave = useAppStore(state => state.handleDragLeave);
+  const handleDrop = useAppStore(state => state.handleDrop);
 
   // 使用独立的状态管理
   const {
@@ -187,11 +180,7 @@ const AudioConvertPageContent: React.FC<AudioConvertPageWrapperProps> = () => {
 };
 
 const AudioConvertPageWrapper: React.FC<AudioConvertPageWrapperProps> = () => {
-  return (
-    <MediaProcessorBoundary>
-      <AudioConvertPageContent />
-    </MediaProcessorBoundary>
-  );
+  return <AudioConvertPageContent />;
 };
 
 export default function AudioConvertPage() {

@@ -6,15 +6,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { Textarea } from '../../ui/textarea';
-import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
+import { useAppStore } from '@/stores/media-processor/app-store';
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
 
 export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => {
-  // 从 store 获取数据
-  const store = useAudioProcessorStore();
+  // 从 app store 获取数据
+  const inputAudio = useAppStore(state => state.inputAudio);
 
   // 优先使用 props，否则使用 store 的数据
-  const selectedFile = props.selectedFile ?? store.inputAudio;
+  const selectedFile = props.selectedFile ?? inputAudio;
 
   const {
     isProcessing,

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
-import { useAudioProcessorStore } from '@/stores/media-processor/audio-store';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface AudioInputAreaProps {
   maxFileSize?: number; // MB
@@ -21,14 +21,15 @@ export const AudioInputArea: React.FC<AudioInputAreaProps> = ({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string>('');
   
-  const {
-    inputAudio,
-    mediaMetadata,
-    validateAudioFile,
-    setInputAudio,
-    analyzeAudio,
-    clearAudioData
-  } = useAudioProcessorStore();
+  const inputAudio = useAppStore(state => state.inputAudio);
+  const mediaMetadata = useAppStore(state => state.mediaMetadata);
+  const validateAudioFile = useAppStore(state => state.validateAudioFile);
+  const setInputAudio = useAppStore(state => state.setInputAudio);
+  const analyzeMedia = useAppStore(state => state.analyzeMedia);
+  const clearAudioData = useAppStore(state => state.clearAudioData);
+
+  // 将 analyzeMedia 重命名为 analyzeAudio 以保持接口一致
+  const analyzeAudio = analyzeMedia;
 
   const supportedFormats = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a'];
 
