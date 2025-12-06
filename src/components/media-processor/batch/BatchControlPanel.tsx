@@ -214,10 +214,9 @@ export const BatchControlPanel: React.FC = () => {
                 </Button>
 
                 <Button
-                    variant="outline"
                     onClick={downloadAll}
                     disabled={!hasSuccess || isProcessing}
-                    className={`w-full ${hasSuccess ? "border-green-500 text-green-600 hover:bg-green-50" : ""}`}
+                    className="w-full"
                 >
                     <Download className="w-4 h-4 mr-2" />
                     打包下载

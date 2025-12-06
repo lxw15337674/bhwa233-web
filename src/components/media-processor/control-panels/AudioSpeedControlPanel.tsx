@@ -328,11 +328,11 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                     {analyzeError}
                                     <Button
                                         onClick={props.onRetryAnalysis}
-                                        variant="ghost"
+                                        variant="outline"
                                         size="sm"
-                                        className="mt-1 text-yellow-700 hover:text-yellow-800"
+                                        className="mt-1"
                                     >
-                                        重试分析
+                                        重试
                                     </Button>
                                 </div>
                             </div>

@@ -173,7 +173,7 @@ export const ImageEditorPanel: React.FC = () => {
                     从剪贴板粘贴
                 </Button>
                 <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                     onClick={handleChangeImage}
                     className="flex-1"

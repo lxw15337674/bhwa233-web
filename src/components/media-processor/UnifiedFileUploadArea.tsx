@@ -157,11 +157,11 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold">已选择文件</h3>
                             <Button
-                                variant="ghost"
-                                size="sm"
+                                variant="outline"
+                                size="icon"
                                 onClick={onReset}
                                 disabled={disabled}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8"
                             >
                                 <X className="h-4 w-4" />
                             </Button>

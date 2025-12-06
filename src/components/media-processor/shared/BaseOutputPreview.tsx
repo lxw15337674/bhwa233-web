@@ -53,9 +53,8 @@ export const BaseOutputPreview: React.FC<BaseOutputPreviewProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm truncate max-w-[60%]">{outputFileName}</p>
-            <Button size="sm" onClick={handleDownload}>
-              <Download className="h-4 w-4 mr-2" />
-              下载
+            <Button size="sm" onClick={handleDownload} variant="outline">
+              <Download className="h-4 w-4" />
             </Button>
           </div>
           
@@ -71,9 +70,8 @@ export const BaseOutputPreview: React.FC<BaseOutputPreviewProps> = ({
                 controls={false}
               />
               <div className="flex gap-2">
-                <Button size="sm" onClick={isPlaying ? onPause : onPlay}>
+                <Button size="sm" onClick={isPlaying ? onPause : onPlay} variant="outline">
                   {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  {isPlaying ? '暂停' : '播放'}
                 </Button>
               </div>
             </div>
@@ -156,9 +154,8 @@ export const BaseOutputPreviewAsync: React.FC<Omit<BaseOutputPreviewProps, 'medi
               a.download = outputFileName;
               a.click();
               URL.revokeObjectURL(url);
-            }}>
-              <Download className="h-4 w-4 mr-2" />
-              下载
+            }} variant="outline">
+              <Download className="h-4 w-4" />
             </Button>
           </div>
           

@@ -26,6 +26,7 @@ import { useFileSelection } from '@/hooks/useAudioConverter';
 import { useUnifiedMediaAnalysis } from '@/hooks/useUnifiedMediaAnalysis';
 import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 // 动态导入图片处理和编辑器页面(使用相对路径,因为 app 目录不在 src 下)
 const ImageProcessorPage = dynamic(() => import('../../../app/processor/image/page'), {
@@ -84,6 +85,18 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     ffmpegError,
     initFFmpeg
   } = useFFmpegManager();
+
+  // 同步 FFmpeg 状态到 store（用于子组件访问）
+  useEffect(() => {
+    console.log('[MediaProcessorView] 同步 FFmpeg 状态到 store:', { ffmpegLoaded, hasFFmpeg: !!ffmpeg });
+    useAppStore.setState({
+      ffmpeg: ffmpeg || null,
+      isMultiThread,
+      ffmpegLoaded,
+      ffmpegLoading,
+      ffmpegError: ffmpegError?.message || null
+    });
+  }, [ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError]);
 
   // 文件选择hooks - 直接使用，不复制到本地状态
   const {

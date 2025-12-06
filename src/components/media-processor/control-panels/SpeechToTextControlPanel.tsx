@@ -117,16 +117,14 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
                   variant="outline"
                   size="sm"
                 >
-                  <Copy className="w-4 h-4 mr-1" />
-                  复制
+                  <Copy className="w-4 h-4" />
                 </Button>
                 <Button
                   onClick={handleDownload}
                   variant="outline"
                   size="sm"
                 >
-                  <Download className="w-4 h-4 mr-1" />
-                  下载
+                  <Download className="w-4 h-4" />
                 </Button>
               </div>
             </div>

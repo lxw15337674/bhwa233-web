@@ -150,7 +150,10 @@ export const AudioMetadataCard: React.FC<AudioMetadataCardProps> = ({
                     {!isAnalyzing && !mediaMetadata && !analyzeError && !conversionState.isConverting && !conversionState.outputFile && (
                         <div className="p-3 bg-muted/20 rounded-lg border">
                             <div className="text-xs text-muted-foreground">
-                                {!ffmpegLoaded ? (
+                                {(() => {
+                                    console.log('[AudioMetadataCard] 显示状态:', { ffmpegLoaded });
+                                    return !ffmpegLoaded;
+                                })() ? (
                                     <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 border border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
                                         等待 FFmpeg 加载完成后分析音频信息...

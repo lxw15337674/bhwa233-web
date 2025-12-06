@@ -84,9 +84,9 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
           <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={handlePlayPause}
-              className="h-10 w-10 p-0"
+              className="h-10 w-10"
             >
               {isPlaying ? (
                 <Pause className="h-4 w-4" />
@@ -119,7 +119,8 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         {/* 下载按钮 */}
         <Button
           onClick={handleDownload}
-          className="w-full bg-green-600 hover:bg-green-700"
+          className="w-full"
+          variant="default"
         >
           <Download className="w-4 h-4 mr-2" />
           下载文件

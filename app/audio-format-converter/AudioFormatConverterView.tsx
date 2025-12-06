@@ -138,6 +138,14 @@ const AudioFormatConverterView = () => {
 
     // 当 FFmpeg 加载完成且有文件时，自动分析
     useUpdateEffect(() => {
+        console.log('[AudioFormatConverterView] FFmpeg状态变化:', {
+            ffmpegLoaded,
+            hasFFmpeg: !!ffmpeg,
+            hasSelectedFile: !!selectedFile,
+            hasAudioInfo: !!audioInfo,
+            isAnalyzing
+        });
+
         if (ffmpegLoaded && selectedFile && !audioInfo && !isAnalyzing) {
             console.log('FFmpeg 已加载完成，开始自动分析已选择的音频文件:', selectedFile.name);
             analyzeMedia(selectedFile);

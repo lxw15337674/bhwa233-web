@@ -1,10 +1,11 @@
 import { useRequest } from "ahooks";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ffmpegManager } from "../lib/ffmpeg-instance";
 
 // FFmpeg 管理 Hook
 export const useFFmpegManager = () => {
     const mountedRef = useRef(false);
+    const [checkedSingleton, setCheckedSingleton] = useState(false);
 
     const {
         data: ffmpegData,
@@ -13,29 +14,19 @@ export const useFFmpegManager = () => {
         run: initFFmpeg
     } = useRequest(
         async () => {
-            // 检查组件是否仍然挂载
-            if (!mountedRef.current) {
-                return null;
-            }
-
             // 直接从单例管理器获取实例
             const result = await ffmpegManager.getInstance();
             return result;
         },
         {
             manual: true,
-            cacheKey: 'ffmpeg-instance', // cacheKey 保证 useRequest 在组件重新挂载时不会重复执行
-            staleTime: Infinity,
+            // 移除 cacheKey 和 staleTime，让单例自己管理缓存
             onError: (error) => {
-                // 只在组件仍然挂载时处理错误
-                if (mountedRef.current) {
-                    console.error('FFmpeg singleton failed to load:', error);
-                }
+                console.error('[useFFmpegManager] ❌ 加载失败:', error);
             },
             onSuccess: (result) => {
-                // 只在组件仍然挂载时处理成功结果
-                if (mountedRef.current && result) {
-                    console.log('FFmpeg singleton loaded successfully');
+                if (result) {
+                    console.log('[useFFmpegManager] ✅ 加载成功');
                 }
             }
         }
@@ -43,22 +34,34 @@ export const useFFmpegManager = () => {
 
     // 使用 useEffect 管理组件挂载状态和 FFmpeg 初始化
     useEffect(() => {
+        console.log('[useFFmpegManager] 组件挂载');
+
         // 标记组件已挂载
         mountedRef.current = true;
 
-        // 只在组件首次挂载且 FFmpeg 还未加载时初始化
-        if (!ffmpegData && !ffmpegLoading && !ffmpegError) {
-            // 使用 setTimeout 确保在下一个事件循环中执行，避免在 render 期间触发状态更新
-            const timeoutId = setTimeout(() => {
-                if (mountedRef.current) {
+        // 首先检查单例是否已经加载完成
+        const checkAndInitFFmpeg = async () => {
+            try {
+                // 尝试从单例获取实例（如果已加载，会立即返回）
+                const instance = await ffmpegManager.getInstance();
+
+                if (instance && mountedRef.current) {
+                    console.log('[useFFmpegManager] ✅ 单例已加载，触发状态同步');
+                    // 如果单例已经加载，手动触发 useRequest 同步状态
                     initFFmpeg();
                 }
-            }, 0);
+                setCheckedSingleton(true);
+            } catch (error) {
+                console.error('[useFFmpegManager] ❌ 单例加载失败:', error);
+                setCheckedSingleton(true);
+                // 即使检查失败，也尝试加载
+                if (mountedRef.current && !ffmpegData && !ffmpegLoading) {
+                    initFFmpeg();
+                }
+            }
+        };
 
-            return () => {
-                clearTimeout(timeoutId);
-            };
-        }
+        checkAndInitFFmpeg();
 
         // 清理函数：标记组件已卸载
         return () => {
@@ -66,14 +69,18 @@ export const useFFmpegManager = () => {
         };
     }, []); // 空依赖数组确保只在首次挂载时执行
 
+    const currentFFmpegLoaded = !!ffmpegData;
+    const currentFFmpeg = ffmpegData?.ffmpeg;
+
     return {
-        ffmpeg: ffmpegData?.ffmpeg,
+        ffmpeg: currentFFmpeg,
         isMultiThread: ffmpegData?.isMultiThread || false,
-        ffmpegLoaded: !!ffmpegData,
+        ffmpegLoaded: currentFFmpegLoaded,
         ffmpegLoading,
         ffmpegError,
         initFFmpeg: () => {
             if (mountedRef.current) {
+                console.log('[useFFmpegManager] 手动触发加载');
                 initFFmpeg();
             }
         }

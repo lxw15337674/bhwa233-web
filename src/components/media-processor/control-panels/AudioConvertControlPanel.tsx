@@ -132,7 +132,7 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
               <Button
                 onClick={handleStartProcessing}
                 disabled={!canStartProcessing}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full"
                 size="lg"
               >
                 <Play className="w-4 h-4 mr-2" />
@@ -142,7 +142,8 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
               <div className="space-y-2">
                 <Button
                   onClick={handleDownload}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full"
+                  variant="default"
                   size="lg"
                 >
                   <Download className="w-4 h-4 mr-2" />

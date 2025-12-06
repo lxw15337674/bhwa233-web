@@ -41,7 +41,7 @@ export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, 
           <SelectItem value="ogg">OGG</SelectItem>
         </SelectContent>
       </Select>
-      <Button onClick={handleConvert} disabled={!selectedFile}>
+      <Button onClick={handleConvert} disabled={!selectedFile} className="w-full" size="lg">
         开始转换
       </Button>
     </div>
