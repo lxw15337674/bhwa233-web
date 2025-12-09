@@ -1,5 +1,6 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import { safeCleanupFiles, formatRemainingTime, createFFmpegProgressListener } from './ffmpeg-helpers';
 
 // 音频格式配置
 export const AUDIO_FORMATS = {
@@ -324,30 +325,9 @@ export const getMediaType = (filename: string): 'video' | 'audio' | 'unknown' =>
     return 'unknown';
 };
 
-export const checkMultiThreadSupport = () => {
-    return typeof SharedArrayBuffer !== 'undefined';
-};
+// Removed checkMultiThreadSupport - it's now managed by the ffmpeg-store
 
-// 格式化剩余时间
-export const formatRemainingTime = (seconds: number): string => {
-    if (seconds < 60) {
-        return `剩余约 ${Math.round(seconds)}秒`;
-    } else if (seconds < 3600) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.round(seconds % 60);
-        if (remainingSeconds === 0) {
-            return `剩余约 ${minutes}分钟`;
-        }
-        return `剩余约 ${minutes}分${remainingSeconds}秒`;
-    } else {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.round((seconds % 3600) / 60);
-        if (minutes === 0) {
-            return `剩余约 ${hours}小时`;
-        }
-        return `剩余约 ${hours}小时${minutes}分`;
-    }
-};
+// Removed formatRemainingTime - it's now in ffmpeg-helpers.ts
 
 // 格式化时长
 export const formatDuration = (seconds: number): string => {
@@ -832,17 +812,6 @@ export const convertAudio = async (
     await ffmpeg.writeFile(inputFileName, await fetchFile(file));
     console.log('[audioConverter] 写入 input 文件:', inputFileName);
 
-    let totalDuration = 0;
-    const startTime = Date.now();
-    let lastProgress = 0;
-
-    // 输出当前虚拟文件系统文件列表
-    try {
-        console.log('[audioConverter] 转换前 FS 文件列表:');
-    } catch (e) {
-        console.warn('[audioConverter] 无法读取 FS 文件列表:', e);
-    }
-
     // 生成智能编码参数
     const smartParams = generateSmartAudioParams(
         audioInfo || null,
@@ -855,72 +824,12 @@ export const convertAudio = async (
     console.log(`FFmpeg params: ${smartParams.params.join(' ')}`);
     console.log('[audioConverter] inputFileName:', inputFileName, 'outputFileName:', outputFileName);
 
-    const progressListener = ({ message }: { message: string }) => {
-        // 解析总时长
-        if (message.includes('Duration:') && totalDuration === 0) {
-            const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
-            if (durationMatch) {
-                const hours = parseInt(durationMatch[1]);
-                const minutes = parseInt(durationMatch[2]);
-                const seconds = parseFloat(durationMatch[3]);
-                totalDuration = hours * 3600 + minutes * 60 + seconds;
-            }
-        }
-
-        // 解析当前进度
-        if (message.includes('time=') && totalDuration > 0) {
-            const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
-            if (timeMatch) {
-                const hours = parseInt(timeMatch[1]);
-                const minutes = parseInt(timeMatch[2]);
-                const seconds = parseFloat(timeMatch[3]);
-                const currentTime = hours * 3600 + minutes * 60 + seconds;
-                const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
-
-                // 计算剩余时间 - 直接显示
-                let remainingTimeStr: string | undefined;
-                if (progress > 0 && progress < 100) {
-                    const now = Date.now();
-                    const elapsedTime = (now - startTime) / 1000; // 秒
-                    const estimatedTotalTime = elapsedTime / (progress / 100);
-                    const remainingSeconds = estimatedTotalTime - elapsedTime;
-
-                    if (remainingSeconds > 0) {
-                        remainingTimeStr = formatRemainingTime(remainingSeconds);
-                    }
-                }
-
-                lastProgress = progress;
-
-                // 根据转换策略显示不同的进度文本
-                const isDirectCopy = smartParams.params.includes('copy');
-                const stepText = progress >= 95
-                    ? '即将完成...'
-                    : isDirectCopy
-                        ? `正在提取音频... ${progress}%`
-                        : `正在转换音频... ${progress}%`;
-
-                onProgress?.(progress, stepText, remainingTimeStr);
-            }
-        } else if (message.includes('time=') && totalDuration === 0) {
-            // 如果无法获取总时长，使用简单的增量进度
-            const now = Date.now();
-            const simpleProgress = Math.min(lastProgress + 5, 95);
-            lastProgress = simpleProgress;
-            onProgress?.(simpleProgress, '正在转换音频...');
-        }
-    };
-
+    const progressListener = createFFmpegProgressListener(onProgress, 'audio');
+    
     // 临时添加进度监听器
     ffmpeg.on('log', progressListener);
 
     try {
-        // 输出执行前 FS 文件列表
-        try {
-            console.log('[audioConverter] FFmpeg 执行前 FS 文件列表:');
-        } catch (e) {
-            console.warn('[audioConverter] 无法读取 FS 文件列表:', e);
-        }
         const threadArgs = isMultiThread ? ['-threads', '0'] : [];
 
         const args = [
@@ -933,13 +842,7 @@ export const convertAudio = async (
         console.log('FFmpeg command:', args.join(' '));
 
         await ffmpeg.exec(args);
-        // 输出执行后 FS 文件列表
-        try {
-            console.log('[audioConverter] FFmpeg 执行后 FS 文件列表:');
-        } catch (e) {
-            console.warn('[audioConverter] 无法读取 FS 文件列表:', e);
-        }
-
+        
         // 读取输出文件前判断是否存在
         let data;
         try {
@@ -954,12 +857,6 @@ export const convertAudio = async (
             type: AUDIO_FORMATS[outputFormat].mime
         });
     } finally {
-        // 输出 cleanup 前 FS 文件列表
-        try {
-            console.log('[audioConverter] cleanup 前 FS 文件列表:');
-        } catch (e) {
-            console.warn('[audioConverter] 无法读取 FS 文件列表:', e);
-        }
         // 移除进度监听器
         ffmpeg.off('log', progressListener);
 
@@ -1048,10 +945,6 @@ export const convertAudioSpeed = async (
 
     await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-    let totalDuration = 0;
-    const startTime = Date.now();
-    let lastProgress = 0;
-
     // 生成倍速滤镜
     const speedFilter = generateSpeedFilter(params.speed, params.preservePitch);
 
@@ -1059,57 +952,8 @@ export const convertAudioSpeed = async (
     console.log(`Speed filter: ${speedFilter}`);
     console.log(`Preserve pitch: ${params.preservePitch}`);
 
-    const progressListener = ({ message }: { message: string }) => {
-        // 解析总时长
-        if (message.includes('Duration:') && totalDuration === 0) {
-            const durationMatch = message.match(/Duration:\s*(\d+):(\d+):(\d+\.\d+)/);
-            if (durationMatch) {
-                const hours = parseInt(durationMatch[1]);
-                const minutes = parseInt(durationMatch[2]);
-                const seconds = parseFloat(durationMatch[3]);
-                totalDuration = hours * 3600 + minutes * 60 + seconds;
-            }
-        }
-
-        // 解析当前进度
-        if (message.includes('time=') && totalDuration > 0) {
-            const timeMatch = message.match(/time=(\d+):(\d+):(\d+\.\d+)/);
-            if (timeMatch) {
-                const hours = parseInt(timeMatch[1]);
-                const minutes = parseInt(timeMatch[2]);
-                const seconds = parseFloat(timeMatch[3]);
-                const currentTime = hours * 3600 + minutes * 60 + seconds;
-                const progress = Math.round(Math.min(currentTime / totalDuration, 1) * 100);
-                const now = Date.now();
-
-                // 计算剩余时间
-                let remainingTimeStr: string | undefined;
-                if (progress > 0 && progress < 100) {
-                    const elapsedTime = (now - startTime) / 1000;
-                    const estimatedTotalTime = elapsedTime / (progress / 100);
-                    const remainingSeconds = estimatedTotalTime - elapsedTime;
-
-                    if (remainingSeconds > 0) {
-                        remainingTimeStr = formatRemainingTime(remainingSeconds);
-                    }
-                }
-
-                lastProgress = progress;
-
-                const stepText = progress >= 95
-                    ? '即将完成...'
-                    : `正在调整音频速度到 ${params.speed}x... ${progress}%`;
-
-                onProgress?.(progress, stepText, remainingTimeStr);
-            }
-        } else if (message.includes('time=') && totalDuration === 0) {
-            // 如果无法获取总时长，使用简单的增量进度
-            const simpleProgress = Math.min(lastProgress + 5, 95);
-            lastProgress = simpleProgress;
-            onProgress?.(simpleProgress, `正在调整音频速度到 ${params.speed}x...`);
-        }
-    };
-
+    const progressListener = createFFmpegProgressListener(onProgress, 'audio');
+    
     // 临时添加进度监听器
     ffmpeg.on('log', progressListener);
 
@@ -1147,7 +991,7 @@ export const convertAudioSpeed = async (
         const outputBlob = new Blob([data], { type: 'audio/mpeg' });
 
         // 计算结果信息
-        const originalDuration = audioInfo?.duration || totalDuration || 0;
+        const originalDuration = audioInfo?.duration || 0; // The totalDuration for progress listener is local to listener scope
         const newDuration = originalDuration / params.speed;
 
         return {
@@ -1162,27 +1006,6 @@ export const convertAudioSpeed = async (
 
         // 清理文件 - 使用安全清理函数
         await safeCleanupFiles(ffmpeg, [inputFileName, outputFileName]);
-    }
-};
-
-// 安全清理文件的工具函数
-export const safeCleanupFiles = async (ffmpeg: FFmpeg, fileNames: string[]): Promise<void> => {
-    for (const fileName of fileNames) {
-        try {
-            // 检查文件是否存在
-            try {
-                await ffmpeg.readFile(fileName);
-                // 如果读取成功，文件存在，可以删除
-                await ffmpeg.deleteFile(fileName);
-                console.log(`Successfully cleaned up: ${fileName}`);
-            } catch (readError) {
-                // 文件不存在或无法读取，忽略错误
-                console.log(`File ${fileName} not found or already cleaned up, skipping...`);
-            }
-        } catch (deleteError) {
-            // 删除失败，记录但不抛出错误
-            console.warn(`Failed to delete file ${fileName}:`, deleteError);
-        }
     }
 };
 

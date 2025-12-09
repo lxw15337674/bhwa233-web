@@ -1,10 +1,6 @@
-'use client';
-
-import React, { useRef, useEffect, useState } from 'react';
+'use client'
+import React, { useRef, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
 import { useMemoizedFn, useSetState, useUpdateEffect } from 'ahooks';
 import { useTranslation } from '@/components/TranslationProvider';
 
@@ -17,19 +13,15 @@ import { UnifiedOutputPreview } from './UnifiedOutputPreview';
 import { BatchTaskGrid } from './batch/BatchTaskGrid';
 
 // 导入类型和配置
-import { ProcessorCategory, MediaProcessorState, ProcessingState } from '@/types/media-processor';
+import { ProcessorCategory, ProcessingState } from '@/types/media-processor';
 import { getFunctionById, getDefaultFunction } from '@/config/processor-functions';
-import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 
 import { useFileSelection } from '@/hooks/audio-convert/useFileSelection';
 import { useUnifiedMediaAnalysis } from '@/hooks/audio-convert/useUnifiedMediaAnalysis';
-// import { useFFmpegManager } from '../../hooks/useFFmpeg';
+import { useFFmpegManager } from '../../hooks/useFFmpeg'; // Use the refactored hook
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
-import { useAppStore } from '@/stores/media-processor/app-store';
+// import { useAppStore } from '@/stores/media-processor/app-store'; // No longer directly used for FFmpeg state
 
-// 直接导入图片处理和编辑器客户端组件
-import ImageProcessorPage from '../../../app/[locale]/processor/image/ImageProcessorClientPage';
-import ImageEditorPage from '../../../app/[locale]/processor/editor/EditorClientPage';
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;
@@ -100,23 +92,17 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     }
   });
 
-  // FFmpeg hooks - 直接使用，不复制到本地状态
-  // const {
-  //   ffmpeg,
-  //   isMultiThread,
-  //   ffmpegLoaded,
-  //   ffmpegLoading,
-  //   ffmpegError,
-  // } = useFFmpegManager();
+  // FFmpeg hooks - 从 refactored hook 获取
+  const {
+    ffmpeg,
+    isMultiThread,
+    ffmpegLoaded,
+    ffmpegLoading,
+    ffmpegError,
+  } = useFFmpegManager();
 
-  // 同步 FFmpeg 状态到 store（用于子组件访问）
-  useEffect(() => {
-    // 初始化 FFmpeg
-    useAppStore.getState().initFFmpeg();
-  }, []);
-
-  // 从 store 获取状态
-  const { ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError } = useAppStore();
+  // 移除了原来的 useEffect(() => { useAppStore.getState().initFFmpeg(); }, []);
+  // 因为 useFFmpegManager 内部已经处理了 FFmpeg 的加载逻辑
 
   // 文件选择hooks - 直接使用，不复制到本地状态
   const {
@@ -158,7 +144,19 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
         if (newFunction && !newFunction.fileValidator(selectedFile)) {
           console.log('[MediaProcessorView] 文件类型不兼容，清空文件');
           clearFile();
-          resetProcessing();
+          // 内联重置处理状态
+          setState({
+            isProcessing: false,
+            processingState: {
+              isProcessing: false,
+              progress: 0,
+              currentStep: '',
+              error: null,
+              outputFile: null,
+              outputFileName: '',
+              remainingTime: null
+            }
+          });
         } else {
           console.log('[MediaProcessorView] 文件类型兼容，保留文件');
         }
@@ -169,7 +167,8 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     if (urlCat && urlCat !== state.category) {
       setState({ category: urlCat });
     }
-  }, [searchParams, state.currentFunction, state.category, selectedFile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // 使用 useClipboardPaste Hook (只选择第一个图片)
   const { handlePaste } = useClipboardPaste({
@@ -310,7 +309,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   const outputMediaType = 'audio' as const;
   const isBatchMode = state.category === 'batch';
   const showAudioBatchUI = state.category !== 'image' && state.category !== 'editor';
-
+  console.log('test')
   return (
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8">{/* 移除 max-w-6xl 以匹配 image 页面 */}

@@ -1,7 +1,4 @@
 import { create } from 'zustand';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { ffmpegManager } from '@/lib/ffmpeg-instance';
-import { useShallow } from 'zustand/react';
 
 // 定义 AppStore 的状态类型
 interface AppStore {
@@ -20,14 +17,6 @@ interface AppStore {
   mediaMetadata: any | null;
   setMediaMetadata: (metadata: any) => void;
 
-  // FFmpeg 状态
-  ffmpeg: FFmpeg | null;
-  isMultiThread: boolean;
-  ffmpegLoaded: boolean;
-  ffmpegLoading: boolean;
-  ffmpegError: string | null;
-  initFFmpeg: () => Promise<void>;
-
   // 文件选择状态
   dragOver: boolean;
   selectFile: (file: File) => void;
@@ -41,7 +30,7 @@ interface AppStore {
   setIsAnalyzing: (analyzing: boolean) => void;
   analyzeError: string | null;
   setAnalyzeError: (error: string | null) => void;
-  analyzeMedia: (file: File) => void;
+  analyzeMedia: (file: File, ffmpeg: any) => void; // ffmpeg instance now passed as parameter
 
   // 原来 audio-store 的其他方法 (来自原来的 audio-store)
   clearAudioData: () => void;
@@ -71,42 +60,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   mediaMetadata: null,
   setMediaMetadata: (metadata) => set({ mediaMetadata: metadata }),
 
-  // FFmpeg 状态
-  ffmpeg: null,
-  isMultiThread: false,
-  ffmpegLoaded: false,
-  ffmpegLoading: false,
-  ffmpegError: null,
-  initFFmpeg: async () => {
-    const { ffmpegLoaded, ffmpegLoading, inputAudio, audioInfo } = get();
-
-    // 已加载或正在加载，直接返回
-    if (ffmpegLoaded || ffmpegLoading) {
-      return;
-    }
-
-    set({ ffmpegLoading: true, ffmpegError: null });
-
-    try {
-      const result = await ffmpegManager.getInstance();
-      set({
-        ffmpeg: result.ffmpeg,
-        isMultiThread: result.isMultiThread,
-        ffmpegLoaded: true,
-        ffmpegLoading: false
-      });
-
-      // FFmpeg 加载完成后，如果有待分析的文件，自动分析
-      if (inputAudio && !audioInfo) {
-        get().analyzeMedia(inputAudio);
-      }
-    } catch (error) {
-      set({
-        ffmpegError: error instanceof Error ? error.message : 'FFmpeg 加载失败',
-        ffmpegLoading: false
-      });
-    }
-  },
+  // FFmpeg 状态 (removed from here, now in ffmpeg-store)
 
   // 文件选择状态
   dragOver: false,
@@ -141,9 +95,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   setIsAnalyzing: (analyzing) => set({ isAnalyzing: analyzing }),
   analyzeError: null,
   setAnalyzeError: (error) => set({ analyzeError: error }),
-  analyzeMedia: async (file: File) => {
-    const { ffmpeg } = get();
-
+  analyzeMedia: async (file: File, ffmpeg: any) => { // ffmpeg instance passed here
     if (!ffmpeg) {
       set({ analyzeError: 'FFmpeg未初始化' });
       return;
@@ -153,6 +105,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
     try {
       // 模拟分析过程，实际实现会根据具体需求调整
+      // Note: In real scenarios, this would call actual ffmpeg analysis utility
+      // For now, it's a mock or will be replaced by actual utility calls that use the passed ffmpeg instance.
       const audioInfo = {
         name: file.name,
         size: file.size,
