@@ -5,7 +5,6 @@ import {
     ImageProcessingOptions,
     defaultImageOptions,
     getImageMetadata,
-    generateOutputFilename,
     validateImageFile,
 } from '@/utils/imageProcessor';
 import { ExifMetadata } from './image-store';

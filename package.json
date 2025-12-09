@@ -10,9 +10,9 @@
   ],
   "scripts": {
     "dev": "cross-env next dev ",
-    "build": "node scripts/copy-wasm-vips.js && next build",
+    "build": "node scripts/copy-wasm-libs.js && next build",
     "start": "pnpm dev",
-    "postinstall": "node scripts/copy-wasm-vips.js",
+    "postinstall": "node scripts/copy-wasm-libs.js",
     "type-check": " tsc --noEmit",
     "lint": " eslint --ignore-path .gitignore \"src/**/*.+(ts|js|tsx)\"",
     "format": " prettier --ignore-path .gitignore \"src/**/*.+(ts|js|tsx)\" --write",

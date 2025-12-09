@@ -227,9 +227,9 @@ const nextConfig: NextConfig = withSerwist({
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
         ],
       },
-      // wasm-vips 静态文件也需要 COEP 头
+      // WASM 库静态文件需要 COEP 头（包括 wasm-vips 和 ffmpeg）
       {
-        source: '/wasm-vips/:path*',
+        source: '/wasm-libs/:path*',
         headers: [
           { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
