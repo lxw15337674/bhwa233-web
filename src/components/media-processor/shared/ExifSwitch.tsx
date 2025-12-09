@@ -2,6 +2,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ShieldX } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface ExifSwitchProps {
     checked: boolean;
@@ -9,12 +10,14 @@ interface ExifSwitchProps {
 }
 
 export const ExifSwitch: React.FC<ExifSwitchProps> = ({ checked, onCheckedChange }) => {
+    const { t } = useTranslation();
+    
     return (
         <div className="space-y-2">
              <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-2 font-normal cursor-pointer">
                     <ShieldX className="w-4 h-4" />
-                    去除 EXIF 信息
+                    {t('imageProcessor.stripExif')}
                 </Label>
                 <Switch
                     checked={checked}
@@ -22,7 +25,7 @@ export const ExifSwitch: React.FC<ExifSwitchProps> = ({ checked, onCheckedChange
                 />
             </div>
             <p className="text-xs text-muted-foreground">
-                移除 GPS 位置、拍摄设备等隐私信息
+                {t('imageProcessor.stripExifHint')}
             </p>
         </div>
     );

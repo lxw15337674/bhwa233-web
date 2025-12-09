@@ -1,6 +1,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface QualitySliderProps {
     value: number;
@@ -9,10 +10,12 @@ interface QualitySliderProps {
 }
 
 export const QualitySlider: React.FC<QualitySliderProps> = ({ value, onChange, disabled }) => {
+    const { t } = useTranslation();
+    
     return (
         <div className="space-y-3">
             <div className="flex items-center justify-between">
-                <Label>压缩质量</Label>
+                <Label>{t('imageProcessor.quality')}</Label>
                 <span className="text-sm font-medium">{value}%</span>
             </div>
             <Slider
@@ -24,7 +27,7 @@ export const QualitySlider: React.FC<QualitySliderProps> = ({ value, onChange, d
                 disabled={disabled}
             />
             {disabled && (
-                <p className="text-xs text-muted-foreground">PNG 格式为无损压缩，质量设置不生效</p>
+                <p className="text-xs text-muted-foreground">{t('imageProcessor.qualityHint')}</p>
             )}
         </div>
     );

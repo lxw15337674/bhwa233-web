@@ -4,7 +4,7 @@
  */
 
 // wasm-vips 本地路径
-const VIPS_LOCAL_URL = '/wasm-vips/vips-es6.js';
+const VIPS_LOCAL_URL = '/wasm-libs/vips/vips-es6.js';
 
 // 是否为开发环境
 const isDev = process.env.NODE_ENV === 'development';
@@ -144,7 +144,7 @@ class VipsManager {
                 // 禁用动态库加载，避免加载 HEIF/JXL 等格式的额外 wasm 文件
                 dynamicLibraries: [],
                 // 指定文件路径
-                locateFile: (fileName: string) => `/wasm-vips/${fileName}`,
+                locateFile: (fileName: string) => `/wasm-libs/vips/${fileName}`,
             });
 
             if (isDev) {

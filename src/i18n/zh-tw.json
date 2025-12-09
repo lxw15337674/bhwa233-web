@@ -1,17 +1,80 @@
 {
+    "common": {
+        "loading": "載入中...",
+        "error": "錯誤",
+        "success": "成功",
+        "save": "儲存",
+        "cancel": "取消",
+        "confirm": "確認",
+        "delete": "刪除",
+        "edit": "編輯",
+        "close": "關閉",
+        "back": "返回",
+        "next": "下一步",
+        "previous": "上一步",
+        "search": "搜尋",
+        "filter": "篩選",
+        "reset": "重置",
+        "apply": "應用"
+    },
+    "navigation": {
+        "home": "首頁",
+        "upload": "檔案上傳",
+        "processor": "處理器",
+        "imageProcessor": "圖片處理器",
+        "batchImage": "批量圖片",
+        "imageEditor": "圖片編輯器",
+        "audioConverter": "音頻轉換器",
+        "audioFormatConverter": "音頻格式轉換器",
+        "mediaProcessor": "媒體處理器",
+        "fishingTime": "摸魚辦",
+        "categories": {
+            "tools": "工具箱",
+            "mediaProcessor": "圖片處理",
+            "audioTools": "音頻工具"
+        },
+        "menuItems": {
+            "fileUpload": "檔案上傳",
+            "fileUploadDesc": "安全快速的檔案上傳服務，支援多種檔案格式",
+            "fishingTime": "摸魚辦",
+            "fishingTimeDesc": "專為上班族打造的假期倒計時和工資倒計時工具",
+            "imageProcess": "圖片處理",
+            "imageProcessDesc": "圖片壓縮、格式轉換、尺寸調整等基礎處理功能",
+            "imageEditor": "圖片編輯",
+            "imageEditorDesc": "線上圖片編輯器，支援裁剪、旋轉、濾鏡等高級編輯",
+            "batchProcess": "批量處理",
+            "batchProcessDesc": "批量壓縮、格式轉換，高效處理多張圖片",
+            "audioFormatConvert": "音頻格式轉換",
+            "audioFormatConvertDesc": "將音頻檔案轉換為不同的格式和質量，支援多種音頻格式",
+            "audioSpeedChange": "音頻倍速調整",
+            "audioSpeedChangeDesc": "調整音頻的播放速度，同時保持音調不變",
+            "speechToText": "語音轉文字",
+            "speechToTextDesc": "將音頻檔案轉換為文字，支援自動語言檢測"
+        }
+    },
+    "home": {
+        "title": "工具箱 - 線上生產力工具集合",
+        "description": "整合摸魚辦熱榜、檔案上傳、媒體處理等多功能工具，一站式提升您的工作效率和娛樂體驗",
+        "appNavigation": "應用導航",
+        "useToolTitle": "使用 {{name}} 工具"
+    },
+    "metadata": {
+        "defaultTitle": "工具箱 - 線上生產力工具集合",
+        "defaultDescription": "整合摸魚辦熱榜、檔案上傳、媒體處理等多功能線上工具箱。提供中文辦公工具，提升您的生產力和娛樂體驗"
+    },
     "upload": {
         "title": "免費線上檔案上傳工具",
-        "description": "選擇或拖拽檔案進行上傳，支援批次（最多10個），支援任意檔案格式、最大10GB，永久保存。",
+        "description": "選擇或拖拽檔案進行上傳，支援批次（最多10個），支援任意檔案格式、最大10MB，永久保存。",
         "features": {
             "free": "免費使用",
             "anyFormat": "任意格式",
-            "anySize": "最大10GB",
+            "anySize": "最大10MB",
             "permanent": "永久保存",
             "batch": "批次上傳（最多10個檔案）"
         },
         "uploadFiles": "上傳檔案",
         "dragOrClick": "拖拽檔案到這裡或點擊選擇",
-        "supportAnyFormat": "支援任意格式檔案，單個檔案最大10GB",
+        "supportAnyFormat": "支援任意格式檔案，單個檔案最大10MB",
         "selectedFiles": "已選擇 {{count}} 個檔案",
         "clickToReselect": "點擊重新選擇檔案",
         "uploading": "上傳中...",
@@ -19,10 +82,314 @@
         "uploadHistory": "上傳歷史記錄",
         "clearHistory": "清空歷史",
         "noHistory": "暫無上傳歷史記錄",
+        "fileSizeLabel": "{{size}} MB",
+        "oversizedFiltered": "以下檔案超過10MB限制已被過濾：{{files}}。其餘{{count}}個檔案可正常上傳。",
+        "allOversized": "所有檔案都超過10MB限制：{{files}}",
         "errors": {
             "maxFiles": "一次最多只能上傳10個檔案",
             "uploadFailed": "上傳失敗",
             "noUrl": "上傳失敗：伺服器未返回檔案URL"
+        }
+    },
+    "fileUpload": {
+        "selectImageFile": "選擇圖片檔案",
+        "selectAudioFile": "選擇音訊檔案",
+        "selectMediaFile": "選擇媒體檔案",
+        "dragOrClick": "拖曳檔案到此處或點擊選擇檔案",
+        "selectFile": "選擇檔案",
+        "pasteImage": "貼上圖片",
+        "supportedFormats": "支援的格式：",
+        "selectedFile": "已選擇檔案",
+        "size": "大小",
+        "type": "類型",
+        "changeFile": "更換檔案",
+        "paste": "貼上"
+    },
+    "imageUpload": {
+        "validationFailed": "檔案驗證失敗",
+        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}",
+        "fileSizeExceeded": "檔案大小不能超過{{maxSize}}MB",
+        "originalImage": "原圖",
+        "originalImagePreview": "原圖預覽",
+        "dimensions": "尺寸",
+        "format": "格式",
+        "dragOrClickImage": "拖曳圖片到此處，或點擊選擇檔案",
+        "maxFileSize": "最大檔案大小: {{maxSize}}MB"
+    },
+    "mediaProcessor": {
+        "title": "摸魚辦 - 假期薪資倒數計時工具",
+        "subtitle": "上班族必備神器",
+        "description": "專為上班族打造的摸魚神器，即時顯示假期倒數計時、薪資倒數計時、調休安排",
+        "reminderTitle": "【摸魚辦】提醒您:",
+        "today": "今天是 {{year}}年{{month}}月{{day}}日，星期{{weekday}}。",
+        "salary": "【薪資】",
+        "salaryEndOfMonth": "距離【月底發薪資】: {{days}} 天",
+        "salaryDay5": "距離【05號發薪資】: {{days}} 天",
+        "salaryDay10": "距離【10號發薪資】: {{days}} 天",
+        "salaryDay15": "距離【15號發薪資】: {{days}} 天",
+        "salaryDay20": "距離【20號發薪資】: {{days}} 天",
+        "countdown": "【倒數計時】",
+        "weekEnd": "距離【本週結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
+        "monthEnd": "距離【本月結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
+        "yearEnd": "距離【本年結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
+        "holiday": "【假期】",
+        "weekend": "距離【週六】還有 {{days}} 天",
+        "holidayCountdown": "距離【{{name}}】還有 {{days}} 天。",
+        "holidayDetail": "距離【{{name}}】還有 {{days}} 天。{{start}} 至 {{end}} 放假調休，共{{total}}天。"
+    },
+    "mediaProcessor": {
+        "title": "媒體處理器",
+        "description": "強大的線上媒體處理工具，支援影片音訊擷取、格式轉換、壓縮等功能",
+        "functionSelect": "功能選擇",
+        "selectFunction": "選擇功能...",
+        "selectFunctionToStart": "選擇功能開始處理",
+        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}",
+        "functions": {
+            "audioConvert": {
+                "label": "音頻格式轉換",
+                "description": "將音頻檔案轉換為不同的格式和質量。"
+            },
+            "audioSpeedChange": {
+                "label": "音頻倍速調整",
+                "description": "調整音頻的播放速度，同時保持音調不變。"
+            },
+            "speechToText": {
+                "label": "語音轉文字",
+                "description": "將音頻檔案轉換為文字，支援自動語言檢測。"
+            },
+            "imageBatch": {
+                "label": "批量圖片處理",
+                "description": "批量轉換格式、壓縮、調整尺寸。"
+            }
+        }
+    },
+    "audioFormatConverter": {
+        "title": "音訊格式轉換",
+        "description": "支援MP3、WAV、AAC、FLAC、OGG等音訊格式之間的轉換，保持最佳音質"
+    },
+    "imageProcessor": {
+        "title": "圖片處理器",
+        "description": "支援壓縮、格式轉換、尺寸調整、旋轉翻轉等功能",
+        "errorOccurred": "處理出錯",
+        "uploadOrPaste": "請先上傳或貼上圖片開始處理",
+        "pasteFromClipboard": "從剪貼簿貼上",
+        "changeImage": "更換圖片",
+        "addImage": "新增圖片",
+        "quality": "壓縮品質",
+        "qualityHint": "PNG 格式為無損壓縮，品質設定不生效",
+        "outputFormat": "輸出格式",
+        "resize": "尺寸調整",
+        "rotation": "旋轉",
+        "rotateCCW": "逆時針旋轉 90°",
+        "rotateCW": "順時針旋轉 90°",
+        "currentRotation": "目前: 旋轉 {{degrees}}°",
+        "otherOptions": "其他選項",
+        "stripExif": "去除 EXIF 資訊",
+        "stripExifHint": "移除 GPS 位置、拍攝設備等隱私資訊",
+        "outputFilename": "輸出檔案名",
+        "filenamePlaceholder": "例如: {{name}}_edited",
+        "customFilename": "自訂檔名",
+        "autoProcess": "自動處理",
+        "autoProcessHint": "調整參數後自動處理圖片",
+        "startProcess": "開始處理",
+        "processing": "處理中...",
+        "resetParams": "重設參數",
+        "download": "下載圖片",
+        "scalePercentage": "按比例縮放",
+        "fixedSize": "指定尺寸",
+        "scaleRatio": "縮放比例",
+        "originalSize": "原始尺寸",
+        "width": "寬度",
+        "height": "高度",
+        "keepAspectRatio": "保持寬高比",
+        "finalSize": "最終尺寸",
+        "willBe": "將為"
+    },
+    "batchImageProcessor": {
+        "title": "圖片批次處理器",
+        "description": "支援批次轉換格式、壓縮、尺寸調整、旋轉翻轉等功能",
+        "addImage": "新增圖片",
+        "pasteImage": "貼上圖片",
+        "clearList": "清空清單",
+        "confirmClear": "確認清空清單？",
+        "clearWarning": "此操作將移除所有已新增和已處理的圖片任務，且無法撤銷。",
+        "filenameSuffix": "檔案名稱後綴",
+        "suffixPlaceholder": "例如: _compressed",
+        "suffixHint": "設定檔案後綴，將附加在原檔案名稱之後",
+        "startBatchProcessing": "開始批次處理",
+        "stopProcessing": "停止處理",
+        "downloadAll": "打包下載"
+    },
+    "batchTaskGrid": {
+        "dragImagesHere": "拖曳圖片到這裡",
+        "multiSelectHint": "支援多選,單次建議不超過 50 張",
+        "fileName": "檔案名稱",
+        "sizeAndDimensions": "尺寸與大小",
+        "status": "狀態",
+        "actions": "操作",
+        "dragToAddMore": "支援拖曳添加更多圖片",
+        "processing": "處理中...",
+        "waiting": "等待中",
+        "completed": "完成",
+        "failed": "失敗",
+        "viewExif": "查看 EXIF 資訊(點擊或懸停)",
+        "downloadFile": "下載此檔案"
+    },
+    "batchExifPopover": {
+        "exifInfo": "EXIF 資訊",
+        "loading": "載入中...",
+        "noExifInfo": "無 EXIF 資訊",
+        "device": "裝置",
+        "lens": "鏡頭",
+        "software": "軟體",
+        "time": "時間",
+        "aperture": "光圈",
+        "shutter": "快門",
+        "iso": "ISO",
+        "focalLength": "焦距",
+        "exposureCompensation": "曝光補償",
+        "meteringMode": "測光模式",
+        "whiteBalance": "白平衡",
+        "flash": "閃光燈",
+        "orientation": "方向",
+        "colorSpace": "色彩空間",
+        "resolution": "解析度",
+        "author": "作者",
+        "copyright": "版權",
+        "locationInfo": "位置資訊",
+        "privacySensitive": "⚠️ 隱私敏感",
+        "latitude": "緯度",
+        "longitude": "經度",
+        "altitude": "海拔",
+        "equivalent": "等效",
+        "auto": "自動",
+        "manual": "手動",
+        "fired": "已閃光",
+        "notFired": "未閃光",
+        "forced": "強制",
+        "off": "關閉",
+        "meteringUnknown": "未知",
+        "meteringAverage": "平均",
+        "meteringCenterWeighted": "中央重點",
+        "meteringSpot": "點測光",
+        "meteringMultiSpot": "多點",
+        "meteringPattern": "多區域",
+        "meteringPartial": "局部",
+        "meteringOther": "其他",
+        "orientationNormal": "正常",
+        "orientationFlipH": "水平翻轉",
+        "orientationRotate180": "旋轉 180°",
+        "orientationFlipV": "垂直翻轉",
+        "orientationTranspose": "順時針 90° + 水平翻轉",
+        "orientationRotate90": "順時針 90°",
+        "orientationTransverse": "逆時針 90° + 水平翻轉",
+        "orientationRotate270": "逆時針 90°"
+    },
+    "imageEditor": {
+        "title": "圖片編輯器",
+        "description": "支援裁切、濾鏡、標注、浮水印等進階編輯功能"
+    },
+    "audioControlPanels": {
+        "convert": {
+            "startConvert": "開始轉換音訊",
+            "converting": "正在轉換音訊...",
+            "downloadResult": "下載轉換結果",
+            "reconvert": "重新轉換",
+            "targetFormat": "目標格式",
+            "conversionQuality": "轉換品質",
+            "conversionPreview": "轉換預覽",
+            "estimatedSize": "預估輸出檔案大小",
+            "compressed": "壓縮",
+            "originalFile": "原檔案",
+            "analyzingAudio": "正在分析音訊資訊...",
+            "cannotAnalyze": "無法顯示精確預估，請直接進行轉換",
+            "waitingFFmpeg": "等待 FFmpeg 載入完成...",
+            "analyzingFile": "正在分析檔案...",
+            "unsupportedFormat": "不支援的檔案格式，請選擇音訊檔案",
+            "selectValidFile": "請選擇有效的音訊檔案",
+            "waitingFFmpegAnalysis": "等待 FFmpeg 載入完成後分析音訊資訊...",
+            "noAudioInfo": "無法取得詳細的音訊資訊，將使用預設設定進行轉換",
+            "conversionFailed": "音訊轉換失敗"
+        },
+        "speed": {
+            "startAdjust": "開始調整倍速",
+            "adjusting": "正在調整倍速...",
+            "downloadResult": "下載調整結果",
+            "readjust": "重新調整",
+            "quickSelect": "快速選擇倍速",
+            "customSpeed": "自訂倍速 (0.5x - 4.0x)",
+            "times": "倍",
+            "preservePitch": "保持音調不變 (推薦)",
+            "preservePitchDesc": "勾選後音調保持不變，僅調整播放速度。取消勾選會同時改變音調和速度。",
+            "adjustPreview": "調整預覽",
+            "durationChange": "時長變化",
+            "shortened": "縮短",
+            "extended": "延長",
+            "originalDuration": "原時長",
+            "estimatedSize": "預估輸出檔案大小",
+            "reduced": "減小",
+            "originalFile": "原檔案",
+            "analyzingAudio": "正在分析音訊資訊...",
+            "retry": "重試",
+            "waitingFFmpeg": "等待 FFmpeg 載入完成...",
+            "analyzingFile": "正在分析檔案...",
+            "unsupportedFormat": "不支援的檔案格式，請選擇音訊檔案",
+            "selectValidFile": "請選擇有效的音訊檔案",
+            "adjustFailed": "音訊倍速調整失敗"
+        },
+        "speechToText": {
+            "startRecognition": "開始語音辨識",
+            "recognizing": "辨識中...",
+            "reset": "重設",
+            "recognitionResult": "辨識結果",
+            "saveAs": "檔案將儲存為",
+            "copyFailed": "複製失敗"
+        },
+        "conversionSettings": {
+            "selectFormat": "選擇格式",
+            "startConvert": "開始轉換",
+            "preparingConvert": "準備轉換",
+            "convertingTo": "正在轉換為",
+            "convertComplete": "轉換完成",
+            "convertFailed": "轉換失敗"
+        }
+    },
+    "audioConverter": {
+        "qualityModes": {
+            "original": {
+                "label": "原品質",
+                "description": "保持原始音訊品質"
+            },
+            "compressed": {
+                "label": "壓縮模式",
+                "description": "檔案大小減少約50%"
+            }
+        },
+        "speedPresets": {
+            "speed_0_5": {
+                "label": "0.5x (慢速)",
+                "description": "適合學習和仔細聆聽"
+            },
+            "speed_0_75": {
+                "label": "0.75x (慢放)",
+                "description": "略慢，保持清晰度"
+            },
+            "speed_1_0": {
+                "label": "1.0x (原速)",
+                "description": "正常播放速度"
+            },
+            "speed_1_25": {
+                "label": "1.25x (快放)",
+                "description": "略快，提高效率"
+            },
+            "speed_1_5": {
+                "label": "1.5x (快速)",
+                "description": "適合快速瀏覽"
+            },
+            "speed_2_0": {
+                "label": "2.0x (高速)",
+                "description": "最大2倍速度"
+            }
         }
     }
 }

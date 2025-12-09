@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, ffmpeg, onStateChange, onOutputReady }) => {
+  const { t } = useTranslation();
   const [format, setFormat] = useState('mp3');
 
   const handleConvert = async () => {
     if (!selectedFile || !ffmpeg) return;
 
-    onStateChange({ isProcessing: true, progress: 0, error: null, currentStep: '准备转换' });
+    onStateChange({ isProcessing: true, progress: 0, error: null, currentStep: t('audioControlPanels.conversionSettings.preparingConvert') });
 
     try {
       const outputFileName = `${selectedFile.name.split('.').slice(0, -1).join('.')}.${format}`;
-      onStateChange({ currentStep: `正在转换为 ${format.toUpperCase()}` });
+      onStateChange({ currentStep: `${t('audioControlPanels.conversionSettings.convertingTo')} ${format.toUpperCase()}` });
 
       await ffmpeg.exec(['-i', selectedFile.name, '-b:a', '192k', outputFileName]);
 
@@ -21,9 +23,9 @@ export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, 
       const blob = new Blob([data], { type: `audio/${format}` });
 
       onOutputReady(blob, outputFileName);
-      onStateChange({ isProcessing: false, progress: 100, currentStep: '转换完成' });
+      onStateChange({ isProcessing: false, progress: 100, currentStep: t('audioControlPanels.conversionSettings.convertComplete') });
     } catch (error) {
-      onStateChange({ isProcessing: false, error: error.message, currentStep: '转换失败' });
+      onStateChange({ isProcessing: false, error: error.message, currentStep: t('audioControlPanels.conversionSettings.convertFailed') });
     }
   };
 
@@ -31,7 +33,7 @@ export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, 
     <div className="space-y-4">
       <Select value={format} onValueChange={setFormat}>
         <SelectTrigger>
-          <SelectValue placeholder="选择格式" />
+          <SelectValue placeholder={t('audioControlPanels.conversionSettings.selectFormat')} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="mp3">MP3</SelectItem>
@@ -42,7 +44,7 @@ export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, 
         </SelectContent>
       </Select>
       <Button onClick={handleConvert} disabled={!selectedFile} className="w-full" size="lg">
-        开始转换
+        {t('audioControlPanels.conversionSettings.startConvert')}
       </Button>
     </div>
   );

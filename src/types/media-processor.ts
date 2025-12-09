@@ -2,7 +2,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { AudioInfo, MediaMetadata, ConversionState } from '@/utils/audioConverter';
 
 // 媒体处理分类
-export type ProcessorCategory = 'audio' | 'image' | 'editor' | 'batch';
+export type ProcessorCategory = 'image' | 'editor' | 'batch' | 'audio';
 
 // 处理状态接口
 export interface ProcessingState {
@@ -35,7 +35,9 @@ export interface ControlPanelProps {
 export interface ProcessorFunction {
   id: string;
   label: string;
+  labelKey?: string; // 翻译键
   description: string;
+  descriptionKey?: string; // 翻译键
   category: ProcessorCategory;
   icon: string;
   component: React.ComponentType<ControlPanelProps>;

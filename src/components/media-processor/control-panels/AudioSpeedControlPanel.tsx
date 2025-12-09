@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Download, Play, RotateCcw } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 import {
     AUDIO_SPEED_PRESETS,
     AudioSpeedPreset,
@@ -25,6 +26,7 @@ import { useMediaProcessing } from '@/hooks/useMediaProcessing';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
 export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
+    const { t } = useTranslation();
     // 从 app store 获取数据
     const inputAudio = useAppStore(state => state.inputAudio);
     const mediaMetadata = useAppStore(state => state.mediaMetadata);
@@ -115,7 +117,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
             props.onOutputReady?.(result.outputFile, outputFileName);
         } catch (error) {
             console.error('Audio speed adjustment failed:', error);
-            setError(error instanceof Error ? error.message : '音频倍速调整失败');
+            setError(error instanceof Error ? error.message : t('audioControlPanels.speed.adjustFailed'));
         }
     };
 
@@ -144,7 +146,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                 size="lg"
                             >
                                 <Play className="w-4 h-4 mr-2" />
-                                {processingState.isProcessing ? '正在调整倍速...' : '开始调整倍速'}
+                                {processingState.isProcessing ? t('audioControlPanels.speed.adjusting') : t('audioControlPanels.speed.startAdjust')}
                             </Button>
                         ) : (
                             <div className="space-y-2">
@@ -154,7 +156,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                     size="lg"
                                 >
                                     <Download className="w-4 h-4 mr-2" />
-                                    下载调整结果
+                                        {t('audioControlPanels.speed.downloadResult')}
                                 </Button>
                                 <Button
                                     onClick={handleRestart}
@@ -163,7 +165,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                     size="sm"
                                 >
                                     <RotateCcw className="w-4 h-4 mr-2" />
-                                    重新调整
+                                        {t('audioControlPanels.speed.readjust')}
                                 </Button>
                             </div>
                         )}
@@ -172,10 +174,10 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                         {!canStartProcessing && selectedFile && !processingState.isProcessing && (
                             <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-950/20 rounded border border-yellow-200 dark:border-yellow-800">
                                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
-                                    {!ffmpegLoaded ? '等待 FFmpeg 加载完成...' :
-                                        isAnalyzing ? '正在分析文件...' :
+                                    {!ffmpegLoaded ? t('audioControlPanels.speed.waitingFFmpeg') :
+                                        isAnalyzing ? t('audioControlPanels.speed.analyzingFile') :
                                             !SUPPORTED_AUDIO_FORMATS.includes(getFileExtension(selectedFile.name)) ?
-                                                '不支持的文件格式，请选择音频文件' : '请选择有效的音频文件'}
+                                                t('audioControlPanels.speed.unsupportedFormat') : t('audioControlPanels.speed.selectValidFile')}
                                 </div>
                             </div>
                         )}
@@ -183,32 +185,35 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                         {/* 预设速度选择 */}
                         <div>
                             <Label className="text-sm font-medium text-foreground mb-2 block">
-                                快速选择倍速
+                                {t('audioControlPanels.speed.quickSelect')}
                             </Label>
                             <div className="grid grid-cols-3 gap-2">
-                                {Object.entries(AUDIO_SPEED_PRESETS).map(([preset, config]) => (
-                                    <div
-                                        key={preset}
-                                        className={`border rounded-lg p-2 cursor-pointer transition-all text-center ${selectedPreset === preset
+                                {Object.entries(AUDIO_SPEED_PRESETS).map(([preset, config]) => {
+                                    const translationKey = `speed_${preset.replace(/\./g, '_')}`;
+                                    return (
+                                        <div
+                                            key={preset}
+                                            className={`border rounded-lg p-2 cursor-pointer transition-all text-center ${selectedPreset === preset
                                                 ? 'border-primary bg-primary/10 ring-1 ring-primary'
                                                 : 'border-border hover:border-muted-foreground hover:bg-accent'
-                                            } ${processingState.isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        onClick={() => !processingState.isProcessing && handlePresetChange(preset as AudioSpeedPreset)}
-                                    >
-                                        <div className="font-medium text-sm">{config.label}</div>
-                                        <div className="text-xs text-muted-foreground">{config.description}</div>
-                                        {selectedPreset === preset && (
-                                            <CheckCircle2 className="h-3 w-3 text-primary mx-auto mt-1" />
-                                        )}
-                                    </div>
-                                ))}
+                                                } ${processingState.isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            onClick={() => !processingState.isProcessing && handlePresetChange(preset as AudioSpeedPreset)}
+                                        >
+                                            <div className="font-medium text-sm">{t(`audioConverter.speedPresets.${translationKey}.label`)}</div>
+                                            <div className="text-xs text-muted-foreground">{t(`audioConverter.speedPresets.${translationKey}.description`)}</div>
+                                            {selectedPreset === preset && (
+                                                <CheckCircle2 className="h-3 w-3 text-primary mx-auto mt-1" />
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         {/* 自定义倍速设置 */}
                         <div>
                             <Label htmlFor="custom-speed" className="text-sm font-medium text-foreground mb-2 block">
-                                自定义倍速 (0.5x - 4.0x)
+                                {t('audioControlPanels.speed.customSpeed')}
                             </Label>
                             <div className="space-y-3">
                                 <Slider
@@ -232,7 +237,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                         disabled={processingState.isProcessing}
                                         className="w-20"
                                     />
-                                    <span className="text-sm text-muted-foreground">倍</span>
+                                    <span className="text-sm text-muted-foreground">{t('audioControlPanels.speed.times')}</span>
                                 </div>
                             </div>
                         </div>
@@ -246,24 +251,24 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                 disabled={processingState.isProcessing}
                             />
                             <Label htmlFor="preserve-pitch" className="text-sm">
-                                保持音调不变 (推荐)
+                                {t('audioControlPanels.speed.preservePitch')}
                             </Label>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            勾选后音调保持不变，仅调整播放速度。取消勾选会同时改变音调和速度。
+                            {t('audioControlPanels.speed.preservePitchDesc')}
                         </p>
 
                         {/* 预估信息 */}
                         {selectedFile && audioInfo && sizeEstimate && (
                             <div className="pt-4 border-t border-border/50">
                                 <Label className="text-sm font-medium text-foreground mb-3 block">
-                                    调整预览
+                                    {t('audioControlPanels.speed.adjustPreview')}
                                 </Label>
 
                                 {/* 时长变化 */}
                                 <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-3">
                                     <div className="text-xs text-blue-700 dark:text-blue-300 mb-1">
-                                        时长变化
+                                        {t('audioControlPanels.speed.durationChange')}
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div>
@@ -272,12 +277,12 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                             </span>
                                             {speed !== 1.0 && (
                                                 <span className="text-xs text-blue-600 ml-2">
-                                                    {speed > 1.0 ? '缩短' : '延长'} {Math.abs(((audioInfo.duration / speed) - audioInfo.duration) / audioInfo.duration * 100).toFixed(0)}%
+                                                    {speed > 1.0 ? t('audioControlPanels.speed.shortened') : t('audioControlPanels.speed.extended')} {Math.abs(((audioInfo.duration / speed) - audioInfo.duration) / audioInfo.duration * 100).toFixed(0)}%
                                                 </span>
                                             )}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
-                                            原时长: {formatDuration(audioInfo.duration)}
+                                            {t('audioControlPanels.speed.originalDuration')}: {formatDuration(audioInfo.duration)}
                                         </div>
                                     </div>
                                 </div>
@@ -285,7 +290,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                 {/* 文件大小预估 */}
                                 <div className="p-3 bg-muted/30 rounded-lg border">
                                     <div className="text-xs text-muted-foreground mb-1">
-                                        预估输出文件大小
+                                        {t('audioControlPanels.speed.estimatedSize')}
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <div>
@@ -294,12 +299,12 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                             </span>
                                             {sizeEstimate.compressionRatio > 0 && (
                                                 <span className="text-xs text-green-600 ml-2">
-                                                    减小 {sizeEstimate.compressionRatio.toFixed(0)}%
+                                                    {t('audioControlPanels.speed.reduced')} {sizeEstimate.compressionRatio.toFixed(0)}%
                                                 </span>
                                             )}
                                         </div>
                                         <div className="text-xs text-muted-foreground">
-                                            原文件: {formatFileSize(selectedFile.size / (1024 * 1024))}
+                                            {t('audioControlPanels.speed.originalFile')}: {formatFileSize(selectedFile.size / (1024 * 1024))}
                                         </div>
                                     </div>
                                     {sizeEstimate.note && (
@@ -316,7 +321,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                                    <span className="text-sm text-blue-700 dark:text-blue-300">正在分析音频信息...</span>
+                                    <span className="text-sm text-blue-700 dark:text-blue-300">{t('audioControlPanels.speed.analyzingAudio')}</span>
                                 </div>
                             </div>
                         )}
@@ -332,7 +337,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                         size="sm"
                                         className="mt-1"
                                     >
-                                        重试
+                                        {t('audioControlPanels.speed.retry')}
                                     </Button>
                                 </div>
                             </div>

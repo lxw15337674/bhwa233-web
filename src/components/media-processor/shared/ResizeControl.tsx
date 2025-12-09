@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ImageMetadata, ImageProcessingOptions } from '@/utils/imageProcessor';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface ResizeControlProps {
     options: ImageProcessingOptions;
@@ -18,6 +19,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     updateOptions,
     inputMetadata,
 }) => {
+    const { t } = useTranslation();
     const [currentWidth, setCurrentWidth] = useState(0);
     const [currentHeight, setCurrentHeight] = useState(0);
     const [keepAspectRatioState, setKeepAspectRatioState] = useState(true);
@@ -99,7 +101,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
 
     return (
         <div className="space-y-3">
-            <Label>尺寸调整</Label>
+            <Label>{t('imageProcessor.resize')}</Label>
             <Tabs defaultValue="percentage" className="w-full" onValueChange={(value) => {
                 if (value === 'percentage') {
                     updateOptions({ targetWidth: null, targetHeight: null });
@@ -114,12 +116,12 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                 }
             }}>
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="percentage">按比例缩放</TabsTrigger>
-                    <TabsTrigger value="fixed">指定尺寸</TabsTrigger>
+                    <TabsTrigger value="percentage">{t('imageProcessor.scalePercentage')}</TabsTrigger>
+                    <TabsTrigger value="fixed">{t('imageProcessor.fixedSize')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="percentage" className="space-y-4 pt-4">
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="scale-slider">缩放比例</Label>
+                        <Label htmlFor="scale-slider">{t('imageProcessor.scaleRatio')}</Label>
                         <span className="text-sm font-medium">{Math.round(options.scale * 100)}%</span>
                     </div>
                     <Slider
@@ -139,7 +141,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                 <TabsContent value="fixed" className="space-y-4 pt-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="width-input">宽度 (px)</Label>
+                            <Label htmlFor="width-input">{t('imageProcessor.width')} (px)</Label>
                             <Input
                                 id="width-input"
                                 type="number"
@@ -149,7 +151,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                             />
                         </div>
                         <div>
-                            <Label htmlFor="height-input">高度 (px)</Label>
+                            <Label htmlFor="height-input">{t('imageProcessor.height')} (px)</Label>
                             <Input
                                 id="height-input"
                                 type="number"
@@ -161,7 +163,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between mt-4">
-                        <Label htmlFor="keep-aspect-ratio">保持宽高比</Label>
+                        <Label htmlFor="keep-aspect-ratio">{t('imageProcessor.keepAspectRatio')}</Label>
                         <Switch
                             id="keep-aspect-ratio"
                             checked={keepAspectRatioState}
@@ -179,11 +181,11 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                     </div>
 
                     <div className="space-y-2 mt-4">
-                        <Label>常用尺寸</Label>
+                        <Label>{t('imageProcessor.originalSize')}</Label>
                         <div className="flex flex-wrap gap-2">
                             {inputMetadata && (
                                 <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
-                                    原图尺寸
+                                    {t('imageProcessor.originalSize')}
                                 </Button>
                             )}
                             <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>

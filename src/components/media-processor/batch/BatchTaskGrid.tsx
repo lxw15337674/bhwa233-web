@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
 import { useBatchImageStore, ImageTask } from '@/stores/media-processor/batch-image-store';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -7,8 +8,10 @@ import { formatFileSize } from '@/utils/imageProcessor';
 import { X, FileImage, CheckCircle2, AlertCircle, Upload, Info, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BatchExifPopover } from './BatchExifPopover';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const BatchTaskGrid: React.FC = () => {
+    const { t } = useTranslation();
     const { tasks, removeTask, addFiles, isProcessing, downloadSingle } = useBatchImageStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,11 +43,11 @@ export const BatchTaskGrid: React.FC = () => {
                 onDragOver={handleDragOver}
             >
                 <FileImage className="w-12 h-12 mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">拖拽图片到这里</h3>
-                <p className="text-sm mb-6">支持多选，单次建议不超过 50 张</p>
+                <h3 className="text-lg font-medium mb-2">{t('batchTaskGrid.dragImagesHere')}</h3>
+                <p className="text-sm mb-6">{t('batchTaskGrid.multiSelectHint')}</p>
                 <Button onClick={() => fileInputRef.current?.click()}>
                     <Upload className="w-4 h-4 mr-2" />
-                    选择图片
+                    {t('batchImageProcessor.addImage')}
                 </Button>
                 <input
                     ref={fileInputRef}
@@ -62,11 +65,11 @@ export const BatchTaskGrid: React.FC = () => {
         <div className="flex flex-col h-full border rounded-lg bg-background" onDrop={handleDrop} onDragOver={handleDragOver}>
             {/* Header */}
             <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/40 text-sm font-medium text-muted-foreground">
-                <div className="col-span-5">文件名</div>
-                <div className="col-span-4">尺寸与大小</div>
-                <div className="col-span-1">状态</div>
+                <div className="col-span-5">{t('batchTaskGrid.fileName')}</div>
+                <div className="col-span-4">{t('batchTaskGrid.sizeAndDimensions')}</div>
+                <div className="col-span-1">{t('batchTaskGrid.status')}</div>
                 <div className="col-span-1 text-center">EXIF</div>
-                <div className="col-span-1 text-right">操作</div>
+                <div className="col-span-1 text-right">{t('batchTaskGrid.actions')}</div>
             </div>
 
             {/* List */}
@@ -80,7 +83,7 @@ export const BatchTaskGrid: React.FC = () => {
 
             {/* Footer / Drop zone hint */}
              <div className="p-2 text-xs text-center text-muted-foreground border-t bg-muted/20">
-                支持拖拽添加更多图片
+                {t('batchTaskGrid.dragToAddMore')}
              </div>
              <input
                 ref={fileInputRef}
@@ -95,6 +98,7 @@ export const BatchTaskGrid: React.FC = () => {
 };
 
 const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boolean }> = ({ task, onRemove, disabled }) => {
+    const { t } = useTranslation();
     const [isLoadingExif, setIsLoadingExif] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
     const { loadExifForTask } = useBatchImageStore();
@@ -115,9 +119,11 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                 <div className="col-span-5 flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 rounded bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden border">
                      {/* Simple preview if possible, else icon */}
-                     <img 
-                        src={URL.createObjectURL(task.file)} 
+                     <Image
+                        src={URL.createObjectURL(task.file)}
                         alt={task.file.name}
+                        width={40}
+                        height={40}
                         className="w-full h-full object-cover"
                         onLoad={(e) => URL.revokeObjectURL(e.currentTarget.src)}
                      />
@@ -153,7 +159,7 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                             ) : task.status === 'processing' ? (
                                 <>
                                     <span className="text-muted-foreground">→</span>
-                                    <span className="text-muted-foreground">处理中...</span>
+                                    <span className="text-muted-foreground">{t('batchTaskGrid.processing')}</span>
                                 </>
                                 ) : (
                                         <>
@@ -189,23 +195,23 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
 
             {/* Status */}
                 <div className="col-span-1">
-                {task.status === 'pending' && <span className="text-muted-foreground">等待中</span>}
+                {task.status === 'pending' && <span className="text-muted-foreground">{t('batchTaskGrid.waiting')}</span>}
                 {task.status === 'processing' && (
                     <div className="space-y-1">
-                        <div className="text-xs text-primary">处理中...</div>
+                        <div className="text-xs text-primary">{t('batchTaskGrid.processing')}</div>
                         <Progress value={task.progress} className="h-1.5" />
                     </div>
                 )}
                 {task.status === 'success' && (
                     <div className="flex items-center text-green-600 text-xs">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
-                        完成
+                        {t('batchTaskGrid.completed')}
                     </div>
                 )}
                 {task.status === 'error' && (
                     <div className="flex items-center text-destructive text-xs" title={task.error}>
                         <AlertCircle className="w-3 h-3 mr-1" />
-                        失败
+                        {t('batchTaskGrid.failed')}
                     </div>
                 )}
             </div>
@@ -222,7 +228,7 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-primary"
-                            title="查看 EXIF 信息（点击或悬停）"
+                            title={t('batchTaskGrid.viewExif')}
                         >
                             <Info className="w-4 h-4" />
                         </Button>
@@ -237,7 +243,7 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-green-600"
                             onClick={() => downloadSingle(task.id)}
-                            title="下载此文件"
+                            title={t('batchTaskGrid.downloadFile')}
                         >
                             <Download className="w-4 h-4" />
                         </Button>

@@ -3,7 +3,6 @@ Allow: /
 
 # 允许访问重要页面
 Allow: /fishingTime
-Allow: /tft
 Allow: /upload
 
 # 禁止访问 API 路径和私有目录

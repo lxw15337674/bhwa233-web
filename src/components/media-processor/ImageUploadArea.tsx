@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { Upload, ImageIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { formatFileSize } from '@/utils/imageProcessor';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface ImageUploadAreaProps {
     /** 最大文件大小 (MB) */
@@ -47,6 +49,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
     showPreview = true,
     validateFile,
 }) => {
+    const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [dragOver, setDragOver] = useState(false);
     const [error, setError] = useState<string>('');
@@ -56,7 +59,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
         if (validateFile) {
             const result = validateFile(file);
             if (!result.valid) {
-                setError(result.error || '文件验证失败');
+                setError(result.error || t('imageUpload.validationFailed'));
                 return false;
             }
         }
@@ -65,13 +68,13 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
         const isImage = file.type.startsWith('image/') ||
             supportedFormats.some(ext => file.name.toLowerCase().endsWith(ext));
         if (!isImage) {
-            setError(`不支持的文件格式。支持的格式: ${supportedFormats.join(', ')}`);
+            setError(t('imageUpload.unsupportedFormat', { formats: supportedFormats.join(', ') }));
             return false;
         }
 
         // 检查文件大小
         if (file.size > maxFileSize * 1024 * 1024) {
-            setError(`文件大小不能超过${maxFileSize}MB`);
+            setError(t('imageUpload.fileSizeExceeded', { maxSize: maxFileSize }));
             return false;
         }
 
@@ -132,7 +135,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
                 <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <ImageIcon className="w-5 h-5 text-blue-500" />
-                        <span className="font-medium">原图</span>
+                        <span className="font-medium">{t('imageUpload.originalImage')}</span>
                     </div>
                     <Button
                         variant="outline"
@@ -140,16 +143,18 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
                         onClick={handleClear}
                         disabled={disabled}
                     >
-                        更换图片
+                        {t('imageProcessor.changeImage')}
                     </Button>
                 </div>
 
                 {/* 图片预览 */}
                 <div className="relative aspect-video bg-muted rounded-lg overflow-hidden mb-3">
-                    <img
+                    <Image
                         src={previewUrl}
-                        alt="原图预览"
-                        className="w-full h-full object-contain"
+                        alt={t('imageUpload.originalImagePreview')}
+                        fill
+                        className="object-contain"
+                        style={{ objectFit: 'contain' }}
                     />
                 </div>
 
@@ -157,15 +162,15 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
                 {metadata && (
                     <div className="grid grid-cols-2 gap-2 text-sm">
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">尺寸:</span>
+                            <span className="text-muted-foreground">{t('imageUpload.dimensions')}:</span>
                             <span className="font-medium">{metadata.width} × {metadata.height}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-muted-foreground">大小:</span>
+                            <span className="text-muted-foreground">{t('fileUpload.size')}:</span>
                             <span className="font-medium">{formatFileSize(metadata.size)}</span>
                         </div>
                         <div className="flex justify-between col-span-2">
-                            <span className="text-muted-foreground">格式:</span>
+                            <span className="text-muted-foreground">{t('imageUpload.format')}:</span>
                             <span className="font-medium">{metadata.format}</span>
                         </div>
                     </div>
@@ -178,7 +183,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label>选择图片文件</Label>
+                <Label>{t('fileUpload.selectImageFile')}</Label>
                 <div
                     className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragOver
                             ? 'border-blue-400 bg-blue-50 dark:bg-blue-950/20'
@@ -191,13 +196,13 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
                 >
                     <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                     <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">
-                        拖拽图片到此处，或点击选择文件
+                        {t('imageUpload.dragOrClickImage')}
                     </p>
                     <p className="text-sm text-gray-400 dark:text-gray-500 mb-2">
-                        支持格式: {supportedFormats.join(', ')}
+                        {t('fileUpload.supportedFormats')} {supportedFormats.join(', ')}
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500">
-                        最大文件大小: {maxFileSize}MB
+                        {t('imageUpload.maxFileSize', { maxSize: maxFileSize })}
                     </p>
                 </div>
 

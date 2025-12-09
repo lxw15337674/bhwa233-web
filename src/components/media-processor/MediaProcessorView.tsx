@@ -1,15 +1,14 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useMemoizedFn, useSetState, useUpdateEffect } from 'ahooks';
+import { useTranslation } from '@/components/TranslationProvider';
 
 // 导入统一组件
-import { CategoryNavigation } from './CategoryNavigation';
 import { FunctionSelector } from './FunctionSelector';
 import { UnifiedFileUploadArea } from './UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from './UnifiedMediaMetadataCard';
@@ -24,19 +23,13 @@ import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 
 import { useFileSelection } from '@/hooks/audio-convert/useFileSelection';
 import { useUnifiedMediaAnalysis } from '@/hooks/audio-convert/useUnifiedMediaAnalysis';
-import { useFFmpegManager } from '../../hooks/useFFmpeg';
+// import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
-// 动态导入图片处理和编辑器页面(使用相对路径,因为 app 目录不在 src 下)
-const ImageProcessorPage = dynamic(() => import('../../../app/processor/image/page'), {
-  loading: () => <div>加载中...</div>,
-  ssr: false
-});
-const ImageEditorPage = dynamic(() => import('../../../app/processor/editor/page'), {
-  loading: () => <div>加载中...</div>,
-  ssr: false
-});
+// 直接导入图片处理和编辑器客户端组件
+import ImageProcessorPage from '../../../app/[locale]/processor/image/ImageProcessorClientPage';
+import ImageEditorPage from '../../../app/[locale]/processor/editor/EditorClientPage';
 
 interface MediaProcessorViewProps {
   defaultCategory?: ProcessorCategory;
@@ -47,6 +40,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   defaultCategory = 'audio',
   defaultFunction
 }) => {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRef = useRef<HTMLAudioElement>(null);
@@ -54,6 +48,36 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 从URL参数获取初始状态
   const urlCategory = searchParams?.get('category') as ProcessorCategory || defaultCategory;
   const urlFunction = searchParams?.get('function') || defaultFunction || getDefaultFunction(urlCategory);
+
+  // 对于图片处理和编辑类别，重定向到独立页面
+  if (urlCategory === 'image' || urlCategory === 'editor') {
+    if (typeof window !== 'undefined') {
+      let redirectPath = '';
+      if (urlCategory === 'image') {
+        redirectPath = '/processor/image';
+      } else if (urlCategory === 'editor') {
+        redirectPath = '/processor/editor';
+      }
+
+      window.location.href = redirectPath;
+      return null; // 防止进一步渲染
+    }
+  }
+
+  // 对于批量处理类别，根据功能重定向到相应页面
+  if (urlCategory === 'batch') {
+    if (typeof window !== 'undefined') {
+      let redirectPath = '';
+      if (urlFunction && urlFunction.includes('image')) {
+        redirectPath = '/processor/batchimage';
+      } else {
+        redirectPath = '/processor/audio/convert'; // 默认音频处理页
+      }
+
+      window.location.href = redirectPath;
+      return null; // 防止进一步渲染
+    }
+  }
 
   // 简化状态管理 - 只保留真正需要的本地状态
   const [state, setState] = useSetState<{
@@ -77,26 +101,22 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   });
 
   // FFmpeg hooks - 直接使用，不复制到本地状态
-  const {
-    ffmpeg,
-    isMultiThread,
-    ffmpegLoaded,
-    ffmpegLoading,
-    ffmpegError,
-    initFFmpeg
-  } = useFFmpegManager();
+  // const {
+  //   ffmpeg,
+  //   isMultiThread,
+  //   ffmpegLoaded,
+  //   ffmpegLoading,
+  //   ffmpegError,
+  // } = useFFmpegManager();
 
   // 同步 FFmpeg 状态到 store（用于子组件访问）
   useEffect(() => {
-    console.log('[MediaProcessorView] 同步 FFmpeg 状态到 store:', { ffmpegLoaded, hasFFmpeg: !!ffmpeg });
-    useAppStore.setState({
-      ffmpeg: ffmpeg || null,
-      isMultiThread,
-      ffmpegLoaded,
-      ffmpegLoading,
-      ffmpegError: ffmpegError?.message || null
-    });
-  }, [ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError]);
+    // 初始化 FFmpeg
+    useAppStore.getState().initFFmpeg();
+  }, []);
+
+  // 从 store 获取状态
+  const { ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError } = useAppStore();
 
   // 文件选择hooks - 直接使用，不复制到本地状态
   const {
@@ -120,6 +140,36 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
+
+  // 监听 URL 参数变化，同步功能切换
+  useEffect(() => {
+    const urlFunc = searchParams?.get('function');
+    const urlCat = searchParams?.get('category') as ProcessorCategory;
+
+    if (urlFunc && urlFunc !== state.currentFunction) {
+      console.log('[MediaProcessorView] 检测到功能切换:', state.currentFunction, '->', urlFunc);
+
+      // 更新当前功能
+      setState({ currentFunction: urlFunc });
+
+      // 验证已上传文件是否与新功能兼容
+      if (selectedFile) {
+        const newFunction = getFunctionById(urlFunc);
+        if (newFunction && !newFunction.fileValidator(selectedFile)) {
+          console.log('[MediaProcessorView] 文件类型不兼容，清空文件');
+          clearFile();
+          resetProcessing();
+        } else {
+          console.log('[MediaProcessorView] 文件类型兼容，保留文件');
+        }
+      }
+    }
+
+    // 同步 category 变化
+    if (urlCat && urlCat !== state.category) {
+      setState({ category: urlCat });
+    }
+  }, [searchParams, state.currentFunction, state.category, selectedFile]);
 
   // 使用 useClipboardPaste Hook (只选择第一个图片)
   const { handlePaste } = useClipboardPaste({
@@ -156,14 +206,12 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     }
   });
 
-  // 功能切换处理
+  // 功能切换处理（已废弃 - 现在由 FunctionSelector 直接 router.push + useEffect 监听）
+  // 保留此函数以防某些地方还在调用，但实际逻辑已移到 useEffect
   const handleFunctionChange = useMemoizedFn((functionId: string) => {
-    setState({ currentFunction: functionId });
-
-    // 更新URL
-    const url = new URL(window.location.href);
-    url.searchParams.set('function', functionId);
-    window.history.replaceState({}, '', url.toString());
+    // FunctionSelector 会调用 router.push 更新 URL
+    // useEffect 会监听 searchParams 变化并同步 state
+    console.log('[MediaProcessorView] handleFunctionChange 被调用，但实际由 useEffect 处理:', functionId);
   });
 
   // 文件选择处理
@@ -265,34 +313,17 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
 
   return (
     <div className="min-h-screen text-foreground">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* 分类导航 */}
-        <CategoryNavigation
-          activeCategory={state.category}
-          onCategoryChange={handleCategoryChange}
-        />
-
-        {state.category === 'image' && (
-          <div className="mt-8">
-            <ImageProcessorPage />
-          </div>
-        )}
-
-        {state.category === 'editor' && (
-          <div className="mt-8">
-            <ImageEditorPage />
-          </div>
-        )}
+      <div className="container mx-auto px-4 py-8">{/* 移除 max-w-6xl 以匹配 image 页面 */}
 
         {showAudioBatchUI && (
           <>
             {/* 页面标题 */}
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                {currentFunction?.label || '媒体处理器'}
+                {currentFunction?.labelKey ? t(currentFunction.labelKey) : (currentFunction?.label || t('mediaProcessor.title'))}
               </h1>
               <p className="text-muted-foreground">
-                {currentFunction?.description || '选择功能开始处理'}
+                {currentFunction?.descriptionKey ? t(currentFunction.descriptionKey) : (currentFunction?.description || t('mediaProcessor.selectFunctionToStart'))}
               </p>
             </div>
 
@@ -315,7 +346,7 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
                       onFileInputChange={handleFileInputChange}
                       fileInputRef={fileInputRef}
                       disabled={state.isProcessing}
-                        onPasteFromClipboard={handlePaste}
+                      onPasteFromClipboard={handlePaste}
                     />
 
                     <UnifiedMediaMetadataCard

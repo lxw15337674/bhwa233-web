@@ -27,8 +27,10 @@ import { FormatSelector } from './shared/FormatSelector';
 import { ResizeControl } from './shared/ResizeControl';
 import { ExifSwitch } from './shared/ExifSwitch';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const ImageEditorPanel: React.FC = () => {
+    const { t } = useTranslation();
     const {
         inputFile,
         inputMetadata,
@@ -147,7 +149,7 @@ export const ImageEditorPanel: React.FC = () => {
             {!inputFile && (
                 <Alert>
                     <AlertDescription className="text-center">
-                        请先上传或粘贴图片开始处理
+                        {t('imageProcessor.uploadOrPaste')}
                     </AlertDescription>
                 </Alert>
             )}
@@ -166,11 +168,11 @@ export const ImageEditorPanel: React.FC = () => {
                     disabled={isProcessing}
                     variant="outline"
                     size="sm"
-                    title="从剪贴板粘贴图片"
+                    title={t('imageProcessor.pasteFromClipboard')}
                     className="flex-1"
                 >
                     <Clipboard className="w-4 h-4 mr-1" />
-                    从剪贴板粘贴
+                    {t('imageProcessor.pasteFromClipboard')}
                 </Button>
                 <Button
                     variant="outline"
@@ -179,7 +181,7 @@ export const ImageEditorPanel: React.FC = () => {
                     className="flex-1"
                 >
                     <Upload className="w-4 h-4 mr-1" />
-                    {inputFile ? '更换图片' : '添加图片'}
+                    {inputFile ? t('imageProcessor.changeImage') : t('imageProcessor.addImage')}
                 </Button>
             </div>
 
@@ -208,13 +210,13 @@ export const ImageEditorPanel: React.FC = () => {
             {/* 旋转 */}
             {inputFile && (
                 <div className="space-y-3">
-                    <Label>旋转</Label>
+                    <Label>{t('imageProcessor.rotation')}</Label>
                     <div className="flex flex-wrap gap-2">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleRotate('ccw')}
-                            title="逆时针旋转 90°"
+                            title={t('imageProcessor.rotateCCW')}
                         >
                             <RotateCcw className="w-4 h-4 mr-1" />
                             -90°
@@ -223,7 +225,7 @@ export const ImageEditorPanel: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => handleRotate('cw')}
-                            title="顺时针旋转 90°"
+                            title={t('imageProcessor.rotateCW')}
                         >
                             <RotateCw className="w-4 h-4 mr-1" />
                             +90°
@@ -231,7 +233,7 @@ export const ImageEditorPanel: React.FC = () => {
                     </div>
                     {options.rotation !== 0 && (
                         <p className="text-xs text-muted-foreground">
-                            当前: 旋转 {options.rotation}°
+                            {t('imageProcessor.currentRotation', { degrees: options.rotation })}
                         </p>
                     )}
                 </div>
@@ -241,7 +243,7 @@ export const ImageEditorPanel: React.FC = () => {
 
             {/* 其他选项 */}
             <div className="space-y-4">
-                <Label>其他选项</Label>
+                <Label>{t('imageProcessor.otherOptions')}</Label>
 
                 {/* 去除 EXIF */}
                 <ExifSwitch
@@ -251,11 +253,13 @@ export const ImageEditorPanel: React.FC = () => {
 
                 {/* 输出文件名 */}
                 <div className="space-y-2">
-                    <Label htmlFor="output-filename">输出文件名</Label>
+                    <Label htmlFor="output-filename">{t('imageProcessor.outputFilename')}</Label>
                     <Input
                         id="output-filename"
                         type="text"
-                        placeholder={inputMetadata?.name ? `例如: ${inputMetadata.name.split('.').slice(0, -1).join('.')}_edited` : '自定义文件名'}
+                        placeholder={inputMetadata?.name 
+                            ? t('imageProcessor.filenamePlaceholder', { name: inputMetadata.name.split('.').slice(0, -1).join('.') })
+                            : t('imageProcessor.customFilename')}
                         value={options.outputFilename || ''}
                         onChange={(e) => updateOptions({ outputFilename: e.target.value })}
                     />
@@ -270,7 +274,7 @@ export const ImageEditorPanel: React.FC = () => {
                 <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-2 font-normal cursor-pointer">
                         <Zap className="w-4 h-4" />
-                        自动处理
+                        {t('imageProcessor.autoProcess')}
                     </Label>
                     <Switch
                         checked={autoProcess}
@@ -278,7 +282,7 @@ export const ImageEditorPanel: React.FC = () => {
                     />
                 </div>
                 <p className="text-xs text-muted-foreground -mt-1 mb-2">
-                    调整参数后自动处理图片
+                    {t('imageProcessor.autoProcessHint')}
                 </p>
 
                 {/* 手动处理按钮 - 仅在关闭自动处理时显示 */}
@@ -291,12 +295,12 @@ export const ImageEditorPanel: React.FC = () => {
                         {isProcessing ? (
                             <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                处理中...
+                                {t('imageProcessor.processing')}
                             </>
                         ) : (
                             <>
                                 <Play className="w-4 h-4 mr-2" />
-                                开始处理
+                                {t('imageProcessor.startProcess')}
                             </>
                         )}
                     </Button>
@@ -310,7 +314,7 @@ export const ImageEditorPanel: React.FC = () => {
                         disabled={isProcessing}
                     >
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        重置参数
+                        {t('imageProcessor.resetParams')}
                     </Button>
                     <Button
                         onClick={downloadOutput}
@@ -318,7 +322,7 @@ export const ImageEditorPanel: React.FC = () => {
                         className="flex-1"
                     >
                         <Download className="w-4 h-4 mr-2" />
-                        下载图片
+                        {t('imageProcessor.download')}
                     </Button>
                 </div>
             </div>

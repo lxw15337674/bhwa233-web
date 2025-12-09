@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { ImageIcon, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import {
@@ -73,10 +74,13 @@ export const ImageOutputPreview: React.FC = () => {
         <Card className="p-4">
             {/* 图片预览 */}
             <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                <img
+                <Image
                     src={displayUrl}
                     alt="处理后预览"
-                    className="w-full h-full object-contain"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: 'contain' }}
                 />
             </div>
 
@@ -103,22 +107,24 @@ export const ImageOutputPreview: React.FC = () => {
                             </TableRow>
                         )}
                         {/* 处理后 */}
-                        <TableRow>
-                            <TableCell className="font-medium text-muted-foreground">结果</TableCell>
-                            <TableCell className="text-center">{formatType(outputMetadata.format)}</TableCell>
-                            <TableCell className="text-center">{outputMetadata.width} × {outputMetadata.height}</TableCell>
-                            <TableCell className="text-center">
-                                <span>{formatFileSize(outputMetadata.size)}</span>
-                                {compressionRatio && (
-                                    <span className={`ml-2 px-2 py-0.5 rounded font-medium ${compressionRatio.startsWith('-')
-                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                        : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                                        }`}>
-                                        {compressionRatio}
-                                    </span>
-                                )}
-                            </TableCell>
-                        </TableRow>
+                        {outputMetadata && (
+                            <TableRow>
+                                <TableCell className="font-medium text-muted-foreground">结果</TableCell>
+                                <TableCell className="text-center">{formatType(outputMetadata.format)}</TableCell>
+                                <TableCell className="text-center">{outputMetadata.width} × {outputMetadata.height}</TableCell>
+                                <TableCell className="text-center">
+                                    <span>{formatFileSize(outputMetadata.size)}</span>
+                                    {compressionRatio && (
+                                        <span className={`ml-2 px-2 py-0.5 rounded font-medium ${compressionRatio.startsWith('-')
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                                            }`}>
+                                            {compressionRatio}
+                                        </span>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
 

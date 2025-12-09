@@ -1,49 +1,32 @@
 'use client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { Textarea } from '../../ui/textarea';
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => {
+  const { t } = useTranslation();
   // 从 app store 获取数据
   const inputAudio = useAppStore(state => state.inputAudio);
 
   // 优先使用 props，否则使用 store 的数据
   const selectedFile = props.selectedFile ?? inputAudio;
 
-  const {
-    isProcessing,
-    progress,
-    currentStep,
-    error,
-    result,
-    outputFileName,
-    startTranscription,
-    resetState
-  } = useSpeechToText();
-
-  // 通知主容器状态变化
-  useEffect(() => {
-    props.onStateChange?.({
-      isProcessing,
-      progress,
-      currentStep,
-      error
-    });
-  }, [isProcessing, progress, currentStep, error, props.onStateChange]);
-
-  // 通知输出结果
-  useEffect(() => {
-    if (result) {
-      const blob = new Blob([result], { type: 'text/plain;charset=utf-8' });
-      props.onOutputReady?.(blob, outputFileName);
-    }
-  }, [result, outputFileName, props.onOutputReady]);
+  // 从 speech-to-text store 获取状态和方法
+  const isProcessing = useSpeechToTextStore(state => state.isProcessing);
+  const progress = useSpeechToTextStore(state => state.progress);
+  const currentStep = useSpeechToTextStore(state => state.currentStep);
+  const error = useSpeechToTextStore(state => state.error);
+  const result = useSpeechToTextStore(state => state.result);
+  const outputFileName = useSpeechToTextStore(state => state.outputFileName);
+  const startTranscription = useSpeechToTextStore(state => state.startTranscription);
+  const resetState = useSpeechToTextStore(state => state.resetState);
 
   const handleStartTranscription = () => {
     if (!selectedFile) return;
@@ -68,7 +51,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
         await navigator.clipboard.writeText(result);
         // 可以添加一个toast提示
       } catch (error) {
-        console.error('复制失败:', error);
+        console.error(t('audioControlPanels.speechToText.copyFailed'), error);
       }
     }
   };
@@ -88,15 +71,15 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
               {isProcessing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  识别中...
+                  {t('audioControlPanels.speechToText.recognizing')}
                 </>
               ) : (
-                '开始语音识别'
+                  t('audioControlPanels.speechToText.startRecognition')
               )}
             </Button>
 
             <Button onClick={resetState} variant="outline" size="lg">
-              重置
+              {t('audioControlPanels.speechToText.reset')}
             </Button>
           </div>
         </CardContent>
@@ -109,7 +92,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 <FileText className="w-4 h-4" />
-                识别结果
+                {t('audioControlPanels.speechToText.recognitionResult')}
               </CardTitle>
               <div className="flex gap-2">
                 <Button
@@ -136,7 +119,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
               className="min-h-[300px] resize-none bg-muted/30 border-muted"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              文件将保存为: {outputFileName}
+              {t('audioControlPanels.speechToText.saveAs')}: {outputFileName}
             </p>
           </CardContent>
         </Card>

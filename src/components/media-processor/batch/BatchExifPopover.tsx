@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Camera, MapPin, Info } from 'lucide-react';
+import { useTranslation } from '@/components/TranslationProvider';
 import {
     Popover,
     PopoverContent,
@@ -37,28 +38,28 @@ function formatAperture(fNumber?: number): string | null {
     return `f/${fNumber.toFixed(1)}`;
 }
 
-function formatFocalLength(focalLength?: number, focalLength35mm?: number): string | null {
+function formatFocalLength(focalLength?: number, focalLength35mm?: number, t?: any): string | null {
     if (!focalLength) return null;
     let result = `${focalLength.toFixed(0)}mm`;
-    if (focalLength35mm) {
-        result += ` (${focalLength35mm}mm 等效)`;
+    if (focalLength35mm && t) {
+        result += ` (${focalLength35mm}mm ${t('batchExifPopover.equivalent')})`;
     }
     return result;
 }
 
-function formatWhiteBalance(value?: number): string | null {
-    if (value === undefined) return null;
-    return value === 0 ? '自动' : '手动';
+function formatWhiteBalance(value?: number, t?: any): string | null {
+    if (value === undefined || !t) return null;
+    return value === 0 ? t('batchExifPopover.auto') : t('batchExifPopover.manual');
 }
 
-function formatFlash(value?: number): string | null {
-    if (value === undefined) return null;
+function formatFlash(value?: number, t?: any): string | null {
+    if (value === undefined || !t) return null;
     const fired = (value & 0x01) !== 0;
     const mode = (value >> 3) & 0x03;
-    let result = fired ? '已闪光' : '未闪光';
-    if (mode === 1) result += ' (强制)';
-    else if (mode === 2) result += ' (关闭)';
-    else if (mode === 3) result += ' (自动)';
+    let result = fired ? t('batchExifPopover.fired') : t('batchExifPopover.notFired');
+    if (mode === 1) result += ` (${t('batchExifPopover.forced')})`;
+    else if (mode === 2) result += ` (${t('batchExifPopover.off')})`;
+    else if (mode === 3) result += ` (${t('batchExifPopover.auto')})`;
     return result;
 }
 
@@ -68,23 +69,34 @@ function formatExposureBias(value?: number): string | null {
     return `${sign}${value.toFixed(1)} EV`;
 }
 
-function formatMeteringMode(value?: number): string | null {
-    if (value === undefined) return null;
+function formatMeteringMode(value?: number, t?: any): string | null {
+    if (value === undefined || !t) return null;
     const modes: Record<number, string> = {
-        0: '未知', 1: '平均', 2: '中央重点', 3: '点测光',
-        4: '多点', 5: '多区域', 6: '局部', 255: '其他',
+        0: t('batchExifPopover.meteringUnknown'),
+        1: t('batchExifPopover.meteringAverage'),
+        2: t('batchExifPopover.meteringCenterWeighted'),
+        3: t('batchExifPopover.meteringSpot'),
+        4: t('batchExifPopover.meteringMultiSpot'),
+        5: t('batchExifPopover.meteringPattern'),
+        6: t('batchExifPopover.meteringPartial'),
+        255: t('batchExifPopover.meteringOther'),
     };
-    return modes[value] || `未知 (${value})`;
+    return modes[value] || `${t('batchExifPopover.meteringUnknown')} (${value})`;
 }
 
-function formatOrientation(value?: number): string | null {
-    if (value === undefined) return null;
+function formatOrientation(value?: number, t?: any): string | null {
+    if (value === undefined || !t) return null;
     const orientations: Record<number, string> = {
-        1: '正常', 2: '水平翻转', 3: '旋转 180°', 4: '垂直翻转',
-        5: '顺时针 90° + 水平翻转', 6: '顺时针 90°',
-        7: '逆时针 90° + 水平翻转', 8: '逆时针 90°',
+        1: t('batchExifPopover.orientationNormal'),
+        2: t('batchExifPopover.orientationFlipH'),
+        3: t('batchExifPopover.orientationRotate180'),
+        4: t('batchExifPopover.orientationFlipV'),
+        5: t('batchExifPopover.orientationTranspose'),
+        6: t('batchExifPopover.orientationRotate90'),
+        7: t('batchExifPopover.orientationTransverse'),
+        8: t('batchExifPopover.orientationRotate270'),
     };
-    return orientations[value] || `未知 (${value})`;
+    return orientations[value] || `${t('batchExifPopover.meteringUnknown')} (${value})`;
 }
 
 function formatGpsCoordinate(value?: number, ref?: string): string | null {
@@ -138,18 +150,19 @@ export const BatchExifPopover: React.FC<BatchExifPopoverProps> = ({
     isLoading = false,
     onOpenChange,
 }) => {
+    const { t } = useTranslation();
     const exif = exifMetadata;
 
     // 格式化数据
     const deviceInfo = exif ? [exif.make, exif.model].filter(Boolean).join(' ') : null;
     const shootTime = exif ? formatExifDateTime(exif.dateTimeOriginal || exif.dateTime) : null;
     const aperture = exif ? formatAperture(exif.fNumber) : null;
-    const focalLength = exif ? formatFocalLength(exif.focalLength, exif.focalLength35mm) : null;
-    const whiteBalance = exif ? formatWhiteBalance(exif.whiteBalance) : null;
-    const flash = exif ? formatFlash(exif.flash) : null;
+    const focalLength = exif ? formatFocalLength(exif.focalLength, exif.focalLength35mm, t) : null;
+    const whiteBalance = exif ? formatWhiteBalance(exif.whiteBalance, t) : null;
+    const flash = exif ? formatFlash(exif.flash, t) : null;
     const exposureBias = exif ? formatExposureBias(exif.exposureBias) : null;
-    const meteringMode = exif ? formatMeteringMode(exif.meteringMode) : null;
-    const orientation = exif ? formatOrientation(exif.orientation) : null;
+    const meteringMode = exif ? formatMeteringMode(exif.meteringMode, t) : null;
+    const orientation = exif ? formatOrientation(exif.orientation, t) : null;
     const dpi = exif?.xResolution && exif?.yResolution
         ? `${Math.round(exif.xResolution)} × ${Math.round(exif.yResolution)} DPI`
         : exif?.xResolution
@@ -176,7 +189,7 @@ export const BatchExifPopover: React.FC<BatchExifPopoverProps> = ({
                 <div className="sticky top-0 bg-popover border-b p-4 z-10">
                     <div className="flex items-center gap-2 mb-1">
                         <Camera className="w-4 h-4 text-blue-500" />
-                        <span className="font-semibold text-sm">EXIF 信息</span>
+                        <span className="font-semibold text-sm">{t('batchExifPopover.exifInfo')}</span>
                     </div>
                     <p className="text-xs text-muted-foreground truncate" title={fileName}>
                         {fileName}
@@ -186,34 +199,34 @@ export const BatchExifPopover: React.FC<BatchExifPopoverProps> = ({
                 <div className="p-4">
                     {isLoading ? (
                         <div className="py-8 text-center text-muted-foreground text-sm">
-                            加载中...
+                            {t('batchExifPopover.loading')}
                         </div>
                     ) : !hasValidExif(exif) ? (
                         <div className="py-8 text-center">
                             <Info className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
-                            <p className="text-sm text-muted-foreground">无 EXIF 信息</p>
+                                <p className="text-sm text-muted-foreground">{t('batchExifPopover.noExifInfo')}</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             <Table>
                                 <TableBody>
-                                    <ExifRow label="设备" value={deviceInfo} />
-                                    <ExifRow label="镜头" value={exif?.lensModel} />
-                                    <ExifRow label="软件" value={exif?.software} />
-                                    <ExifRow label="时间" value={shootTime} />
-                                    <ExifRow label="光圈" value={aperture} />
-                                    <ExifRow label="快门" value={exif?.exposureTime} />
-                                    <ExifRow label="ISO" value={exif?.iso} />
-                                    <ExifRow label="焦距" value={focalLength} />
-                                    <ExifRow label="曝光补偿" value={exposureBias} />
-                                    <ExifRow label="测光模式" value={meteringMode} />
-                                    <ExifRow label="白平衡" value={whiteBalance} />
-                                    <ExifRow label="闪光灯" value={flash} />
-                                    <ExifRow label="方向" value={orientation} />
-                                    <ExifRow label="色彩空间" value={exif?.colorSpace} />
-                                    <ExifRow label="分辨率" value={dpi} />
-                                    <ExifRow label="作者" value={exif?.artist} />
-                                    <ExifRow label="版权" value={exif?.copyright} />
+                                            <ExifRow label={t('batchExifPopover.device')} value={deviceInfo} />
+                                            <ExifRow label={t('batchExifPopover.lens')} value={exif?.lensModel} />
+                                            <ExifRow label={t('batchExifPopover.software')} value={exif?.software} />
+                                            <ExifRow label={t('batchExifPopover.time')} value={shootTime} />
+                                            <ExifRow label={t('batchExifPopover.aperture')} value={aperture} />
+                                            <ExifRow label={t('batchExifPopover.shutter')} value={exif?.exposureTime} />
+                                            <ExifRow label={t('batchExifPopover.iso')} value={exif?.iso} />
+                                            <ExifRow label={t('batchExifPopover.focalLength')} value={focalLength} />
+                                            <ExifRow label={t('batchExifPopover.exposureCompensation')} value={exposureBias} />
+                                            <ExifRow label={t('batchExifPopover.meteringMode')} value={meteringMode} />
+                                            <ExifRow label={t('batchExifPopover.whiteBalance')} value={whiteBalance} />
+                                            <ExifRow label={t('batchExifPopover.flash')} value={flash} />
+                                            <ExifRow label={t('batchExifPopover.orientation')} value={orientation} />
+                                            <ExifRow label={t('batchExifPopover.colorSpace')} value={exif?.colorSpace} />
+                                            <ExifRow label={t('batchExifPopover.resolution')} value={dpi} />
+                                            <ExifRow label={t('batchExifPopover.author')} value={exif?.artist} />
+                                            <ExifRow label={t('batchExifPopover.copyright')} value={exif?.copyright} />
                                 </TableBody>
                             </Table>
 
@@ -221,14 +234,14 @@ export const BatchExifPopover: React.FC<BatchExifPopoverProps> = ({
                                 <div className="pt-3 border-t">
                                     <div className="flex items-center gap-2 mb-2">
                                         <MapPin className="w-3.5 h-3.5 text-orange-500" />
-                                        <span className="font-medium text-xs">位置信息</span>
-                                        <span className="text-xs text-orange-500">⚠️ 隐私敏感</span>
+                                                <span className="font-medium text-xs">{t('batchExifPopover.locationInfo')}</span>
+                                                <span className="text-xs text-orange-500">{t('batchExifPopover.privacySensitive')}</span>
                                     </div>
                                     <Table>
                                         <TableBody>
-                                            <ExifRow label="纬度" value={gpsLat} />
-                                            <ExifRow label="经度" value={gpsLng} />
-                                            <ExifRow label="海拔" value={gpsAlt} />
+                                                    <ExifRow label={t('batchExifPopover.latitude')} value={gpsLat} />
+                                                    <ExifRow label={t('batchExifPopover.longitude')} value={gpsLng} />
+                                                    <ExifRow label={t('batchExifPopover.altitude')} value={gpsAlt} />
                                         </TableBody>
                                     </Table>
                                 </div>

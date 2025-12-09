@@ -1,17 +1,79 @@
 {
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "reset": "Reset",
+        "apply": "Apply"
+    },
+    "navigation": {
+        "home": "Home",
+        "upload": "Upload",
+        "processor": "Processor",
+        "imageProcessor": "Image Processor",
+        "batchImage": "Batch Image",
+        "imageEditor": "Image Editor",
+        "audioConverter": "Audio Converter",
+        "audioFormatConverter": "Audio Format Converter",
+        "mediaProcessor": "Media Processor",
+        "categories": {
+            "tools": "Toolbox",
+            "mediaProcessor": "Image Processing",
+            "audioTools": "Audio Tools"
+        },
+        "menuItems": {
+            "fileUpload": "File Upload",
+            "fileUploadDesc": "Secure and fast file upload service, supports multiple file formats",
+            "fishingTime": "Fishing Time",
+            "fishingTimeDesc": "Holiday countdown and salary countdown tool for office workers",
+            "imageProcess": "Image Processing",
+            "imageProcessDesc": "Image compression, format conversion, size adjustment and other basic processing",
+            "imageEditor": "Image Editor",
+            "imageEditorDesc": "Online image editor with cropping, rotation, filters and advanced editing",
+            "batchProcess": "Batch Processing",
+            "batchProcessDesc": "Batch compression and format conversion for efficient multi-image processing",
+            "audioFormatConvert": "Audio Format Conversion",
+            "audioFormatConvertDesc": "Convert audio files to different formats and quality levels",
+            "audioSpeedChange": "Audio Speed Adjustment",
+            "audioSpeedChangeDesc": "Adjust audio playback speed while maintaining pitch",
+            "speechToText": "Speech to Text",
+            "speechToTextDesc": "Convert audio files to text with automatic language detection"
+        }
+    },
+    "home": {
+        "title": "Toolbox - Online Productivity Tools Collection",
+        "description": "Integrated file upload, media processing and other practical tools to enhance your productivity and entertainment experience",
+        "appNavigation": "Application Navigation",
+        "useToolTitle": "Use {{name}} tool"
+    },
+    "metadata": {
+        "defaultTitle": "Toolbox - Online Productivity Tools Collection",
+        "defaultDescription": "Integrated file upload, media processing and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience"
+    },
     "upload": {
         "title": "Free Online File Upload Tool",
         "description": "Select or drag files to upload, supports batch upload (up to 10 files), any file format, up to 10GB, permanent storage.",
         "features": {
             "free": "Free to Use",
             "anyFormat": "Any Format",
-            "anySize": "Up to 10GB",
+            "anySize": "Up to 10MB",
             "permanent": "Permanent Storage",
             "batch": "Batch Upload (up to 10 files)"
         },
         "uploadFiles": "Upload Files",
         "dragOrClick": "Drag files here or click to select",
-        "supportAnyFormat": "Supports any file format, up to 10GB per file",
+        "supportAnyFormat": "Supports any file format, up to 10MB per file",
         "selectedFiles": "{{count}} files selected",
         "clickToReselect": "Click to reselect files",
         "uploading": "Uploading...",
@@ -19,10 +81,314 @@
         "uploadHistory": "Upload History",
         "clearHistory": "Clear History",
         "noHistory": "No upload history",
+        "fileSizeLabel": "{{size}} MB",
+        "oversizedFiltered": "The following files exceed 10MB limit and have been filtered: {{files}}. The remaining {{count}} files can be uploaded normally.",
+        "allOversized": "All files exceed 10MB limit: {{files}}",
         "errors": {
-            "maxFiles": "Maximum 10 files can be uploaded at once",
+            "maxFiles": "Maximum 10 files allowed at once",
             "uploadFailed": "Upload failed",
             "noUrl": "Upload failed: Server did not return file URL"
+        }
+    },
+    "fileUpload": {
+        "selectImageFile": "Select Image File",
+        "selectAudioFile": "Select Audio File",
+        "selectMediaFile": "Select Media File",
+        "dragOrClick": "Drag file here or click to select",
+        "selectFile": "Select File",
+        "pasteImage": "Paste Image",
+        "supportedFormats": "Supported formats:",
+        "selectedFile": "Selected File",
+        "size": "Size",
+        "type": "Type",
+        "changeFile": "Change File",
+        "paste": "Paste"
+    },
+    "imageUpload": {
+        "validationFailed": "File validation failed",
+        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}",
+        "fileSizeExceeded": "File size cannot exceed {{maxSize}}MB",
+        "originalImage": "Original Image",
+        "originalImagePreview": "Original image preview",
+        "dimensions": "Dimensions",
+        "format": "Format",
+        "dragOrClickImage": "Drag image here or click to select file",
+        "maxFileSize": "Max file size: {{maxSize}}MB"
+    },
+    "fishingTime": {
+        "title": "Fishing Time - Holiday & Salary Countdown",
+        "subtitle": "Essential Tool for Office Workers",
+        "description": "Real-time holiday countdown, salary countdown, and time-off arrangements for office workers",
+        "reminderTitle": "【Fishing Time】Reminder:",
+        "today": "Today is {{year}}/{{month}}/{{day}}, {{weekday}}.",
+        "salary": "【Salary】",
+        "salaryEndOfMonth": "End of month salary: {{days}} days left",
+        "salaryDay5": "5th day salary: {{days}} days left",
+        "salaryDay10": "10th day salary: {{days}} days left",
+        "salaryDay15": "15th day salary: {{days}} days left",
+        "salaryDay20": "20th day salary: {{days}} days left",
+        "countdown": "【Countdown】",
+        "weekEnd": "End of week: {{remaining}} days left ({{passed}} days passed)",
+        "monthEnd": "End of month: {{remaining}} days left ({{passed}} days passed)",
+        "yearEnd": "End of year: {{remaining}} days left ({{passed}} days passed)",
+        "holiday": "【Holiday】",
+        "weekend": "Next Saturday: {{days}} days left",
+        "holidayCountdown": "{{name}}: {{days}} days left.",
+        "holidayDetail": "{{name}}: {{days}} days left. Holiday from {{start}} to {{end}}, total {{total}} days."
+    },
+    "mediaProcessor": {
+        "title": "Media Processor",
+        "description": "Powerful online media processing tools supporting video/audio extraction, format conversion, compression and more",
+        "functionSelect": "Function Selection",
+        "selectFunction": "Select a function...",
+        "selectFunctionToStart": "Select a function to start processing",
+        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}",
+        "functions": {
+            "audioConvert": {
+                "label": "Audio Format Conversion",
+                "description": "Convert audio files to different formats and quality levels."
+            },
+            "audioSpeedChange": {
+                "label": "Audio Speed Adjustment",
+                "description": "Adjust audio playback speed while maintaining pitch."
+            },
+            "speechToText": {
+                "label": "Speech to Text",
+                "description": "Convert audio files to text with automatic language detection."
+            },
+            "imageBatch": {
+                "label": "Batch Image Processing",
+                "description": "Batch format conversion, compression, and size adjustment."
+            }
+        }
+    },
+    "audioFormatConverter": {
+        "title": "Audio Format Converter",
+        "description": "Convert between audio formats like MP3, WAV, AAC, FLAC, OGG while maintaining best quality"
+    },
+    "imageProcessor": {
+        "title": "Image Processor",
+        "description": "Support compression, format conversion, resize, rotation, flip and more",
+        "errorOccurred": "Error occurred",
+        "uploadOrPaste": "Please upload or paste an image to start",
+        "pasteFromClipboard": "Paste from Clipboard",
+        "changeImage": "Change Image",
+        "addImage": "Add Image",
+        "quality": "Quality",
+        "qualityHint": "PNG format is lossless compression, quality setting has no effect",
+        "outputFormat": "Output Format",
+        "resize": "Resize",
+        "rotation": "Rotation",
+        "rotateCCW": "Rotate 90° Counterclockwise",
+        "rotateCW": "Rotate 90° Clockwise",
+        "currentRotation": "Current: Rotated {{degrees}}°",
+        "otherOptions": "Other Options",
+        "stripExif": "Remove EXIF Data",
+        "stripExifHint": "Remove GPS location, camera info, and other privacy metadata",
+        "outputFilename": "Output Filename",
+        "filenamePlaceholder": "e.g: {{name}}_edited",
+        "customFilename": "Custom filename",
+        "autoProcess": "Auto Process",
+        "autoProcessHint": "Automatically process image after adjusting parameters",
+        "startProcess": "Start Processing",
+        "processing": "Processing...",
+        "resetParams": "Reset Parameters",
+        "download": "Download Image",
+        "scalePercentage": "Scale by Percentage",
+        "fixedSize": "Fixed Size",
+        "scaleRatio": "Scale Ratio",
+        "originalSize": "Original Size",
+        "width": "Width",
+        "height": "Height",
+        "keepAspectRatio": "Keep Aspect Ratio",
+        "finalSize": "Final Size",
+        "willBe": "will be"
+    },
+    "batchImageProcessor": {
+        "title": "Batch Image Processor",
+        "description": "Batch format conversion, compression, resize, rotation, flip and more",
+        "addImage": "Add Images",
+        "pasteImage": "Paste Image",
+        "clearList": "Clear List",
+        "confirmClear": "Confirm clear list?",
+        "clearWarning": "This will remove all added and processed image tasks and cannot be undone.",
+        "filenameSuffix": "Filename Suffix",
+        "suffixPlaceholder": "e.g: _compressed",
+        "suffixHint": "Set filename suffix to append after original filename",
+        "startBatchProcessing": "Start Batch Processing",
+        "stopProcessing": "Stop Processing",
+        "downloadAll": "Download All"
+    },
+    "batchTaskGrid": {
+        "dragImagesHere": "Drag images here",
+        "multiSelectHint": "Multi-select supported, recommend up to 50 images per batch",
+        "fileName": "File Name",
+        "sizeAndDimensions": "Size & Dimensions",
+        "status": "Status",
+        "actions": "Actions",
+        "dragToAddMore": "Drag to add more images",
+        "processing": "Processing...",
+        "waiting": "Waiting",
+        "completed": "Completed",
+        "failed": "Failed",
+        "viewExif": "View EXIF info (click or hover)",
+        "downloadFile": "Download this file"
+    },
+    "batchExifPopover": {
+        "exifInfo": "EXIF Info",
+        "loading": "Loading...",
+        "noExifInfo": "No EXIF Info",
+        "device": "Device",
+        "lens": "Lens",
+        "software": "Software",
+        "time": "Time",
+        "aperture": "Aperture",
+        "shutter": "Shutter",
+        "iso": "ISO",
+        "focalLength": "Focal Length",
+        "exposureCompensation": "Exposure Compensation",
+        "meteringMode": "Metering Mode",
+        "whiteBalance": "White Balance",
+        "flash": "Flash",
+        "orientation": "Orientation",
+        "colorSpace": "Color Space",
+        "resolution": "Resolution",
+        "author": "Author",
+        "copyright": "Copyright",
+        "locationInfo": "Location Info",
+        "privacySensitive": "⚠️ Privacy Sensitive",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "altitude": "Altitude",
+        "equivalent": "equivalent",
+        "auto": "Auto",
+        "manual": "Manual",
+        "fired": "Fired",
+        "notFired": "Not Fired",
+        "forced": "forced",
+        "off": "off",
+        "meteringUnknown": "Unknown",
+        "meteringAverage": "Average",
+        "meteringCenterWeighted": "Center-weighted",
+        "meteringSpot": "Spot",
+        "meteringMultiSpot": "Multi-spot",
+        "meteringPattern": "Pattern",
+        "meteringPartial": "Partial",
+        "meteringOther": "Other",
+        "orientationNormal": "Normal",
+        "orientationFlipH": "Flip Horizontal",
+        "orientationRotate180": "Rotate 180°",
+        "orientationFlipV": "Flip Vertical",
+        "orientationTranspose": "Transpose",
+        "orientationRotate90": "Rotate 90° CW",
+        "orientationTransverse": "Transverse",
+        "orientationRotate270": "Rotate 270° CW"
+    },
+    "imageEditor": {
+        "title": "Image Editor",
+        "description": "Support cropping, filters, annotations, watermarks and advanced editing"
+    },
+    "audioControlPanels": {
+        "convert": {
+            "startConvert": "Start Audio Conversion",
+            "converting": "Converting audio...",
+            "downloadResult": "Download Result",
+            "reconvert": "Reconvert",
+            "targetFormat": "Target Format",
+            "conversionQuality": "Conversion Quality",
+            "conversionPreview": "Conversion Preview",
+            "estimatedSize": "Estimated Output File Size",
+            "compressed": "Compressed",
+            "originalFile": "Original file",
+            "analyzingAudio": "Analyzing audio information...",
+            "cannotAnalyze": "Unable to show precise estimate, please proceed with conversion",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "analyzingFile": "Analyzing file...",
+            "unsupportedFormat": "Unsupported file format, please select an audio file",
+            "selectValidFile": "Please select a valid audio file",
+            "waitingFFmpegAnalysis": "Waiting for FFmpeg to load before analyzing audio information...",
+            "noAudioInfo": "Unable to get detailed audio information, will use default settings for conversion",
+            "conversionFailed": "Audio conversion failed"
+        },
+        "speed": {
+            "startAdjust": "Start Speed Adjustment",
+            "adjusting": "Adjusting speed...",
+            "downloadResult": "Download Result",
+            "readjust": "Readjust",
+            "quickSelect": "Quick Speed Selection",
+            "customSpeed": "Custom Speed (0.5x - 4.0x)",
+            "times": "x",
+            "preservePitch": "Preserve Pitch (Recommended)",
+            "preservePitchDesc": "When checked, pitch remains unchanged and only playback speed is adjusted. Unchecking will change both pitch and speed.",
+            "adjustPreview": "Adjustment Preview",
+            "durationChange": "Duration Change",
+            "shortened": "Shortened",
+            "extended": "Extended",
+            "originalDuration": "Original duration",
+            "estimatedSize": "Estimated Output File Size",
+            "reduced": "Reduced",
+            "originalFile": "Original file",
+            "analyzingAudio": "Analyzing audio information...",
+            "retry": "Retry",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "analyzingFile": "Analyzing file...",
+            "unsupportedFormat": "Unsupported file format, please select an audio file",
+            "selectValidFile": "Please select a valid audio file",
+            "adjustFailed": "Audio speed adjustment failed"
+        },
+        "speechToText": {
+            "startRecognition": "Start Speech Recognition",
+            "recognizing": "Recognizing...",
+            "reset": "Reset",
+            "recognitionResult": "Recognition Result",
+            "saveAs": "File will be saved as",
+            "copyFailed": "Copy failed"
+        },
+        "conversionSettings": {
+            "selectFormat": "Select Format",
+            "startConvert": "Start Conversion",
+            "preparingConvert": "Preparing conversion",
+            "convertingTo": "Converting to",
+            "convertComplete": "Conversion complete",
+            "convertFailed": "Conversion failed"
+        }
+    },
+    "audioConverter": {
+        "qualityModes": {
+            "original": {
+                "label": "Original Quality",
+                "description": "Maintain original audio quality"
+            },
+            "compressed": {
+                "label": "Compressed",
+                "description": "Reduce file size by approximately 50%"
+            }
+        },
+        "speedPresets": {
+            "speed_0_5": {
+                "label": "0.5x (Slow)",
+                "description": "Ideal for learning and careful listening"
+            },
+            "speed_0_75": {
+                "label": "0.75x (Slower)",
+                "description": "Slightly slower, maintains clarity"
+            },
+            "speed_1_0": {
+                "label": "1.0x (Normal)",
+                "description": "Normal playback speed"
+            },
+            "speed_1_25": {
+                "label": "1.25x (Faster)",
+                "description": "Slightly faster, improves efficiency"
+            },
+            "speed_1_5": {
+                "label": "1.5x (Fast)",
+                "description": "Suitable for quick browsing"
+            },
+            "speed_2_0": {
+                "label": "2.0x (High Speed)",
+                "description": "Maximum 2x speed"
+            }
         }
     }
 }

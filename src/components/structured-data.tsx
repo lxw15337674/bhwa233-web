@@ -20,7 +20,7 @@ export const websiteStructuredData = {
     "@type": "WebApplication",
     "name": "工具箱",
     "url": "https://233tools.vercel.app",
-    "description": "集成云顶之弈攻略、摸鱼办、热榜资讯等多功能的在线工具箱",
+    "description": "集成摸鱼办、热榜资讯、文件上传、媒体处理等多功能的在线工具箱",
     "applicationCategory": "Utility",
     "operatingSystem": "Web",
     "offers": {
@@ -38,24 +38,3 @@ export const websiteStructuredData = {
     }
 }
 
-// 云顶之弈攻略结构化数据
-export const tftGuideStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "云顶之弈攻略助手",
-    "description": "最新云顶之弈装备合成表、羁绊搭配推荐、英雄技能详解",
-    "url": "https://233tools.vercel.app/tft",
-    "author": {
-        "@type": "Person",
-        "name": "233tools"
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "工具箱"
-    },
-    "dateModified": new Date().toISOString(),
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://233tools.vercel.app/tft"
-    }
-}

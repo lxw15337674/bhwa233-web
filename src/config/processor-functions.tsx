@@ -17,20 +17,16 @@ const imageFileValidator = (file: File): boolean => {
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 };
 
-export const PROCESSOR_CATEGORIES: Record<ProcessorCategory, { label: string; icon: string; default: string }> = {
-    audio: { label: '音频', icon: '🎵', default: 'audio-convert' },
-    image: { label: '图片处理', icon: '🖼️', default: '' },
-    editor: { label: '图片编辑', icon: '✏️', default: '' },
-    batch: { label: '批量处理', icon: '📚', default: 'image-batch' },
-};
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
 // 音频功能
     {
         id: 'audio-convert',
         label: '音频格式转换',
+        labelKey: 'mediaProcessor.functions.audioConvert.label',
         category: 'audio',
         description: '将音频文件转换为不同的格式和质量。',
+        descriptionKey: 'mediaProcessor.functions.audioConvert.description',
         icon: '🎵',
         component: AudioConvertControlPanel,
         fileValidator: audioFileValidator,
@@ -39,8 +35,10 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     {
         id: 'audio-speed-change',
         label: '音频倍速调整',
+        labelKey: 'mediaProcessor.functions.audioSpeedChange.label',
         category: 'audio',
         description: '调整音频的播放速度，同时保持音调不变。',
+        descriptionKey: 'mediaProcessor.functions.audioSpeedChange.description',
         icon: '⏩',
         component: AudioSpeedControlPanel,
         fileValidator: audioFileValidator,
@@ -49,8 +47,10 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     {
         id: 'speech-to-text',
         label: '语音转文字',
+        labelKey: 'mediaProcessor.functions.speechToText.label',
         category: 'audio',
         description: '将音频文件转换为文字，支持自动语言检测。',
+        descriptionKey: 'mediaProcessor.functions.speechToText.description',
         icon: '🎤',
         component: SpeechToTextControlPanel,
         fileValidator: audioFileValidator,
@@ -60,8 +60,10 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     {
         id: 'image-batch',
         label: '批量图片处理',
+        labelKey: 'mediaProcessor.functions.imageBatch.label',
         category: 'batch',
         description: '批量转换格式、压缩、调整尺寸。',
+        descriptionKey: 'mediaProcessor.functions.imageBatch.description',
         icon: '📚',
         component: BatchControlPanel as any, // Cast to any to avoid strict prop type mismatch with ControlPanelProps
         fileValidator: imageFileValidator,
