@@ -1,4 +1,5 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { toBlobURL } from '@ffmpeg/util';
 
 type FFmpegLoadState = 'not_loaded' | 'loading' | 'loaded' | 'error';
 
@@ -45,8 +46,7 @@ class FFmpegManager {
             // 检测多线程支持
             this.isMultiThread = this.checkMultiThreadSupport();
             
-            const coreVersion = this.isMultiThread ? 'core-mt' : 'core';
-            const baseURL = `/wasm-libs/ffmpeg/${coreVersion}`;
+            const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/umd'
 
             if (isDev) {
                 console.log(`[FFmpegManager] 加载 FFmpeg ${this.isMultiThread ? '多线程' : '单线程'} 版本...`);
@@ -55,9 +55,9 @@ class FFmpegManager {
 
             // 从本地加载（无需 toBlobURL）
             await ffmpeg.load({
-                coreURL: `${baseURL}/ffmpeg-core.js`,
-                wasmURL: `${baseURL}/ffmpeg-core.wasm`,
-                workerURL: this.isMultiThread ? `${baseURL}/ffmpeg-core.worker.js` : undefined
+                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
             });
 
             if (isDev) {

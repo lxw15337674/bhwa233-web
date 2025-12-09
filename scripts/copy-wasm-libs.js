@@ -23,17 +23,9 @@ const LIBS_CONFIG = {
             // 'vips-resvg.wasm',
         ]
     },
-    'ffmpeg-core': {
-        sourceDir: path.join(__dirname, '../node_modules/.pnpm/@ffmpeg+core@0.12.10/node_modules/@ffmpeg/core/dist/umd'),
-        targetDir: path.join(__dirname, '../public/wasm-libs/ffmpeg/core'),
-        files: [
-            'ffmpeg-core.js',
-            'ffmpeg-core.wasm',
-        ]
-    },
-    'ffmpeg-core-mt': {
+    'ffmpeg': {
         sourceDir: path.join(__dirname, '../node_modules/.pnpm/@ffmpeg+core-mt@0.12.10/node_modules/@ffmpeg/core-mt/dist/umd'),
-        targetDir: path.join(__dirname, '../public/wasm-libs/ffmpeg/core-mt'),
+        targetDir: path.join(__dirname, '../public/wasm-libs/ffmpeg'),
         files: [
             'ffmpeg-core.js',
             'ffmpeg-core.wasm',

@@ -23,7 +23,7 @@ import { getMediaType, isValidMediaFile } from '@/utils/audioConverter';
 
 import { useFileSelection } from '@/hooks/audio-convert/useFileSelection';
 import { useUnifiedMediaAnalysis } from '@/hooks/audio-convert/useUnifiedMediaAnalysis';
-import { useFFmpegManager } from '../../hooks/useFFmpeg';
+// import { useFFmpegManager } from '../../hooks/useFFmpeg';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
@@ -101,26 +101,22 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   });
 
   // FFmpeg hooks - 直接使用，不复制到本地状态
-  const {
-    ffmpeg,
-    isMultiThread,
-    ffmpegLoaded,
-    ffmpegLoading,
-    ffmpegError,
-    initFFmpeg
-  } = useFFmpegManager();
+  // const {
+  //   ffmpeg,
+  //   isMultiThread,
+  //   ffmpegLoaded,
+  //   ffmpegLoading,
+  //   ffmpegError,
+  // } = useFFmpegManager();
 
   // 同步 FFmpeg 状态到 store（用于子组件访问）
   useEffect(() => {
-    console.log('[MediaProcessorView] 同步 FFmpeg 状态到 store:', { ffmpegLoaded, hasFFmpeg: !!ffmpeg });
-    useAppStore.setState({
-      ffmpeg: ffmpeg || null,
-      isMultiThread,
-      ffmpegLoaded,
-      ffmpegLoading,
-      ffmpegError: ffmpegError?.message || null
-    });
-  }, [ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError]);
+    // 初始化 FFmpeg
+    useAppStore.getState().initFFmpeg();
+  }, []);
+
+  // 从 store 获取状态
+  const { ffmpeg, isMultiThread, ffmpegLoaded, ffmpegLoading, ffmpegError } = useAppStore();
 
   // 文件选择hooks - 直接使用，不复制到本地状态
   const {

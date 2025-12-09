@@ -29,8 +29,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
     selectedFunction = searchParams?.get('function') || '';
   } else {
     // 路径参数格式 - 处理 [locale] 前缀
-    const pathParts = pathname.split('/').filter(Boolean); // 移除空字符串
-    // pathParts: ['zh', 'processor', 'audio', 'convert'] 或 ['en', 'media-processor']
+    const pathParts = pathname.split('/').filter(Boolean);
     const processorIndex = pathParts.findIndex(part => part === 'processor' || part === 'media-processor');
 
     if (processorIndex !== -1 && pathParts[processorIndex] === 'processor') {
@@ -43,21 +42,8 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
     }
   }
 
-  // 调试日志
-  console.log('[FunctionSelector] Debug:', {
-    pathname,
-    category,
-    selectedFunction,
-    searchParams: searchParams?.toString()
-  });
-
   const availableFunctions = getFunctionsByCategory(category as ProcessorCategory);
   const currentFunction = getFunctionById(selectedFunction);
-
-  console.log('[FunctionSelector] Functions:', {
-    availableFunctions: availableFunctions.map(f => ({ id: f.id, label: f.label })),
-    currentFunction: currentFunction ? { id: currentFunction.id, label: currentFunction.label } : null
-  });
 
   const handleFunctionChange = (functionId: string) => {
     // 提取当前语言前缀

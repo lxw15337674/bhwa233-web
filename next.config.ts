@@ -13,32 +13,14 @@ const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Turbopack 配置（Next.js 16 默认使用 Turbopack）
   turbopack: {},
   webpack: (config, { isServer }) => {
-    // FFmpeg.wasm 配置
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      path: false,
-      crypto: false,
-    };
-
-    // 禁用动态导入的解析以避免 import.meta.url 问题
-    config.module.rules.push({
-      test: /\.m?js$/,
-      resolve: {
-        fullySpecified: false,
-      },
-    });
 
     // 处理 WASM 文件
     config.module.rules.push({
       test: /\.wasm$/,
       type: 'asset/resource',
     });
-
-
     return config;
   },
   images: {
@@ -127,115 +109,15 @@ const nextConfig: NextConfig = withSerwist({
   // 添加 COEP/COOP 头以支持 SharedArrayBuffer（wasm-vips 需要）
   headers: async () => {
     return [
-      // 带语言前缀的路由
+      // WASM 库静态文件需要额外的 CORP 头（包括 wasm-vips 和 ffmpeg）
       {
-        source: '/:locale/processor/image/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/processor/image',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/processor/batchimage',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/processor/batchimage/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/processor/editor',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/processor/editor/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/media-processor',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/:locale/media-processor/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      // 旧路由（兼容性）
-      {
-        source: '/processor/image/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/processor/image',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/media-processor',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/media-processor/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/processor/batchimage',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      {
-        source: '/processor/batchimage/:path*',
-        headers: [
-          { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-        ],
-      },
-      // WASM 库静态文件需要 COEP 头（包括 wasm-vips 和 ffmpeg）
-      {
-        source: '/wasm-libs/:path*',
+        source: '/:path*',
         headers: [
           { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
           { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
         ],
-      },
+      }
     ];
   },
 });

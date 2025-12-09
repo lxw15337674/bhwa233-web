@@ -176,12 +176,11 @@ async function loadVips(): Promise<VipsInstance> {
     const baseUrl = getBaseUrl();
 
     vipsLoading = (async () => {
-        // 动态导入 wasm-vips - 使用完整 URL
-        const Vips = (await import(/* webpackIgnore: true */ `${baseUrl}/wasm-vips/vips-es6.js`)).default;
+        const Vips = (await import(/* webpackIgnore: true */ `${baseUrl}/wasm-libs/vips/vips-es6.js`)).default;
 
         const vips = await Vips({
             dynamicLibraries: [],
-            locateFile: (fileName: string) => `${baseUrl}/wasm-vips/${fileName}`,
+            locateFile: (fileName: string) => `${baseUrl}/wasm-libs/vips/${fileName}`,
         });
 
         vipsInstance = vips as VipsInstance;
