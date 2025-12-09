@@ -97,14 +97,9 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     ffmpeg,
     isMultiThread,
     ffmpegLoaded,
-    ffmpegLoading,
-    ffmpegError,
   } = useFFmpegManager();
 
-  // 移除了原来的 useEffect(() => { useAppStore.getState().initFFmpeg(); }, []);
-  // 因为 useFFmpegManager 内部已经处理了 FFmpeg 的加载逻辑
 
-  // 文件选择hooks - 直接使用，不复制到本地状态
   const {
     selectedFile,
     dragOver,
@@ -127,48 +122,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   // 播放状态
   const [isPlaying, setIsPlaying] = React.useState(false);
 
-  // 监听 URL 参数变化，同步功能切换
-  useEffect(() => {
-    const urlFunc = searchParams?.get('function');
-    const urlCat = searchParams?.get('category') as ProcessorCategory;
-
-    if (urlFunc && urlFunc !== state.currentFunction) {
-      console.log('[MediaProcessorView] 检测到功能切换:', state.currentFunction, '->', urlFunc);
-
-      // 更新当前功能
-      setState({ currentFunction: urlFunc });
-
-      // 验证已上传文件是否与新功能兼容
-      if (selectedFile) {
-        const newFunction = getFunctionById(urlFunc);
-        if (newFunction && !newFunction.fileValidator(selectedFile)) {
-          console.log('[MediaProcessorView] 文件类型不兼容，清空文件');
-          clearFile();
-          // 内联重置处理状态
-          setState({
-            isProcessing: false,
-            processingState: {
-              isProcessing: false,
-              progress: 0,
-              currentStep: '',
-              error: null,
-              outputFile: null,
-              outputFileName: '',
-              remainingTime: null
-            }
-          });
-        } else {
-          console.log('[MediaProcessorView] 文件类型兼容，保留文件');
-        }
-      }
-    }
-
-    // 同步 category 变化
-    if (urlCat && urlCat !== state.category) {
-      setState({ category: urlCat });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
 
   // 使用 useClipboardPaste Hook (只选择第一个图片)
   const { handlePaste } = useClipboardPaste({
@@ -205,13 +158,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
     }
   });
 
-  // 功能切换处理（已废弃 - 现在由 FunctionSelector 直接 router.push + useEffect 监听）
-  // 保留此函数以防某些地方还在调用，但实际逻辑已移到 useEffect
-  const handleFunctionChange = useMemoizedFn((functionId: string) => {
-    // FunctionSelector 会调用 router.push 更新 URL
-    // useEffect 会监听 searchParams 变化并同步 state
-    console.log('[MediaProcessorView] handleFunctionChange 被调用，但实际由 useEffect 处理:', functionId);
-  });
 
   // 文件选择处理
   const handleFileSelect = useMemoizedFn((file: File) => {
@@ -309,7 +255,6 @@ export const MediaProcessorView: React.FC<MediaProcessorViewProps> = ({
   const outputMediaType = 'audio' as const;
   const isBatchMode = state.category === 'batch';
   const showAudioBatchUI = state.category !== 'image' && state.category !== 'editor';
-  console.log('test')
   return (
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8">{/* 移除 max-w-6xl 以匹配 image 页面 */}
