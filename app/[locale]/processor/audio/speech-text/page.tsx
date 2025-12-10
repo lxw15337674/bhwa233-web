@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
@@ -12,6 +12,7 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
 import { useAppStore } from '@/stores/media-processor/app-store'; // Import useAppStore for reset
 import { ProcessingState } from '@/types/media-processor'; // Import ProcessingState
+import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
 export default function SpeechToTextPage() {
   const { t } = useTranslation();
@@ -59,6 +60,7 @@ export default function SpeechToTextPage() {
   // 右侧内容
   const rightColumn = (
     <>
+      <FunctionSelector />
       <SpeechToTextControlPanel />
 
       {(isProcessingSpeech || progressSpeech > 0 || errorSpeech) && (

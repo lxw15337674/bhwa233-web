@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
@@ -16,6 +16,7 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg'; // Still needed for FFmpeg
 // import { useClipboardPaste } from '@/hooks/useClipboardPaste'; // Now handled internally by UnifiedFileUploadArea
 
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
 export default function AudioConvertPage() {
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ export default function AudioConvertPage() {
   // 右侧内容：控制面板 + 进度 + 预览
   const rightColumn = (
     <>
+      <FunctionSelector />
       <AudioConvertControlPanel />
       <UnifiedProgressDisplay />
       <UnifiedOutputPreview mediaType="audio" />

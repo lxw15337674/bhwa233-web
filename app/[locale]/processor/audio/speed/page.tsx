@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
@@ -11,6 +11,7 @@ import { AudioSpeedControlPanel } from '@/components/media-processor/control-pan
 
 import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
 export default function AudioSpeedPage() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ export default function AudioSpeedPage() {
 
   const rightColumn = (
     <>
+      <FunctionSelector />
       <AudioSpeedControlPanel />
       <UnifiedProgressDisplay />
       <UnifiedOutputPreview mediaType="audio" />
