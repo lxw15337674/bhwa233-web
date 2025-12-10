@@ -83,7 +83,7 @@ export const Categories: CategoryItem[] = [
         name: '批量处理',
         translationKey: 'navigation.menuItems.batchProcess',
         descriptionKey: 'navigation.menuItems.batchProcessDesc',
-        url: '/processor/batchimage',
+        url: '/processor/batch/image',
         icon: Settings,
         description: '批量压缩、格式转换，高效处理多张图片'
       }
@@ -99,7 +99,7 @@ export const Categories: CategoryItem[] = [
         name: '音频格式转换',
         translationKey: 'navigation.menuItems.audioFormatConvert',
         descriptionKey: 'navigation.menuItems.audioFormatConvertDesc',
-        url: '/media-processor?category=audio&function=audio-convert',
+        url: '/processor/audio/convert',
         icon: AudioLines,
         description: '将音频文件转换为不同的格式和质量，支持多种音频格式'
       },
@@ -107,7 +107,7 @@ export const Categories: CategoryItem[] = [
         name: '音频倍速调整',
         translationKey: 'navigation.menuItems.audioSpeedChange',
         descriptionKey: 'navigation.menuItems.audioSpeedChangeDesc',
-        url: '/media-processor?category=audio&function=audio-speed-change',
+        url: '/processor/audio/speed',
         icon: Music,
         description: '调整音频的播放速度，同时保持音调不变'
       },
@@ -115,7 +115,7 @@ export const Categories: CategoryItem[] = [
         name: '语音转文字',
         translationKey: 'navigation.menuItems.speechToText',
         descriptionKey: 'navigation.menuItems.speechToTextDesc',
-        url: '/media-processor?category=audio&function=speech-to-text',
+        url: '/processor/audio/speech-text',
         icon: Mic,
         description: '将音频文件转换为文字，支持自动语言检测'
       }

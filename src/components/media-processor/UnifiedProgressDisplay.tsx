@@ -4,18 +4,25 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
-import { ProcessingState } from '@/types/media-processor';
+import { useAppStore } from '@/stores/media-processor/app-store';
+import { ProcessingState } from '@/types/media-processor'; // Import ProcessingState
 
 interface UnifiedProgressDisplayProps {
-    processingState: ProcessingState;
+    // Make processingState optional. If not provided, it will read from useAppStore.
+    processingState?: ProcessingState; 
 }
 
 export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
-    processingState,
+    processingState: propProcessingState, // Renamed to avoid conflict
 }) => {
-    const { isProcessing, progress, currentStep, error, remainingTime } = processingState;
+    // If prop is provided, use it. Otherwise, use from AppStore.
+    const { processingState: appStoreProcessingState } = useAppStore();
+    const currentProcessingState = propProcessingState || appStoreProcessingState;
 
-    if (!isProcessing && progress === 0) {
+    const { isProcessing, progress, currentStep, error, remainingTime } = currentProcessingState;
+
+    // Only show if there's an active process or a result/error to display
+    if (!isProcessing && progress === 0 && !error) {
         return null;
     }
 
@@ -56,7 +63,12 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                         )}
                     </div>
                 )}
+                {error && (
+                    <div className="text-sm text-destructive">
+                        {error}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
-}; 
+};

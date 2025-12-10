@@ -1,28 +1,32 @@
 'use client';
 import React from 'react';
-import { ControlPanelProps } from '@/types/media-processor';
+// import { ControlPanelProps } from '@/types/media-processor'; // No longer needed
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '../../ui/textarea';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
+import { useFFmpegStore } from '@/stores/ffmpeg-store'; // To get ffmpegLoaded status
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
 
-export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => {
+export const SpeechToTextControlPanel: React.FC = () => { // No props received
   const { t } = useTranslation();
-  // 从 app store 获取数据
-  const inputAudio = useAppStore(state => state.inputAudio);
+  
+  // 从 app store 获取数据和 actions
+  const selectedFile = useAppStore(state => state.selectedFile);
+  const analyzeError = useAppStore(state => state.analyzeError);
+  const analyzeMedia = useAppStore(state => state.analyzeMedia);
 
-  // 优先使用 props，否则使用 store 的数据
-  const selectedFile = props.selectedFile ?? inputAudio;
+  // 从 ffmpeg store 获取数据 (用于分析的加载状态)
+  const { isLoaded: ffmpegLoaded } = useFFmpegStore();
 
   // 从 speech-to-text store 获取状态和方法
   const isProcessing = useSpeechToTextStore(state => state.isProcessing);
   const progress = useSpeechToTextStore(state => state.progress);
   const currentStep = useSpeechToTextStore(state => state.currentStep);
-  const error = useSpeechToTextStore(state => state.error);
+  const error = useSpeechToTextStore(state => state.error); // Error specific to transcription
   const result = useSpeechToTextStore(state => state.result);
   const outputFileName = useSpeechToTextStore(state => state.outputFileName);
   const startTranscription = useSpeechToTextStore(state => state.startTranscription);
@@ -56,6 +60,12 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
     }
   };
 
+  const onRetryAnalysis = () => {
+    if (selectedFile) {
+      analyzeMedia(selectedFile);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* 操作按钮 */}
@@ -64,7 +74,7 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
           <div className="flex gap-2">
             <Button
               onClick={handleStartTranscription}
-              disabled={!selectedFile || isProcessing}
+              disabled={!selectedFile || isProcessing || !ffmpegLoaded} // Disable if FFmpeg not loaded for analysis
               className="flex-1"
               size="lg"
             >
@@ -125,7 +135,24 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
         </Card>
       )}
 
-      {/* 错误提示 */}
+      {/* 分析错误提示 (来自 AppStore) */}
+      {analyzeError && (
+        <Alert variant="destructive">
+          <AlertDescription>{analyzeError}</AlertDescription>
+          {ffmpegLoaded && selectedFile && (
+            <Button
+              onClick={onRetryAnalysis}
+              variant="outline"
+              size="sm"
+              className="mt-2"
+            >
+              {t('audioControlPanels.speed.retry')}
+            </Button>
+          )}
+        </Alert>
+      )}
+
+      {/* 识别错误提示 (来自 SpeechToTextStore) */}
       {error && (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
@@ -133,4 +160,4 @@ export const SpeechToTextControlPanel: React.FC<ControlPanelProps> = (props) => 
       )}
     </div>
   );
-}; 
+};

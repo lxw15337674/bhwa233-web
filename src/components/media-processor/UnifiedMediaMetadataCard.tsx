@@ -5,25 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, FileVideo, FileAudio, AlertTriangle } from 'lucide-react';
-import { MediaMetadata, formatDuration, formatResolution, formatChannelLayout } from '@/utils/audioConverter';
+import { formatDuration, formatResolution, formatChannelLayout } from '@/utils/audioConverter';
+import { useAppStore } from '@/stores/media-processor/app-store';
+import { useFFmpegStore } from '@/stores/ffmpeg-store';
 
-interface UnifiedMediaMetadataCardProps {
-  selectedFile: File | null;
-  mediaMetadata: MediaMetadata | null;
-  isAnalyzing: boolean;
-  analyzeError: string | null;
-  ffmpegLoaded: boolean;
-  onRetryAnalysis?: () => void;
-}
+export const UnifiedMediaMetadataCard: React.FC = () => {
+  const { 
+    selectedFile, 
+    mediaMetadata, 
+    isAnalyzing, 
+    analyzeError,
+    analyzeMedia
+  } = useAppStore();
 
-export const UnifiedMediaMetadataCard: React.FC<UnifiedMediaMetadataCardProps> = ({
-  selectedFile,
-  mediaMetadata,
-  isAnalyzing,
-  analyzeError,
-  ffmpegLoaded,
-  onRetryAnalysis
-}) => {
+  const { isLoaded: ffmpegLoaded } = useFFmpegStore();
+
   if (!selectedFile) {
     return null;
   }
@@ -34,6 +30,12 @@ export const UnifiedMediaMetadataCard: React.FC<UnifiedMediaMetadataCardProps> =
       return `${mb.toFixed(1)} MB`;
     } else {
       return `${(bytes / 1024).toFixed(0)} KB`;
+    }
+  };
+
+  const onRetryAnalysis = () => {
+    if (selectedFile) {
+      analyzeMedia(selectedFile);
     }
   };
 
@@ -91,7 +93,7 @@ export const UnifiedMediaMetadataCard: React.FC<UnifiedMediaMetadataCardProps> =
                 <div className="text-sm text-yellow-700 dark:text-yellow-300">
                   {analyzeError}
                 </div>
-                {onRetryAnalysis && ffmpegLoaded && (
+                {ffmpegLoaded && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -209,4 +211,4 @@ export const UnifiedMediaMetadataCard: React.FC<UnifiedMediaMetadataCardProps> =
       </CardContent>
     </Card>
   );
-}; 
+};

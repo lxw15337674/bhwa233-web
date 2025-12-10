@@ -18,45 +18,56 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
   const searchParams = useSearchParams();
 
   // 支持两种 URL 格式：
-  // 1. /[locale]/processor/{category}/{function}
-  // 2. /[locale]/media-processor?category={category}&function={function}
+  // 1. /[locale]/processor/{category}/{path} (新)
+  // 2. /[locale]/media-processor?category={category}&function={function} (旧 - 兼容)
   let category: string;
-  let selectedFunction: string;
+  let selectedFunctionId: string = '';
 
   if (pathname.includes('/media-processor')) {
-    // 查询参数格式
+    // 查询参数格式 (旧)
     category = searchParams?.get('category') || 'audio';
-    selectedFunction = searchParams?.get('function') || '';
+    selectedFunctionId = searchParams?.get('function') || '';
   } else {
-    // 路径参数格式 - 处理 [locale] 前缀
+    // 路径参数格式 (新)
     const pathParts = pathname.split('/').filter(Boolean);
-    const processorIndex = pathParts.findIndex(part => part === 'processor' || part === 'media-processor');
+    const processorIndex = pathParts.findIndex(part => part === 'processor');
 
-    if (processorIndex !== -1 && pathParts[processorIndex] === 'processor') {
+    if (processorIndex !== -1) {
       category = pathParts[processorIndex + 1] || 'audio';
-      selectedFunction = pathParts[processorIndex + 2] || '';
+      const path = pathParts[processorIndex + 2] || '';
+      
+      // 通过 category 和 path 查找对应的 function ID
+      const functions = getFunctionsByCategory(category as ProcessorCategory);
+      const func = functions.find(f => f.path === path || f.id === path); // 兼容 path 或 id
+      if (func) {
+        selectedFunctionId = func.id;
+      }
     } else {
-      // 回退到查询参数
-      category = searchParams?.get('category') || 'audio';
-      selectedFunction = searchParams?.get('function') || '';
+      // 默认回退
+      category = 'audio';
     }
   }
 
   const availableFunctions = getFunctionsByCategory(category as ProcessorCategory);
-  const currentFunction = getFunctionById(selectedFunction);
+  const currentFunction = getFunctionById(selectedFunctionId);
 
   const handleFunctionChange = (functionId: string) => {
     // 提取当前语言前缀
     const pathParts = pathname.split('/').filter(Boolean);
     const locale = pathParts[0] || 'en'; // 第一个部分是 locale
 
+    const targetFunc = getFunctionById(functionId);
+    if (!targetFunc) return;
+
     // 跳转到新功能的 url，保留 locale
     if (pathname.includes('/media-processor')) {
-      // 查询参数格式
+      // 查询参数格式 (旧 - 保持兼容，或者重定向到新格式？这里保持旧格式跳转)
       router.push(`/${locale}/media-processor?category=${category}&function=${functionId}`);
     } else {
-      // 路径参数格式
-      router.push(`/${locale}/processor/${category}/${functionId}`);
+      // 路径参数格式 (新)
+      // 优先使用 path，如果没有则使用 id
+      const pathSegment = targetFunc.path || targetFunc.id;
+      router.push(`/${locale}/processor/${category}/${pathSegment}`);
     }
   };
 
@@ -67,7 +78,7 @@ export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled }) 
       </label>
       <Select
         disabled={disabled}
-        value={selectedFunction}
+        value={selectedFunctionId}
         onValueChange={handleFunctionChange}
       >
         <SelectTrigger className="bg-background border-border">

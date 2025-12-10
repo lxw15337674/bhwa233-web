@@ -1,46 +1,72 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Play, Pause, FileAudio } from 'lucide-react';
+import { Download, Play, Pause, FileAudio, FileVideo, FileText } from 'lucide-react';
 import { downloadBlob } from '@/utils/audioConverter';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface UnifiedOutputPreviewProps {
-  outputFile: Blob | null;
-  outputFileName: string;
-  mediaType: 'audio';
-  isPlaying: boolean;
-  onPlay: () => void;
-  onPause: () => void;
-  onEnded: () => void;
-  mediaRef?: React.RefObject<HTMLAudioElement | null>;
+  mediaType: 'audio' | 'video' | 'text'; // 可以扩展到 video, text 等
 }
 
 export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
-  outputFile,
-  outputFileName,
-  mediaType,
-  isPlaying,
-  onPlay,
-  onPause,
-  onEnded,
-  mediaRef
+  mediaType
 }) => {
+  const { processingState } = useAppStore();
+  const { outputFile, outputFileName } = processingState;
+
+  const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // 当 outputFile 改变时，确保重置播放状态和 URL
+  useEffect(() => {
+    if (mediaRef.current) {
+      mediaRef.current.pause();
+      setIsPlaying(false);
+      if (outputFile) {
+        // Revoke previous URL if any
+        if (mediaRef.current.src) {
+          URL.revokeObjectURL(mediaRef.current.src);
+        }
+        mediaRef.current.src = URL.createObjectURL(outputFile);
+        mediaRef.current.load(); // Reload the media element
+      }
+    }
+    // Cleanup function to revoke URL when component unmounts or outputFile changes
+    return () => {
+      if (mediaRef.current && mediaRef.current.src) {
+        URL.revokeObjectURL(mediaRef.current.src);
+      }
+    };
+  }, [outputFile]);
+
+
   if (!outputFile) {
     return null;
   }
 
   const handleDownload = () => {
-    downloadBlob(outputFile, outputFileName);
+    if (outputFile && outputFileName) {
+      downloadBlob(outputFile, outputFileName);
+    }
   };
 
   const handlePlayPause = () => {
-    if (isPlaying) {
-      onPause();
-    } else {
-      onPlay();
+    if (mediaRef.current) {
+      if (isPlaying) {
+        mediaRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        mediaRef.current.play();
+        setIsPlaying(true);
+      }
     }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -52,12 +78,86 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
     }
   };
 
+  let IconComponent: React.ElementType;
+  let titleText: string;
+  let mediaElement: JSX.Element | null = null;
+
+  switch (mediaType) {
+    case 'audio':
+      IconComponent = FileAudio;
+      titleText = '输出音频';
+      mediaElement = (
+        <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePlayPause}
+            className="h-10 w-10"
+          >
+            {isPlaying ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+          </Button>
+          <div className="flex-1">
+            <div className="text-sm font-medium mb-1">
+              音频预览
+            </div>
+            <div className="text-xs text-muted-foreground">
+              点击播放按钮预听音频
+            </div>
+          </div>
+          <audio
+            ref={mediaRef as React.RefObject<HTMLAudioElement>}
+            onEnded={handleEnded}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            className="hidden" // Keep it hidden, control via buttons
+            controls // For browser default controls if needed for debugging
+          />
+        </div>
+      );
+      break;
+    case 'video':
+      IconComponent = FileVideo;
+      titleText = '输出视频';
+      mediaElement = (
+        <video
+          ref={mediaRef as React.RefObject<HTMLVideoElement>}
+          controls
+          onEnded={handleEnded}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          className="w-full max-h-[300px] bg-black rounded-lg"
+          src={outputFile ? URL.createObjectURL(outputFile) : undefined}
+        />
+      );
+      break;
+    case 'text':
+      IconComponent = FileText;
+      titleText = '输出文本';
+      mediaElement = (
+        <textarea
+          readOnly
+          value={outputFile ? new TextDecoder().decode(new Uint8Array(outputFile as any)) : ''}
+          className="w-full h-48 bg-muted/30 border border-border rounded-lg p-3 text-sm font-mono resize-y"
+        />
+      );
+      break;
+    default:
+      IconComponent = FileText; // Default to text icon
+      titleText = '输出文件';
+      break;
+  }
+
+
   return (
     <Card className="bg-card border-border">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          <FileAudio className="h-5 w-5 text-green-500" />
-          输出文件
+          <IconComponent className="h-5 w-5 text-primary" />
+          {titleText}
         </CardTitle>
       </CardHeader>
       
@@ -80,41 +180,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         </div>
 
         {/* 媒体预览 */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handlePlayPause}
-              className="h-10 w-10"
-            >
-              {isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-
-            <div className="flex-1">
-              <div className="text-sm font-medium mb-1">
-                音频预览
-              </div>
-              <div className="text-xs text-muted-foreground">
-                点击播放按钮预听音频
-              </div>
-            </div>
-
-            <audio
-              ref={mediaRef as React.RefObject<HTMLAudioElement>}
-              src={URL.createObjectURL(outputFile)}
-              onEnded={onEnded}
-              onPlay={onPlay}
-              onPause={onPause}
-              className="hidden"
-              controls
-            />
-          </div>
-        </div>
+        {mediaElement}
 
         {/* 下载按钮 */}
         <Button
@@ -128,4 +194,4 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

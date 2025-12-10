@@ -19,46 +19,32 @@ import {
   SUPPORTED_AUDIO_FORMATS,
   getFileExtension
 } from '@/utils/audioConverter';
-import { ControlPanelProps } from '@/types/media-processor';
-import { useMediaProcessing } from '@/hooks/useMediaProcessing';
+// import { ControlPanelProps } from '@/types/media-processor'; // No longer needed
+// import { useMediaProcessing } from '@/hooks/useMediaProcessing'; // No longer needed
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { useFFmpegStore } from '@/stores/ffmpeg-store';
 
-interface AudioConvertParams {
-  outputFormat: AudioFormat;
-  qualityMode: QualityMode;
-}
-
-export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => {
+export const AudioConvertControlPanel: React.FC = () => { // No props received
   const { t } = useTranslation();
-  // 从 app store 获取数据
-  const inputAudio = useAppStore(state => state.inputAudio);
+  
+  // 从 app store 获取数据和 actions
+  const selectedFile = useAppStore(state => state.selectedFile);
   const mediaMetadata = useAppStore(state => state.mediaMetadata);
   const audioInfo = useAppStore(state => state.audioInfo);
-  const ffmpeg = useAppStore(state => state.ffmpeg);
-  const isMultiThread = useAppStore(state => state.isMultiThread);
-  const ffmpegLoaded = useAppStore(state => state.ffmpegLoaded);
   const isAnalyzing = useAppStore(state => state.isAnalyzing);
   const analyzeError = useAppStore(state => state.analyzeError);
+  const processingState = useAppStore(state => state.processingState);
+  const startProcessing = useAppStore(state => state.startProcessing);
+  const finishProcessing = useAppStore(state => state.finishProcessing);
+  const setProcessingError = useAppStore(state => state.setProcessingError);
+  const updateProcessingState = useAppStore(state => state.updateProcessingState);
+  const resetAppStore = useAppStore(state => state.reset); // Reset the whole app store for a fresh start
 
-  // 优先使用 props，否则使用 store 的数据
-  const selectedFile = props.selectedFile ?? inputAudio;
+  // 从 ffmpeg store 获取数据
+  const { ffmpeg, isMultiThread, isLoaded: ffmpegLoaded } = useFFmpegStore();
 
   const [outputFormat, setOutputFormat] = React.useState<AudioFormat>('mp3');
   const [qualityMode, setQualityMode] = React.useState<QualityMode>('original');
-
-  const {
-    processingState,
-    startProcessing,
-    finishProcessing,
-    setError,
-    updateProgress,
-    resetState
-  } = useMediaProcessing();
-
-  // 通知主容器状态变化
-  React.useEffect(() => {
-    props.onStateChange?.(processingState);
-  }, [processingState, props.onStateChange]);
 
   // 文件大小预估
   const sizeEstimate = audioInfo ? calculateFileSize(
@@ -90,8 +76,8 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
     if (!selectedFile || !ffmpeg || !canStartProcessing) return;
 
     try {
-      startProcessing();
-
+      startProcessing(); // 启动处理状态
+      
       const outputFileName = `${selectedFile.name.replace(/\.[^/.]+$/, '')}.${AUDIO_FORMATS[outputFormat].ext}`;
 
       const outputBlob = await convertAudio(
@@ -102,14 +88,13 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
         isMultiThread,
         audioInfo,
         mediaMetadata?.audio?.codec,
-        updateProgress
+        (progress, step, remainingTime) => updateProcessingState({ progress, currentStep: step, remainingTime }) // 更新进度回调
       );
 
-      finishProcessing(outputBlob, outputFileName);
-      props.onOutputReady?.(outputBlob, outputFileName);
+      finishProcessing(outputBlob, outputFileName); // 完成处理状态
     } catch (error) {
       console.error('Audio conversion failed:', error);
-      setError(error instanceof Error ? error.message : t('audioControlPanels.convert.conversionFailed'));
+      setProcessingError(error instanceof Error ? error.message : t('audioControlPanels.convert.conversionFailed'));
     }
   };
 
@@ -120,11 +105,10 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
     }
   };
 
-  // 重新开始
+  // 重新开始 (重置整个 Store)
   const handleRestart = () => {
-    resetState();
+    resetAppStore();
   };
-
   return (
     <div className="space-y-4">
       <Card className="bg-card border-border">
@@ -316,5 +300,3 @@ export const AudioConvertControlPanel: React.FC<ControlPanelProps> = (props) => 
     </div>
   );
 };
-
-export default AudioConvertControlPanel; 

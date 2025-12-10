@@ -21,42 +21,33 @@ import {
     SUPPORTED_AUDIO_FORMATS,
     getFileExtension
 } from '@/utils/audioConverter';
-import { ControlPanelProps } from '@/types/media-processor';
-import { useMediaProcessing } from '@/hooks/useMediaProcessing';
+// import { ControlPanelProps } from '@/types/media-processor'; // No longer needed
+// import { useMediaProcessing } from '@/hooks/useMediaProcessing'; // No longer needed
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { useFFmpegStore } from '@/stores/ffmpeg-store';
 
-export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
+export const AudioSpeedControlPanel: React.FC = () => { // No props received
     const { t } = useTranslation();
-    // 从 app store 获取数据
-    const inputAudio = useAppStore(state => state.inputAudio);
+    
+    // 从 app store 获取数据和 actions
+    const selectedFile = useAppStore(state => state.selectedFile);
     const mediaMetadata = useAppStore(state => state.mediaMetadata);
     const audioInfo = useAppStore(state => state.audioInfo);
-    const ffmpeg = useAppStore(state => state.ffmpeg);
-    const isMultiThread = useAppStore(state => state.isMultiThread);
-    const ffmpegLoaded = useAppStore(state => state.ffmpegLoaded);
     const isAnalyzing = useAppStore(state => state.isAnalyzing);
     const analyzeError = useAppStore(state => state.analyzeError);
+    const processingState = useAppStore(state => state.processingState);
+    const startProcessing = useAppStore(state => state.startProcessing);
+    const finishProcessing = useAppStore(state => state.finishProcessing);
+    const setProcessingError = useAppStore(state => state.setProcessingError);
+    const updateProcessingState = useAppStore(state => state.updateProcessingState);
+    const resetAppStore = useAppStore(state => state.reset); // Reset the whole app store for a fresh start
 
-    // 优先使用 props，否则使用 store 的数据
-    const selectedFile = props.selectedFile ?? inputAudio;
+    // 从 ffmpeg store 获取数据
+    const { ffmpeg, isMultiThread, isLoaded: ffmpegLoaded } = useFFmpegStore();
 
     const [speed, setSpeed] = React.useState<number>(1.0);
     const [preservePitch, setPreservePitch] = React.useState<boolean>(true);
     const [selectedPreset, setSelectedPreset] = React.useState<AudioSpeedPreset>('1.0');
-
-    const {
-        processingState,
-        startProcessing,
-        finishProcessing,
-        setError,
-        updateProgress,
-        resetState
-    } = useMediaProcessing();
-
-    // 通知主容器状态变化
-    React.useEffect(() => {
-        props.onStateChange?.(processingState);
-    }, [processingState, props.onStateChange]);
 
     // 文件大小预估
     const sizeEstimate = audioInfo ? calculateSpeedFileSize(
@@ -95,7 +86,7 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
         if (!selectedFile || !ffmpeg || !canStartProcessing) return;
 
         try {
-            startProcessing();
+            startProcessing(); // 启动处理状态
 
             const params: AudioSpeedParams = {
                 speed,
@@ -108,16 +99,15 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                 params,
                 isMultiThread,
                 audioInfo,
-                updateProgress
+                (progress, step, remainingTime) => updateProcessingState({ progress, currentStep: step, remainingTime }) // 更新进度回调
             );
 
             const outputFileName = `${selectedFile.name.replace(/\.[^/.]+$/, '')}_speed_${speed}x.mp3`;
 
-            finishProcessing(result.outputFile, outputFileName);
-            props.onOutputReady?.(result.outputFile, outputFileName);
+            finishProcessing(result.outputFile, outputFileName); // 完成处理状态
         } catch (error) {
             console.error('Audio speed adjustment failed:', error);
-            setError(error instanceof Error ? error.message : t('audioControlPanels.speed.adjustFailed'));
+            setProcessingError(error instanceof Error ? error.message : t('audioControlPanels.speed.adjustFailed'));
         }
     };
 
@@ -128,9 +118,9 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
         }
     };
 
-    // 重新开始
+    // 重新开始 (重置整个 Store)
     const handleRestart = () => {
-        resetState();
+        resetAppStore();
     };
 
     return (
@@ -332,7 +322,8 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
                                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
                                     {analyzeError}
                                     <Button
-                                        onClick={props.onRetryAnalysis}
+                                        // onClick={props.onRetryAnalysis} // props.onRetryAnalysis is no longer passed
+                                        onClick={() => { if (selectedFile) get().analyzeMedia(selectedFile); }}
                                         variant="outline"
                                         size="sm"
                                         className="mt-1"
@@ -347,4 +338,4 @@ export const AudioSpeedControlPanel: React.FC<ControlPanelProps> = (props) => {
             </Card>
         </div>
     );
-}; 
+};

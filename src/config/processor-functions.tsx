@@ -22,6 +22,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
 // 音频功能
     {
         id: 'audio-convert',
+        path: 'convert',
         label: '音频格式转换',
         labelKey: 'mediaProcessor.functions.audioConvert.label',
         category: 'audio',
@@ -34,6 +35,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     },
     {
         id: 'audio-speed-change',
+        path: 'speed',
         label: '音频倍速调整',
         labelKey: 'mediaProcessor.functions.audioSpeedChange.label',
         category: 'audio',
@@ -46,6 +48,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     },
     {
         id: 'speech-to-text',
+        path: 'speech-text',
         label: '语音转文字',
         labelKey: 'mediaProcessor.functions.speechToText.label',
         category: 'audio',
@@ -59,6 +62,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
     // 批量处理
     {
         id: 'image-batch',
+        path: 'image',
         label: '批量图片处理',
         labelKey: 'mediaProcessor.functions.imageBatch.label',
         category: 'batch',

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, X, FileAudio, ImageIcon, Film, Clipboard } from 'lucide-react';
@@ -8,38 +8,72 @@ import { cn } from '@/lib/utils';
 import { ProcessorCategory } from '@/types/media-processor';
 import { SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
 import { useTranslation } from '@/components/TranslationProvider';
+import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface UnifiedFileUploadAreaProps {
-    selectedFile: File | null;
     category: ProcessorCategory;
-    dragOver: boolean;
-    onFileSelect: (file: File) => void;
-    onReset: () => void;
-    onDragEnter: (e: React.DragEvent) => void;
-    onDragLeave: (e: React.DragEvent) => void;
-    onDrop: (e: React.DragEvent) => void;
-    onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    fileInputRef: React.RefObject<HTMLInputElement | null>;
-    disabled?: boolean;
-    onPasteFromClipboard?: () => void;
 }
 
 export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
-    selectedFile,
-    category,
-    dragOver,
-    onFileSelect,
-    onReset,
-    onDragEnter,
-    onDragLeave,
-    onDrop,
-    onFileInputChange,
-    fileInputRef,
-    disabled = false,
-    onPasteFromClipboard
+    category
 }) => {
     const { t } = useTranslation();
-    
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const { 
+        selectedFile, 
+        dragOver, 
+        setSelectedFile, 
+        setDragOver, 
+        processingState 
+    } = useAppStore();
+
+    const isProcessing = processingState.isProcessing;
+
+    // 处理文件选择
+    const handleFileSelect = (file: File) => {
+        // 简单的验证逻辑，可以在这里或 Store 中增强
+        const { supportedFormats } = getConfig();
+        const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+        // 简单的扩展名检查
+        if (supportedFormats.some(fmt => ext.endsWith(fmt)) || file.type.startsWith(category + '/')) {
+             setSelectedFile(file);
+        } else {
+            alert(t('fileUpload.unsupportedFormat') || 'Unsupported format');
+        }
+    };
+
+    const onDragEnter = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isProcessing) setDragOver(true);
+    };
+
+    const onDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+    };
+
+    const onDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+        if (isProcessing) return;
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleFileSelect(files[0]);
+        }
+    };
+
+    const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            handleFileSelect(files[0]);
+        }
+    };
+
     // 根据分类配置上传参数
     const getConfig = () => {
         switch (category) {
@@ -53,13 +87,12 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                 };
             case 'audio':
                 return {
-                    supportedFormats: SUPPORTED_AUDIO_FORMATS,
+                    supportedFormats: SUPPORTED_AUDIO_FORMATS.map(f => '.' + f),
                     acceptTypes: 'audio/*',
                     Icon: FileAudio,
                     text: t('fileUpload.selectAudioFile')
                 };
             default:
-                // 默认为通用或根据需求调整
                 return {
                     supportedFormats: ['.jpg', '.png', '.mp3', '.wav', '.mp4'],
                     acceptTypes: 'image/*,audio/*,video/*',
@@ -90,13 +123,13 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                             dragOver
                                 ? "border-primary bg-primary/10"
                                 : "border-border hover:border-muted-foreground hover:bg-accent/50",
-                            disabled && "opacity-50 cursor-not-allowed"
+                            isProcessing && "opacity-50 cursor-not-allowed"
                         )}
                         onDragOver={(e) => e.preventDefault()}
                         onDragEnter={onDragEnter}
                         onDragLeave={onDragLeave}
                         onDrop={onDrop}
-                        onClick={() => !disabled && fileInputRef.current?.click()}
+                        onClick={() => !isProcessing && fileInputRef.current?.click()}
                     >
                         <input
                             ref={fileInputRef}
@@ -104,7 +137,7 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                             accept={acceptTypes}
                             onChange={onFileInputChange}
                             className="hidden"
-                            disabled={disabled}
+                            disabled={isProcessing}
                         />
 
                         <div className="space-y-4">
@@ -125,26 +158,11 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                 <Button
                                     variant="outline"
                                     className="mb-4"
-                                    disabled={disabled}
+                                    disabled={isProcessing}
                                 >
                                     <Upload className="w-4 h-4 mr-2" />
                                     {t('fileUpload.selectFile')}
                                 </Button>
-
-                                {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
-                                    <Button
-                                        variant="outline"
-                                        className="mb-4 ml-2"
-                                        disabled={disabled}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onPasteFromClipboard();
-                                        }}
-                                    >
-                                        <Clipboard className="w-4 h-4 mr-2" />
-                                        {t('fileUpload.pasteImage')}
-                                    </Button>
-                                )}
 
                                 <div className="text-xs text-muted-foreground">
                                     <p className="mb-1">{t('fileUpload.supportedFormats')}</p>
@@ -162,8 +180,8 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                             <Button
                                 variant="outline"
                                 size="icon"
-                                onClick={onReset}
-                                disabled={disabled}
+                                onClick={() => setSelectedFile(null)}
+                                disabled={isProcessing}
                                 className="h-8 w-8"
                             >
                                 <X className="h-4 w-4" />
@@ -190,21 +208,10 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                         variant="outline"
                                         size="sm"
                                         onClick={() => fileInputRef.current?.click()}
-                                        disabled={disabled}
+                                        disabled={isProcessing}
                                     >
                                         {t('fileUpload.changeFile')}
                                     </Button>
-                                        {(category === 'image' || category === 'editor') && onPasteFromClipboard && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={onPasteFromClipboard}
-                                                disabled={disabled}
-                                            >
-                                                <Clipboard className="w-3 h-3 mr-1" />
-                                                {t('fileUpload.paste')}
-                                            </Button>
-                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -215,11 +222,11 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                                 accept={acceptTypes}
                                 onChange={onFileInputChange}
                                 className="hidden"
-                                disabled={disabled}
+                                disabled={isProcessing}
                             />
                     </div>
                 )}
             </CardContent>
         </Card>
     );
-}; 
+};
