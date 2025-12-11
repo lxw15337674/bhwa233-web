@@ -99,6 +99,10 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     };
     const scaledDimensions = getScaledDimensions();
 
+    const isPresetActive = (w: number, h: number) => {
+        return currentWidth === w && currentHeight === h;
+    };
+
     return (
         <div className="space-y-3">
             <Label>{t('imageProcessor.resize')}</Label>
@@ -184,14 +188,26 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                         <Label>{t('imageProcessor.originalSize')}</Label>
                         <div className="flex flex-wrap gap-2">
                             {inputMetadata && (
-                                <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
+                                <Button
+                                    variant={isPresetActive(inputMetadata.width, inputMetadata.height) ? "secondary" : "outline"}
+                                    size="sm"
+                                    onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}
+                                >
                                     {t('imageProcessor.originalSize')}
                                 </Button>
                             )}
-                            <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>
+                            <Button
+                                variant={isPresetActive(1920, 1080) ? "secondary" : "outline"}
+                                size="sm"
+                                onClick={() => applyPreset(1920, 1080)}
+                            >
                                 1920x1080 (FHD)
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => applyPreset(1280, 720)}>
+                            <Button
+                                variant={isPresetActive(1280, 720) ? "secondary" : "outline"}
+                                size="sm"
+                                onClick={() => applyPreset(1280, 720)}
+                            >
                                 1280x720 (HD)
                             </Button>
                         </div>

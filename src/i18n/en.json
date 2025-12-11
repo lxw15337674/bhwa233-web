@@ -181,6 +181,7 @@
         "rotation": "Rotation",
         "rotateCCW": "Rotate 90° Counterclockwise",
         "rotateCW": "Rotate 90° Clockwise",
+        "rotate180": "Rotate 180°",
         "currentRotation": "Current: Rotated {{degrees}}°",
         "otherOptions": "Other Options",
         "stripExif": "Remove EXIF Data",
@@ -202,7 +203,8 @@
         "height": "Height",
         "keepAspectRatio": "Keep Aspect Ratio",
         "finalSize": "Final Size",
-        "willBe": "will be"
+        "willBe": "will be",
+        "presetSizes": "Preset Sizes"
     },
     "batchImageProcessor": {
         "title": "Batch Image Processor",

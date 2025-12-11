@@ -182,6 +182,7 @@
         "rotation": "旋转",
         "rotateCCW": "逆时针旋转 90°",
         "rotateCW": "顺时针旋转 90°",
+        "rotate180": "旋转 180°",
         "currentRotation": "当前: 旋转 {{degrees}}°",
         "otherOptions": "其他选项",
         "stripExif": "去除 EXIF 信息",
@@ -203,7 +204,8 @@
         "height": "高度",
         "keepAspectRatio": "保持宽高比",
         "finalSize": "最终尺寸",
-        "willBe": "将为"
+        "willBe": "将为",
+        "presetSizes": "预设尺寸"
     },
     "batchImageProcessor": {
         "title": "图片批量处理器",
