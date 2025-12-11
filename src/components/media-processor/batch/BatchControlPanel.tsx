@@ -151,7 +151,6 @@ export const BatchControlPanel: React.FC = () => {
                     <ResizeControl
                         options={options}
                         updateOptions={updateOptions}
-                        defaultTabValue="fixed"
                     // No inputMetadata in batch mode
                     />
 

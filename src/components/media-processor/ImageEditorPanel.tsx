@@ -205,7 +205,6 @@ export const ImageEditorPanel: React.FC = () => {
                 options={options}
                 updateOptions={updateOptions}
                 inputMetadata={inputMetadata}
-                defaultTabValue="fixed"
             />
 
             {/* 旋转 */}

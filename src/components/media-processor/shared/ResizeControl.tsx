@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ImageMetadata, ImageProcessingOptions } from '@/utils/imageProcessor';
@@ -12,14 +10,12 @@ interface ResizeControlProps {
     options: ImageProcessingOptions;
     updateOptions: (options: Partial<ImageProcessingOptions>) => void;
     inputMetadata?: ImageMetadata | null; // Optional for batch mode
-    defaultTabValue?: "percentage" | "fixed"; // New prop
 }
 
 export const ResizeControl: React.FC<ResizeControlProps> = ({
     options,
     updateOptions,
     inputMetadata,
-    defaultTabValue = "percentage", // Use the new prop with a default
 }) => {
     const { t } = useTranslation();
     const [currentWidth, setCurrentWidth] = useState(0);
@@ -88,120 +84,69 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
         updateOptions({ targetWidth: width, targetHeight: height, keepAspectRatio: keepAspectRatioState });
     }, [keepAspectRatioState, updateOptions]);
 
-    // Calculate scaled dimensions for display (only works if metadata available)
-    const getScaledDimensions = () => {
-        if (!inputMetadata) return { width: 0, height: 0 };
-        const isRotated = options.rotation === 90 || options.rotation === 270;
-        const baseWidth = isRotated ? inputMetadata.height : inputMetadata.width;
-        const baseHeight = isRotated ? inputMetadata.width : inputMetadata.height;
-        return {
-            width: Math.round(baseWidth * options.scale),
-            height: Math.round(baseHeight * options.scale),
-        };
-    };
-    const scaledDimensions = getScaledDimensions();
-
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
             <Label>{t('imageProcessor.resize')}</Label>
-            <Tabs defaultValue={defaultTabValue} className="w-full" onValueChange={(value) => {
-                if (value === 'percentage') {
-                    updateOptions({ targetWidth: null, targetHeight: null });
-                } else {
-                    updateOptions({ scale: 1 });
-                    if (inputMetadata) {
-                        setCurrentWidth(inputMetadata.width);
-                        setCurrentHeight(inputMetadata.height);
-                        setKeepAspectRatioState(true);
-                        updateOptions({ targetWidth: inputMetadata.width, targetHeight: inputMetadata.height, keepAspectRatio: true });
-                    }
-                }
-            }}>
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="percentage">{t('imageProcessor.scalePercentage')}</TabsTrigger>
-                    <TabsTrigger value="fixed">{t('imageProcessor.fixedSize')}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="percentage" className="space-y-4 pt-4">
-                    <div className="flex items-center justify-between">
-                        <Label htmlFor="scale-slider">{t('imageProcessor.scaleRatio')}</Label>
-                        <span className="text-sm font-medium">{Math.round(options.scale * 100)}%</span>
-                    </div>
-                    <Slider
-                        id="scale-slider"
-                        value={[options.scale * 100]}
-                        onValueChange={(value) => updateOptions({ scale: value[0] / 100 })}
-                        min={10}
-                        max={200}
-                        step={5}
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <Label htmlFor="width-input">{t('imageProcessor.width')} (px)</Label>
+                    <Input
+                        id="width-input"
+                        type="number"
+                        value={currentWidth === 0 ? '' : currentWidth}
+                        onChange={handleWidthChange}
+                        min={1}
+                        max={99999}
                     />
+                </div>
+                <div>
+                    <Label htmlFor="height-input">{t('imageProcessor.height')} (px)</Label>
+                    <Input
+                        id="height-input"
+                        type="number"
+                        value={currentHeight === 0 ? '' : currentHeight}
+                        onChange={handleHeightChange}
+                        min={1}
+                        max={99999}
+                    />
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-4">
+                <Label htmlFor="keep-aspect-ratio">{t('imageProcessor.keepAspectRatio')}</Label>
+                <Switch
+                    id="keep-aspect-ratio"
+                    checked={keepAspectRatioState}
+                    onCheckedChange={(checked) => {
+                        setKeepAspectRatioState(checked);
+                        updateOptions({ keepAspectRatio: checked });
+                        // 如果开启保持宽高比，重新计算高度
+                        if (checked && inputMetadata && currentWidth > 0) {
+                            const newHeight = Math.round(currentWidth / inputMetadata.width * inputMetadata.height);
+                            setCurrentHeight(newHeight);
+                            updateOptions({ targetHeight: newHeight });
+                        }
+                    }}
+                />
+            </div>
+
+            <div className="space-y-2 mt-4">
+                <Label>{t('imageProcessor.originalSize')}</Label>
+                <div className="flex flex-wrap gap-2">
                     {inputMetadata && (
-                        <p className="text-xs text-muted-foreground">
-                            输出尺寸: {scaledDimensions.width} × {scaledDimensions.height}
-                        </p>
+                        <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
+                            {t('imageProcessor.originalSize')}
+                        </Button>
                     )}
-                </TabsContent>
-                <TabsContent value="fixed" className="space-y-4 pt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="width-input">{t('imageProcessor.width')} (px)</Label>
-                            <Input
-                                id="width-input"
-                                type="number"
-                                value={currentWidth === 0 ? '' : currentWidth}
-                                onChange={handleWidthChange}
-                                min={1}
-                                max={99999}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="height-input">{t('imageProcessor.height')} (px)</Label>
-                            <Input
-                                id="height-input"
-                                type="number"
-                                value={currentHeight === 0 ? '' : currentHeight}
-                                onChange={handleHeightChange}
-                                min={1}
-                                max={99999}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-4">
-                        <Label htmlFor="keep-aspect-ratio">{t('imageProcessor.keepAspectRatio')}</Label>
-                        <Switch
-                            id="keep-aspect-ratio"
-                            checked={keepAspectRatioState}
-                            onCheckedChange={(checked) => {
-                                setKeepAspectRatioState(checked);
-                                updateOptions({ keepAspectRatio: checked });
-                                // 如果开启保持宽高比，重新计算高度
-                                if (checked && inputMetadata && currentWidth > 0) {
-                                    const newHeight = Math.round(currentWidth / inputMetadata.width * inputMetadata.height);
-                                    setCurrentHeight(newHeight);
-                                    updateOptions({ targetHeight: newHeight });
-                                }
-                            }}
-                        />
-                    </div>
-
-                    <div className="space-y-2 mt-4">
-                        <Label>{t('imageProcessor.originalSize')}</Label>
-                        <div className="flex flex-wrap gap-2">
-                            {inputMetadata && (
-                                <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
-                                    {t('imageProcessor.originalSize')}
-                                </Button>
-                            )}
-                            <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>
-                                1920x1080 (FHD)
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => applyPreset(1280, 720)}>
-                                1280x720 (HD)
-                            </Button>
-                        </div>
-                    </div>
-                </TabsContent>
-            </Tabs>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>
+                        1920x1080 (FHD)
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => applyPreset(1280, 720)}>
+                        1280x720 (HD)
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 };
