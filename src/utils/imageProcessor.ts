@@ -22,7 +22,7 @@ export interface ImageProcessingOptions {
     quality: number;           // 1-100
 
     // 格式
-    outputFormat: 'jpeg' | 'png' | 'webp' | 'ico' | 'svg';
+    outputFormat: 'jpeg' | 'png' | 'webp' | 'avif' | 'ico' | 'svg';
 
     // 尺寸
     scale: number;             // 0.1-2
@@ -120,6 +120,7 @@ export function getMimeType(format: ImageProcessingOptions['outputFormat']): str
         jpeg: 'image/jpeg',
         png: 'image/png',
         webp: 'image/webp',
+        avif: 'image/avif',
         ico: 'image/x-icon',
         svg: 'image/svg+xml',
     };
@@ -134,6 +135,7 @@ export function getFileExtension(format: ImageProcessingOptions['outputFormat'])
         jpeg: '.jpg',
         png: '.png',
         webp: '.webp',
+        avif: '.avif',
         ico: '.ico',
         svg: '.svg',
     };
@@ -193,7 +195,7 @@ export function calculateCompressionRatio(originalSize: number, newSize: number)
  * 验证图片文件
  */
 export function validateImageFile(file: File): boolean {
-    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'svg', 'ico'];
+    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'svg', 'ico', 'avif'];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 }

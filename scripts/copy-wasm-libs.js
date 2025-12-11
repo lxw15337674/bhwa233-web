@@ -18,7 +18,7 @@ const LIBS_CONFIG = {
             'vips.wasm',
             'vips.js',
             // 可选的动态库（如果需要 HEIF/JXL 支持，取消注释）
-            // 'vips-heif.wasm',
+            'vips-heif.wasm',
             // 'vips-jxl.wasm',
             // 'vips-resvg.wasm',
         ]

@@ -142,7 +142,7 @@ class VipsManager {
             // 初始化 Vips，配置动态库路径
             const vips = await Vips({
                 // 禁用动态库加载，避免加载 HEIF/JXL 等格式的额外 wasm 文件
-                dynamicLibraries: [],
+                dynamicLibraries: ['vips-heif.wasm'],
                 // 指定文件路径
                 locateFile: (fileName: string) => `/wasm-libs/vips/${fileName}`,
             });

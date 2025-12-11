@@ -87,7 +87,7 @@ export interface ExifMetadata {
 // 类型定义（与 imageProcessor.ts 保持一致）
 interface ImageProcessingOptions {
     quality: number;
-    outputFormat: 'jpeg' | 'png' | 'webp' | 'ico' | 'svg';
+    outputFormat: 'jpeg' | 'png' | 'webp' | 'avif' | 'ico' | 'svg';
     scale: number;
     targetWidth: number | null;
     targetHeight: number | null;
@@ -187,7 +187,7 @@ async function loadVips(): Promise<VipsInstance> {
         const Vips = (await import(/* webpackIgnore: true */ `${baseUrl}/wasm-libs/vips/vips-es6.js`)).default;
 
         const vips = await Vips({
-            dynamicLibraries: [],
+            dynamicLibraries: ['vips-heif.wasm'],
             locateFile: (fileName: string) => `${baseUrl}/wasm-libs/vips/${fileName}`,
         });
 
@@ -538,7 +538,7 @@ async function processStaticImage(
             const formatSuffix = `.${options.outputFormat === 'jpeg' ? 'jpg' : options.outputFormat}`;
             const exportOptions: Record<string, unknown> = {};
 
-            if (['jpeg', 'webp'].includes(options.outputFormat)) {
+            if (['jpeg', 'webp', 'avif'].includes(options.outputFormat)) {
                 exportOptions.Q = options.quality;
             }
 
@@ -567,6 +567,7 @@ function getMimeType(format: string): string {
         jpeg: 'image/jpeg',
         png: 'image/png',
         webp: 'image/webp',
+        avif: 'image/avif',
         ico: 'image/x-icon',
         svg: 'image/svg+xml',
     };
@@ -581,6 +582,7 @@ function getFileExtension(format: string): string {
         jpeg: '.jpg',
         png: '.png',
         webp: '.webp',
+        avif: '.avif',
         ico: '.ico',
         svg: '.svg',
     };

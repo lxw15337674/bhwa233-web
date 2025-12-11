@@ -244,7 +244,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         // OR just mapping it here since it's simple.
         
         const getExt = (fmt: string) => {
-            const map: Record<string, string> = { jpeg: '.jpg', png: '.png', webp: '.webp', ico: '.ico', svg: '.svg' };
+            const map: Record<string, string> = { jpeg: '.jpg', png: '.png', webp: '.webp', avif: '.avif', ico: '.ico', svg: '.svg' };
             return map[fmt] || '.jpg';
         };
 
