@@ -20,7 +20,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     const { t } = useTranslation();
     const [currentWidth, setCurrentWidth] = useState(0);
     const [currentHeight, setCurrentHeight] = useState(0);
-    const [keepAspectRatioState, setKeepAspectRatioState] = useState(true);
+    const [keepAspectRatioState, setKeepAspectRatioState] = useState(false);
 
     // Sync local state with options/metadata
     useEffect(() => {
