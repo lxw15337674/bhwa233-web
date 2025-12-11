@@ -93,6 +93,7 @@
     "fileUpload": {
         "selectImageFile": "Select Image File",
         "selectAudioFile": "Select Audio File",
+        "selectVideoFile": "Select Video File",
         "selectMediaFile": "Select Media File",
         "dragOrClick": "Drag file here or click to select",
         "selectFile": "Select File",
@@ -159,7 +160,28 @@
             "imageBatch": {
                 "label": "Batch Image Processing",
                 "description": "Batch format conversion, compression, and size adjustment."
+            },
+            "videoGif": {
+                "label": "Video to GIF",
+                "description": "Convert video clips to high-quality GIF animations."
             }
+        }
+    },
+    "videoControlPanels": {
+        "gif": {
+            "startConvert": "Start GIF Conversion",
+            "converting": "Converting...",
+            "downloadResult": "Download GIF",
+            "reconvert": "Convert Another",
+            "settings": "Conversion Settings",
+            "startTime": "Start Time (s)",
+            "duration": "Duration (s)",
+            "width": "Width (px)",
+            "fps": "FPS",
+            "selectWidth": "Select Width",
+            "selectFps": "Select FPS",
+            "originalSize": "Original Size",
+            "conversionFailed": "Conversion Failed"
         }
     },
     "audioFormatConverter": {

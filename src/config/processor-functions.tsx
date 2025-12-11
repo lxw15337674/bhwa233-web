@@ -2,6 +2,7 @@ import { AudioConvertControlPanel } from '@/components/media-processor/control-p
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
+import { VideoToGifControlPanel } from '@/components/media-processor/control-panels/VideoToGifControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
 
 // 文件验证器
@@ -15,6 +16,12 @@ const imageFileValidator = (file: File): boolean => {
     const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg', 'ico'];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
+};
+
+const videoFileValidator = (file: File): boolean => {
+    const supportedFormats = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    return supportedFormats.includes(extension || '') || file.type.startsWith('video/');
 };
 
 
@@ -58,6 +65,20 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         component: SpeechToTextControlPanel,
         fileValidator: audioFileValidator,
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
+    },
+    // 视频功能
+    {
+        id: 'video-gif',
+        path: 'gif',
+        label: '视频转 GIF',
+        labelKey: 'mediaProcessor.functions.videoGif.label',
+        category: 'video',
+        description: '将视频片段转换为高质量的 GIF 动图。',
+        descriptionKey: 'mediaProcessor.functions.videoGif.description',
+        icon: '🎞️',
+        component: VideoToGifControlPanel,
+        fileValidator: videoFileValidator,
+        supportedFormats: ['mp4', 'mov', 'avi', 'mkv', 'webm'],
     },
     // 批量处理
     {

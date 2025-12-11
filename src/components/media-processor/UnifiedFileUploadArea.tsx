@@ -92,6 +92,13 @@ export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
                     Icon: FileAudio,
                     text: t('fileUpload.selectAudioFile')
                 };
+            case 'video':
+                return {
+                    supportedFormats: ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv'],
+                    acceptTypes: 'video/*',
+                    Icon: Film,
+                    text: t('fileUpload.selectVideoFile')
+                };
             default:
                 return {
                     supportedFormats: ['.jpg', '.png', '.mp3', '.wav', '.mp4'],

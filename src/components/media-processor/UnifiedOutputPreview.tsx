@@ -3,12 +3,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Play, Pause, FileAudio, FileVideo, FileText } from 'lucide-react';
+import { Download, Play, Pause, FileAudio, FileVideo, FileText, ImageIcon } from 'lucide-react';
 import { downloadBlob } from '@/utils/audioConverter';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface UnifiedOutputPreviewProps {
-  mediaType: 'audio' | 'video' | 'text'; // 可以扩展到 video, text 等
+  mediaType: 'audio' | 'video' | 'text' | 'image'; 
 }
 
 export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
@@ -23,7 +23,9 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
   // 当 outputFile 改变时，确保重置播放状态和 URL
   useEffect(() => {
     if (mediaRef.current) {
-      mediaRef.current.pause();
+      if (mediaType === 'audio' || mediaType === 'video') {
+         mediaRef.current.pause();
+      }
       setIsPlaying(false);
       if (outputFile) {
         // Revoke previous URL if any
@@ -31,7 +33,9 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
           URL.revokeObjectURL(mediaRef.current.src);
         }
         mediaRef.current.src = URL.createObjectURL(outputFile);
-        mediaRef.current.load(); // Reload the media element
+        if (mediaType === 'audio' || mediaType === 'video') {
+          mediaRef.current.load(); // Reload the media element
+        }
       }
     }
     // Cleanup function to revoke URL when component unmounts or outputFile changes
@@ -40,7 +44,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         URL.revokeObjectURL(mediaRef.current.src);
       }
     };
-  }, [outputFile]);
+  }, [outputFile, mediaType]);
 
 
   if (!outputFile) {
@@ -54,7 +58,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
   };
 
   const handlePlayPause = () => {
-    if (mediaRef.current) {
+    if (mediaRef.current && (mediaType === 'audio' || mediaType === 'video')) {
       if (isPlaying) {
         mediaRef.current.pause();
         setIsPlaying(false);
@@ -134,6 +138,17 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         />
       );
       break;
+    case 'image':
+        IconComponent = ImageIcon;
+        titleText = '输出图片';
+        mediaElement = (
+            <img
+                src={outputFile ? URL.createObjectURL(outputFile) : undefined}
+                alt="Converted Output"
+                className="w-full max-h-[300px] object-contain bg-black/5 rounded-lg border"
+            />
+        );
+        break;
     case 'text':
       IconComponent = FileText;
       titleText = '输出文本';

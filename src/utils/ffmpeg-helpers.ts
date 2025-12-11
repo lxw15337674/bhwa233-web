@@ -90,8 +90,11 @@ export const createFFmpegProgressListener = (
                 const seconds = parseFloat(timeMatch[3]);
                 const currentTime = hours * 3600 + minutes * 60 + seconds;
 
-                // 视频处理中可能出现 time=-xxxx.xx 负值的情况，需过滤
-                if (currentTime < 0) return;
+                // 视频处理中可能出现 time=-xxxx.xx 负值的情况，记录但跳过此次更新
+                if (currentTime < 0) {
+                    console.warn('[FFmpeg Progress] Negative time value detected, skipping:', currentTime);
+                    return;
+                }
 
                 // 进度可能超过 100% 稍微，限制在 100
                 const rawProgress = Math.min(currentTime / totalDuration, 1) * 100;
@@ -155,6 +158,17 @@ export const createFFmpegProgressListener = (
                 if (lastProgress < 10) {
                     onProgress?.(10, '开始处理视频...', undefined);
                     lastProgress = 10;
+                }
+            }
+
+            // 对于GIF或其他没有标准时间进度的格式，尝试从frame数量推算
+            if (message.includes('frame=') && !message.includes('time=')) {
+                const frameMatch = message.match(/frame=\s*(\d+)/);
+                if (frameMatch && totalDuration > 0) {
+                    const frameNum = parseInt(frameMatch[1]);
+                    if (frameNum > 0) {
+                        console.log('[FFmpeg] Processing frame:', frameNum);
+                    }
                 }
             }
         }

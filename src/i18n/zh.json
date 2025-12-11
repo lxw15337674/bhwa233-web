@@ -115,6 +115,7 @@
     "fileUpload": {
         "selectImageFile": "选择图片文件",
         "selectAudioFile": "选择音频文件",
+        "selectVideoFile": "选择视频文件",
         "selectMediaFile": "选择媒体文件",
         "dragOrClick": "拖拽文件到此处或点击选择文件",
         "selectFile": "选择文件",
@@ -160,7 +161,28 @@
             "imageBatch": {
                 "label": "批量图片处理",
                 "description": "批量转换格式、压缩、调整尺寸。"
+            },
+            "videoGif": {
+                "label": "视频转 GIF",
+                "description": "将视频片段转换为高质量的 GIF 动图。"
             }
+        }
+    },
+    "videoControlPanels": {
+        "gif": {
+            "startConvert": "开始转换 GIF",
+            "converting": "转换中...",
+            "downloadResult": "下载 GIF",
+            "reconvert": "重新转换",
+            "settings": "转换设置",
+            "startTime": "开始时间 (秒)",
+            "duration": "持续时长 (秒)",
+            "width": "宽度 (像素)",
+            "fps": "帧率 (FPS)",
+            "selectWidth": "选择宽度",
+            "selectFps": "选择FPS",
+            "originalSize": "原尺寸",
+            "conversionFailed": "转换失败"
         }
     },
     "audioFormatConverter": {

@@ -3,7 +3,7 @@ import { AudioInfo, MediaMetadata, ConversionState } from '@/utils/audioConverte
 
 // 媒体处理分类
 
-export type ProcessorCategory = 'image' | 'editor' | 'batch' | 'audio';
+export type ProcessorCategory = 'image' | 'editor' | 'batch' | 'audio' | 'video';
 
 
 
