@@ -148,6 +148,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                                 value={currentWidth === 0 ? '' : currentWidth}
                                 onChange={handleWidthChange}
                                 min={1}
+                                max={99999}
                             />
                         </div>
                         <div>
@@ -158,6 +159,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                                 value={currentHeight === 0 ? '' : currentHeight}
                                 onChange={handleHeightChange}
                                 min={1}
+                                max={99999}
                             />
                         </div>
                     </div>
