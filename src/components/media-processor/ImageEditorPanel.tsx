@@ -77,7 +77,10 @@ export const ImageEditorPanel: React.FC = () => {
     useEffect(() => {
         if (!autoProcess || !inputFile) return;
 
-        const currentOptionsStr = JSON.stringify(options);
+        // 排除 outputFilename，因为它不影响图像处理结果
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { outputFilename, ...processingOptions } = options;
+        const currentOptionsStr = JSON.stringify(processingOptions);
 
         // 首次加载或 options 没变化时不触发
         if (prevOptionsRef.current === '' || prevOptionsRef.current === currentOptionsStr) {
