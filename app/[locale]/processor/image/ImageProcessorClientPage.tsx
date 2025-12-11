@@ -43,12 +43,14 @@ const ImageProcessorClientPage: React.FC = () => {
 
                     {/* 输出预览 */}
                     {inputFile && <ImageOutputPreview />}
+
+                    {/* 元数据面板 (移至左侧) */}
+                    {inputFile && <ImageExifPanel />}
                 </div>
 
                 {/* 右侧：编辑面板 */}
                 <div className="space-y-6">
                     <ImageEditorPanel />
-                    <ImageExifPanel />
                 </div>
             </div>
         </div>
