@@ -64,7 +64,7 @@ export const defaultImageOptions: ImageProcessingOptions = {
     scale: 1,
     targetWidth: null,
     targetHeight: null,
-    keepAspectRatio: true,
+    keepAspectRatio: false,
     rotation: 0,
     flipHorizontal: false,
     flipVertical: false,

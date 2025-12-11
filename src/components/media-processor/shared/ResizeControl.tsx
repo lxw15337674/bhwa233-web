@@ -136,17 +136,28 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
             </div>
 
             <div className="space-y-2 mt-4">
-                <Label>{t('imageProcessor.originalSize')}</Label>
+                <Label>{t('imageProcessor.presetSizes')}</Label>
                 <div className="flex flex-wrap gap-2">
-                    {inputMetadata && (
-                        <Button
-                            variant={isPresetActive(inputMetadata.width, inputMetadata.height) ? "secondary" : "outline"}
-                            size="sm"
-                            onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}
-                        >
-                            {t('imageProcessor.originalSize')}
-                        </Button>
-                    )}
+                    <Button
+                        variant={
+                            (inputMetadata && isPresetActive(inputMetadata.width, inputMetadata.height)) ||
+                            (!inputMetadata && currentWidth === 0 && currentHeight === 0)
+                                ? "secondary"
+                                : "outline"
+                        }
+                        size="sm"
+                        onClick={() => {
+                            if (inputMetadata) {
+                                applyPreset(inputMetadata.width, inputMetadata.height);
+                            } else {
+                                setCurrentWidth(0);
+                                setCurrentHeight(0);
+                                updateOptions({ targetWidth: null, targetHeight: null });
+                            }
+                        }}
+                    >
+                        {t('imageProcessor.originalSize')}
+                    </Button>
                     <Button
                         variant={isPresetActive(1920, 1080) ? "secondary" : "outline"}
                         size="sm"
