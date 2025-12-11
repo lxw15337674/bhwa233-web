@@ -12,7 +12,7 @@ const audioFileValidator = (file: File): boolean => {
 };
 
 const imageFileValidator = (file: File): boolean => {
-    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp'];
+    const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg', 'ico'];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 };
@@ -71,7 +71,7 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         icon: '📚',
         component: BatchControlPanel as any, // Cast to any to avoid strict prop type mismatch with ControlPanelProps
         fileValidator: imageFileValidator,
-        supportedFormats: ['jpg', 'jpeg', 'png', 'webp', 'bmp'],
+        supportedFormats: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'svg', 'ico'],
     },
 ];
 
