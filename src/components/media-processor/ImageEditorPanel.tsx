@@ -140,14 +140,6 @@ export const ImageEditorPanel: React.FC = () => {
 
     return (
         <Card className="p-4 space-y-6">
-            {/* 错误提示 */}
-            {processError && (
-                <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{processError}</AlertDescription>
-                </Alert>
-            )}
-
             {/* 状态提示 */}
             {!inputFile && (
                 <Alert>

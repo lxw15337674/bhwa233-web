@@ -199,3 +199,147 @@ export function validateImageFile(file: File): boolean {
     const extension = file.name.split('.').pop()?.toLowerCase();
     return supportedFormats.includes(extension || '') || file.type.startsWith('image/');
 }
+
+export interface PreprocessResult {
+    file: File;
+    originalFormat?: 'svg' | 'ico';
+    originalFile?: File;
+}
+
+/**
+ * 预处理特殊格式的图片
+ * 将 SVG、ICO 等 Vips 不原生支持的格式转换为 PNG
+ * 返回转换后的文件和原始格式信息
+ */
+export async function preprocessImageFile(file: File): Promise<PreprocessResult> {
+    const fileType = file.type.toLowerCase();
+    const fileName = file.name.toLowerCase();
+
+    // 检测格式
+    const isSvg = fileType === 'image/svg+xml' || fileName.endsWith('.svg');
+    const isIco = fileType === 'image/x-icon' || fileType === 'image/vnd.microsoft.icon' || fileName.endsWith('.ico');
+
+    // 如果不需要预处理，直接返回原文件
+    if (!isSvg && !isIco) {
+        return { file };
+    }
+
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+
+        img.onload = () => {
+            try {
+                // 创建 Canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth || img.width;
+                canvas.height = img.naturalHeight || img.height;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('无法创建 Canvas 上下文'));
+                    return;
+                }
+
+                // 绘制图片到 Canvas
+                ctx.drawImage(img, 0, 0);
+
+                // 转换为 PNG Blob
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(url);
+
+                    if (!blob) {
+                        reject(new Error('无法转换图片格式'));
+                        return;
+                    }
+
+                    // 创建新的 File 对象，保留原文件名但改为 .png
+                    const baseName = file.name.replace(/\.[^/.]+$/, '');
+                    const newFile = new File([blob], `${baseName}.png`, {
+                        type: 'image/png',
+                        lastModified: Date.now(),
+                    });
+
+                    resolve({
+                        file: newFile,
+                        originalFormat: isSvg ? 'svg' : 'ico',
+                        originalFile: file,
+                    });
+                }, 'image/png');
+            } catch (error) {
+                URL.revokeObjectURL(url);
+                reject(error);
+            }
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('无法加载图片进行预处理'));
+        };
+
+        img.src = url;
+    });
+}
+
+/**
+ * 根据目标尺寸渲染 SVG
+ * 用于在处理前将 SVG 按最终尺寸转换为高分辨率位图
+ */
+export async function renderSvgAtTargetSize(
+    svgFile: File,
+    targetWidth: number,
+    targetHeight: number
+): Promise<File> {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(svgFile);
+
+        img.onload = () => {
+            try {
+                // 创建 Canvas，使用目标尺寸
+                const canvas = document.createElement('canvas');
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('无法创建 Canvas 上下文'));
+                    return;
+                }
+
+                // 绘制 SVG 到目标尺寸
+                ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+                // 转换为 PNG Blob
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(url);
+
+                    if (!blob) {
+                        reject(new Error('无法转换 SVG'));
+                        return;
+                    }
+
+                    const baseName = svgFile.name.replace(/\.[^/.]+$/, '');
+                    const newFile = new File([blob], `${baseName}.png`, {
+                        type: 'image/png',
+                        lastModified: Date.now(),
+                    });
+
+                    resolve(newFile);
+                }, 'image/png');
+            } catch (error) {
+                URL.revokeObjectURL(url);
+                reject(error);
+            }
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('无法加载 SVG'));
+        };
+
+        img.src = url;
+    });
+}

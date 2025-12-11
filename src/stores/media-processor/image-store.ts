@@ -6,6 +6,8 @@ import {
     getImageMetadata,
     generateOutputFilename,
     validateImageFile,
+    preprocessImageFile,
+    renderSvgAtTargetSize,
 } from '@/utils/imageProcessor';
 
 // 最大文件大小 50MB
@@ -113,6 +115,8 @@ interface ImageProcessorStore {
     inputUrl: string | null;
     inputMetadata: ImageMetadata | null;
     exifMetadata: ExifMetadata | null;
+    originalFormat?: 'svg' | 'ico'; // 原始格式标记
+    originalFile?: File; // 原始文件（用于 SVG 重新渲染）
 
     // 处理选项
     options: ImageProcessingOptions;
@@ -171,22 +175,28 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
         if (inputUrl) URL.revokeObjectURL(inputUrl);
         if (outputUrl) URL.revokeObjectURL(outputUrl);
 
-        // 创建预览 URL
-        const url = URL.createObjectURL(file);
-
-        // 获取元数据
         try {
-            const metadata = await getImageMetadata(file);
+            // 预处理特殊格式（SVG、ICO 等）
+            const preprocessResult = await preprocessImageFile(file);
+            const { file: processedFile, originalFormat, originalFile } = preprocessResult;
+
+            // 创建预览 URL
+            const url = URL.createObjectURL(processedFile);
+
+            // 获取元数据
+            const metadata = await getImageMetadata(processedFile);
 
             // 生成默认的输出文件名（不含扩展名）
-            const baseName = file.name.replace(/\.[^/.]+$/, '');
+            const baseName = processedFile.name.replace(/\.[^/.]+$/, '');
             const defaultOutputFilename = `${baseName}_edited`;
 
             set({
-                inputFile: file,
+                inputFile: processedFile,
                 inputUrl: url,
                 inputMetadata: metadata,
                 exifMetadata: null,
+                originalFormat,
+                originalFile,
                 outputBlob: null,
                 outputUrl: null,
                 outputMetadata: null,
@@ -254,7 +264,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
      * 处理图片（使用 Web Worker）
      */
     processImage: async () => {
-        const { inputFile, options, outputUrl } = get();
+        const { inputFile, options, outputUrl, originalFormat, originalFile, inputMetadata } = get();
 
         if (!inputFile) {
             return;
@@ -268,6 +278,30 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
         set({ isProcessing: true, processError: null, progress: { percent: 0, message: '准备中...' } });
 
         try {
+            let fileToProcess = inputFile;
+
+            // 如果原始格式是 SVG，根据目标尺寸重新渲染
+            if (originalFormat === 'svg' && originalFile && inputMetadata) {
+                set({ progress: { percent: 5, message: '渲染 SVG...' } });
+
+                // 计算目标尺寸
+                let targetWidth = inputMetadata.width;
+                let targetHeight = inputMetadata.height;
+
+                // 如果设置了目标尺寸
+                if (options.targetWidth && options.targetHeight) {
+                    targetWidth = options.targetWidth;
+                    targetHeight = options.targetHeight;
+                } else if (options.scale && options.scale !== 1) {
+                    // scale 范围是 0.1-2
+                    targetWidth = Math.round(inputMetadata.width * options.scale);
+                    targetHeight = Math.round(inputMetadata.height * options.scale);
+                }
+
+                // 使用目标尺寸渲染 SVG
+                fileToProcess = await renderSvgAtTargetSize(originalFile, targetWidth, targetHeight);
+            }
+
             const worker = getWorker();
 
             // 生成请求 ID
@@ -275,7 +309,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             currentRequestId = requestId;
 
             // 读取文件
-            const buffer = await inputFile.arrayBuffer();
+            const buffer = await fileToProcess.arrayBuffer();
 
             // 创建 Promise 等待 Worker 响应
             const result = await new Promise<{ blob: Blob; metadata: ImageMetadata }>((resolve, reject) => {
@@ -319,7 +353,7 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
                     type: 'process',
                     id: requestId,
                     buffer,
-                    fileName: inputFile.name,
+                    fileName: fileToProcess.name,
                     options,
                 };
 
@@ -367,6 +401,24 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
         const { inputFile } = get();
 
         if (!inputFile) {
+            return;
+        }
+
+        // 检查文件类型是否支持 EXIF
+        const fileType = inputFile.type.toLowerCase();
+        const supportedExifTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/tiff',
+            'image/png',
+            'image/webp',
+            'image/heic',
+            'image/heif',
+        ];
+
+        if (!supportedExifTypes.includes(fileType)) {
+            console.log(`文件类型 ${fileType} 不支持 EXIF，跳过读取`);
+            set({ exifMetadata: null });
             return;
         }
 
@@ -448,6 +500,8 @@ export const useImageProcessorStore = create<ImageProcessorStore>()((set, get) =
             inputUrl: null,
             inputMetadata: null,
             exifMetadata: null,
+            originalFormat: undefined,
+            originalFile: undefined,
             options: { ...defaultImageOptions },
             outputBlob: null,
             outputUrl: null,

@@ -26,14 +26,6 @@ const ImageProcessorClientPage: React.FC = () => {
                 description={t('imageProcessor.description')}
             />
 
-            {/* 错误提示 */}
-            {processError && (
-                <Alert variant="destructive" className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{processError}</AlertDescription>
-                </Alert>
-            )}
-
             {/* 主内容区域 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* 左侧：输入和输出预览（占据更多空间） */}

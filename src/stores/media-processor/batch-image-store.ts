@@ -6,6 +6,8 @@ import {
     defaultImageOptions,
     getImageMetadata,
     validateImageFile,
+    preprocessImageFile,
+    PreprocessResult,
 } from '@/utils/imageProcessor';
 import { ExifMetadata } from './image-store';
 
@@ -82,20 +84,22 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
 
     addFiles: async (files: File[]) => {
         const newTasks: ImageTask[] = [];
-        
+
         for (const file of files) {
             // Validate
             if (!validateImageFile(file)) continue;
             if (file.size > MAX_FILE_SIZE) continue; // Skip large files for now
 
             const id = Math.random().toString(36).slice(2, 11);
-            
+
             // Get metadata (async but fast enough for adding)
             try {
-                const metadata = await getImageMetadata(file);
+                // 预处理特殊格式
+                const preprocessResult = await preprocessImageFile(file);
+                const metadata = await getImageMetadata(preprocessResult.file);
                 newTasks.push({
                     id,
-                    file,
+                    file: preprocessResult.file,
                     status: 'pending',
                     inputMetadata: metadata,
                     progress: 0
@@ -153,7 +157,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
             if (!get().isProcessing) break;
 
             set({ processingCurrentId: task.id });
-            
+
             // Update status to processing
             set(state => ({
                 tasks: state.tasks.map(t => t.id === task.id ? { ...t, status: 'processing' } : t)
@@ -161,7 +165,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
 
             try {
                 const buffer = await task.file.arrayBuffer();
-                
+
                 const result = await new Promise<{ blob: Blob; metadata: ImageMetadata }>((resolve, reject) => {
                     const handleMessage = (event: MessageEvent<WorkerResponse>) => {
                         const response = event.data;
@@ -190,7 +194,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
                         fileName: task.file.name,
                         options: get().options,
                     };
-                    
+
                     worker.postMessage(request, { transfer: [buffer] });
                 });
 
@@ -227,7 +231,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
     downloadAll: async () => {
         const { tasks, options } = get();
         const completedTasks = tasks.filter(t => t.status === 'success' && t.outputBlob);
-        
+
         if (completedTasks.length === 0) return;
 
         // Import dynamically to avoid changing top-level imports if not needed, 
@@ -242,22 +246,22 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         // import { ..., generateOutputFilename, ... } from ...
         // I will rely on a separate `replace` call to add the import if needed, 
         // OR just mapping it here since it's simple.
-        
+
         const getExt = (fmt: string) => {
             const map: Record<string, string> = { jpeg: '.jpg', png: '.png', webp: '.webp', avif: '.avif', ico: '.ico', svg: '.svg' };
             return map[fmt] || '.jpg';
         };
 
         const zip = new JSZip();
-        
+
         completedTasks.forEach(task => {
             if (task.outputBlob && task.outputMetadata) {
                 const baseName = task.file.name.replace(/\.[^/.]+$/, '');
                 const suffix = options.outputFilename || '_edited';
                 const ext = getExt(options.outputFormat);
-                
+
                 let filename = `${baseName}${suffix}${ext}`;
-                
+
                 // Check for duplicates in the zip
                 let counter = 1;
                 const originalFilename = filename;
@@ -268,7 +272,7 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
                     filename = `${base}_${counter}.${extension}`;
                     counter++;
                 }
-                
+
                 zip.file(filename, task.outputBlob);
             }
         });
