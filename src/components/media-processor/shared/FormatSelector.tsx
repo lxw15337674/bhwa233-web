@@ -32,6 +32,12 @@ export const FormatSelector: React.FC<FormatSelectorProps> = ({ value, onChange 
                 <ToggleGroupItem value="webp" aria-label="WebP">
                     WebP
                 </ToggleGroupItem>
+                <ToggleGroupItem value="ico" aria-label="ICO">
+                    ICO
+                </ToggleGroupItem>
+                <ToggleGroupItem value="svg" aria-label="SVG">
+                    SVG
+                </ToggleGroupItem>
             </ToggleGroup>
         </div>
     );

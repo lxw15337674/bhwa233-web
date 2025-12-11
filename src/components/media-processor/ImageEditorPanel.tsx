@@ -230,6 +230,15 @@ export const ImageEditorPanel: React.FC = () => {
                             <RotateCw className="w-4 h-4 mr-1" />
                             +90°
                         </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRotate('180')}
+                            title={t('imageProcessor.rotate180')}
+                        >
+                            <RefreshCw className="w-4 h-4 mr-1" />
+                            180°
+                        </Button>
                     </div>
                     {options.rotation !== 0 && (
                         <p className="text-xs text-muted-foreground">

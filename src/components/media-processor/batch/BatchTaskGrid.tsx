@@ -101,7 +101,7 @@ const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boole
     const { t } = useTranslation();
     const [isLoadingExif, setIsLoadingExif] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
-    const { loadExifForTask } = useBatchImageStore();
+    const { loadExifForTask, downloadSingle } = useBatchImageStore();
 
     const handlePopoverOpenChange = async (open: boolean) => {
         setPopoverOpen(open);

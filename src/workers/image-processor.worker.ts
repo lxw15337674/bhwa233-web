@@ -3,6 +3,9 @@
  * 在后台线程中处理图片，避免阻塞主线程
  */
 
+import { packToIco } from '@/utils/ico-packer';
+import { packToSvg } from '@/utils/svg-packer';
+
 // Worker 消息类型
 export interface WorkerRequest {
     type: 'process' | 'getExif';
@@ -84,7 +87,7 @@ export interface ExifMetadata {
 // 类型定义（与 imageProcessor.ts 保持一致）
 interface ImageProcessingOptions {
     quality: number;
-    outputFormat: 'jpeg' | 'png' | 'webp';
+    outputFormat: 'jpeg' | 'png' | 'webp' | 'ico' | 'svg';
     scale: number;
     targetWidth: number | null;
     targetHeight: number | null;
@@ -121,12 +124,13 @@ interface ImageMetadata {
 interface VipsImage {
     width: number;
     height: number;
+    bands: number; // 通道数
     getInt(name: string): number;
     getDouble(name: string): number;
     getString(name: string): string;
     getArrayInt(name: string): number[];
     getFields(): string[];
-    resize(scale: number): VipsImage;
+    resize(scale: number, options?: { vscale?: number; kernel?: string }): VipsImage;
     rot90(): VipsImage;
     rot180(): VipsImage;
     rot270(): VipsImage;
@@ -141,6 +145,10 @@ interface VipsImage {
     join(other: VipsImage, direction: string, options?: { expand?: boolean }): VipsImage;
     writeToBuffer(suffix: string, options?: Record<string, unknown>): Uint8Array;
     delete(): void;
+    // New methods for ICO support
+    newFromImage(value: number | number[]): VipsImage;
+    bandjoin(other: VipsImage | VipsImage[]): VipsImage;
+    embed(left: number, top: number, width: number, height: number, options?: { extend?: string; background?: number[] }): VipsImage;
 }
 
 interface VipsInstance {
@@ -476,18 +484,70 @@ async function processStaticImage(
         sendProgress(requestId, 85, '导出...');
 
         // 导出
-        const formatSuffix = `.${options.outputFormat === 'jpeg' ? 'jpg' : options.outputFormat}`;
-        const exportOptions: Record<string, unknown> = {};
+        let outputBuffer: Uint8Array;
 
-        if (['jpeg', 'webp'].includes(options.outputFormat)) {
-            exportOptions.Q = options.quality;
+        // 特殊格式处理 (ico, svg) - 先导出为 PNG
+        if (options.outputFormat === 'ico' || options.outputFormat === 'svg') {
+            let exportImage = image;
+            let needDelete = false;
+
+            // ICO 优化：限制最大尺寸为 256 (ICO 标准限制)
+            if (options.outputFormat === 'ico') {
+                const MAX_ICO_SIZE = 256;
+                
+                // 1. 确保有 Alpha 通道 (如果原图是 JPG 等)
+                if (exportImage.bands === 3) {
+                     // 添加不透明 Alpha 通道 (255)
+                     const alpha = exportImage.newFromImage(255);
+                     const withAlpha = exportImage.bandjoin(alpha);
+                     alpha.delete(); // 释放 alpha 图像
+                     if (needDelete) exportImage.delete();
+                     exportImage = withAlpha;
+                     needDelete = true;
+                }
+
+                // 2. 限制最大尺寸 (Downscale only)
+                // 如果用户没有指定尺寸，或者指定尺寸超过 256，则缩小到 256
+                // 如果用户指定了较小尺寸（如 32x32），则保持该尺寸
+                if (exportImage.width > MAX_ICO_SIZE || exportImage.height > MAX_ICO_SIZE) {
+                    const scale = Math.min(MAX_ICO_SIZE / exportImage.width, MAX_ICO_SIZE / exportImage.height);
+                    const resized = exportImage.resize(scale, { kernel: 'lanczos3' });
+                    if (needDelete) exportImage.delete();
+                    exportImage = resized;
+                    needDelete = true;
+                }
+            }
+
+            const pngBuffer = exportImage.writeToBuffer('.png', { strip: options.stripMetadata });
+            
+            // 保存尺寸，因为后面要删除 exportImage
+            const finalWidth = exportImage.width;
+            const finalHeight = exportImage.height;
+
+            if (needDelete && exportImage !== image) {
+                exportImage.delete();
+            }
+
+            if (options.outputFormat === 'ico') {
+                // 使用保存的尺寸
+                outputBuffer = packToIco(pngBuffer, finalWidth, finalHeight);
+            } else {
+                outputBuffer = packToSvg(pngBuffer, image.width, image.height);
+            }
+        } else {
+            const formatSuffix = `.${options.outputFormat === 'jpeg' ? 'jpg' : options.outputFormat}`;
+            const exportOptions: Record<string, unknown> = {};
+
+            if (['jpeg', 'webp'].includes(options.outputFormat)) {
+                exportOptions.Q = options.quality;
+            }
+
+            if (options.stripMetadata) {
+                exportOptions.strip = true;
+            }
+
+            outputBuffer = image.writeToBuffer(formatSuffix, exportOptions);
         }
-
-        if (options.stripMetadata) {
-            exportOptions.strip = true;
-        }
-
-        const outputBuffer = image.writeToBuffer(formatSuffix, exportOptions);
 
         return {
             outputBuffer,
@@ -507,6 +567,8 @@ function getMimeType(format: string): string {
         jpeg: 'image/jpeg',
         png: 'image/png',
         webp: 'image/webp',
+        ico: 'image/x-icon',
+        svg: 'image/svg+xml',
     };
     return mimeTypes[format] || 'image/jpeg';
 }
@@ -519,6 +581,8 @@ function getFileExtension(format: string): string {
         jpeg: '.jpg',
         png: '.png',
         webp: '.webp',
+        ico: '.ico',
+        svg: '.svg',
     };
     return extensions[format] || '.jpg';
 }

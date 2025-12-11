@@ -34,11 +34,11 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
             }
         }
     }, [inputMetadata, options.targetWidth, options.targetHeight]);
-    
+
     // Also sync if options change externally (e.g. reset)
     useEffect(() => {
-         if (options.targetWidth !== null) setCurrentWidth(options.targetWidth);
-         if (options.targetHeight !== null) setCurrentHeight(options.targetHeight);
+        if (options.targetWidth !== null) setCurrentWidth(options.targetWidth);
+        if (options.targetHeight !== null) setCurrentHeight(options.targetHeight);
         if (options.keepAspectRatio !== undefined) setKeepAspectRatioState(options.keepAspectRatio);
     }, [options.targetWidth, options.targetHeight, options.keepAspectRatio]);
 
@@ -83,6 +83,10 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
         // 保持当前的宽高比设置，不强制改变
         updateOptions({ targetWidth: width, targetHeight: height, keepAspectRatio: keepAspectRatioState });
     }, [keepAspectRatioState, updateOptions]);
+    
+    const isPresetActive = useCallback((w: number, h: number) => {
+        return currentWidth === w && currentHeight === h;
+    }, [currentWidth, currentHeight]);
 
     return (
         <div className="space-y-4">
@@ -135,14 +139,26 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
                 <Label>{t('imageProcessor.originalSize')}</Label>
                 <div className="flex flex-wrap gap-2">
                     {inputMetadata && (
-                        <Button variant="outline" size="sm" onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}>
+                        <Button
+                            variant={isPresetActive(inputMetadata.width, inputMetadata.height) ? "secondary" : "outline"}
+                            size="sm"
+                            onClick={() => applyPreset(inputMetadata.width, inputMetadata.height)}
+                        >
                             {t('imageProcessor.originalSize')}
                         </Button>
                     )}
-                    <Button variant="outline" size="sm" onClick={() => applyPreset(1920, 1080)}>
+                    <Button
+                        variant={isPresetActive(1920, 1080) ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => applyPreset(1920, 1080)}
+                    >
                         1920x1080 (FHD)
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => applyPreset(1280, 720)}>
+                    <Button
+                        variant={isPresetActive(1280, 720) ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => applyPreset(1280, 720)}
+                    >
                         1280x720 (HD)
                     </Button>
                 </div>
