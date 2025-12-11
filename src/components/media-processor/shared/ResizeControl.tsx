@@ -12,12 +12,14 @@ interface ResizeControlProps {
     options: ImageProcessingOptions;
     updateOptions: (options: Partial<ImageProcessingOptions>) => void;
     inputMetadata?: ImageMetadata | null; // Optional for batch mode
+    defaultTabValue?: "percentage" | "fixed"; // New prop
 }
 
 export const ResizeControl: React.FC<ResizeControlProps> = ({
     options,
     updateOptions,
     inputMetadata,
+    defaultTabValue = "percentage", // Use the new prop with a default
 }) => {
     const { t } = useTranslation();
     const [currentWidth, setCurrentWidth] = useState(0);
@@ -102,7 +104,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     return (
         <div className="space-y-3">
             <Label>{t('imageProcessor.resize')}</Label>
-            <Tabs defaultValue="percentage" className="w-full" onValueChange={(value) => {
+            <Tabs defaultValue={defaultTabValue} className="w-full" onValueChange={(value) => {
                 if (value === 'percentage') {
                     updateOptions({ targetWidth: null, targetHeight: null });
                 } else {
