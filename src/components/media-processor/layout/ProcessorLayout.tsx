@@ -17,7 +17,7 @@ export const ProcessorLayout: React.FC<ProcessorLayoutProps> = ({
     <div className="min-h-screen text-foreground">
       <div className="container mx-auto px-4 py-8">
         {/* 页面标题 */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             {title}
           </h1>

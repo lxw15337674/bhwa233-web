@@ -27,7 +27,7 @@ export const MediaConverterNavigation: React.FC = () => {
     ];
 
     return (
-        <nav className="mb-8">
+        <nav className="mb-4">
             <div className="flex justify-center">
                 <div className="flex bg-muted p-1 rounded-lg">
                     {navItems.map((item) => {

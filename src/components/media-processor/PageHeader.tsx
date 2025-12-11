@@ -14,7 +14,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     gradient = 'from-green-400 to-blue-400',
 }) => {
     return (
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
             <h1 className={`text-4xl font-bold mb-2 bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
                 {title}
             </h1>

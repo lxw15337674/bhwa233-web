@@ -208,7 +208,7 @@ export default function UploadPage() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-2xl">
             {/* 页面头部区域 */}
-            <header className="text-center mb-8">
+            <header className="text-center mb-4">
                 <h1 className="text-3xl font-bold mb-2">{t('upload.title')}</h1>
                 {/* 功能特点标签 */}
                 <div className="flex flex-wrap justify-center gap-2 text-xs">
