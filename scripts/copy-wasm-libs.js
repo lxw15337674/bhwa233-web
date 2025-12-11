@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 复制 WASM 库文件到 public 目录
- * 包括 wasm-vips 和 @ffmpeg/core
+ * 包括 wasm-vips 
  * 在 postinstall 或构建前运行
  */
 
@@ -23,15 +23,6 @@ const LIBS_CONFIG = {
             // 'vips-resvg.wasm',
         ]
     },
-    'ffmpeg': {
-        sourceDir: path.join(__dirname, '../node_modules/.pnpm/@ffmpeg+core-mt@0.12.10/node_modules/@ffmpeg/core-mt/dist/umd'),
-        targetDir: path.join(__dirname, '../public/wasm-libs/ffmpeg'),
-        files: [
-            'ffmpeg-core.js',
-            'ffmpeg-core.wasm',
-            'ffmpeg-core.worker.js',
-        ]
-    }
 };
 
 /**
