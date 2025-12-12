@@ -29,6 +29,8 @@ export interface ImageProcessingOptions {
     targetWidth: number | null;
     targetHeight: number | null;
     keepAspectRatio: boolean;
+    resizeMode?: 'exact' | 'percentage';  // 缩放模式：精确尺寸或按比例
+    scalePercentage?: number;              // 百分比缩放值 (1-200)
 
     // 旋转翻转
     rotation: 0 | 90 | 180 | 270;
@@ -65,6 +67,8 @@ export const defaultImageOptions: ImageProcessingOptions = {
     targetWidth: null,
     targetHeight: null,
     keepAspectRatio: false,
+    resizeMode: 'percentage',
+    scalePercentage: 100,
     rotation: 0,
     flipHorizontal: false,
     flipVertical: false,

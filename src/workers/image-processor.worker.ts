@@ -92,6 +92,8 @@ interface ImageProcessingOptions {
     targetWidth: number | null;
     targetHeight: number | null;
     keepAspectRatio: boolean;
+    resizeMode?: 'exact' | 'percentage';
+    scalePercentage?: number;
     rotation: 0 | 90 | 180 | 270;
     flipHorizontal: boolean;
     flipVertical: boolean;
@@ -423,11 +425,20 @@ async function processStaticImage(
         }
 
         // 缩放
-        if (options.scale !== 1 || options.targetWidth || options.targetHeight) {
+        if (options.scale !== 1 || options.targetWidth || options.targetHeight || (options.resizeMode === 'percentage' && options.scalePercentage)) {
             sendProgress(requestId, 50, '缩放...');
 
-            if (options.targetWidth || options.targetHeight) {
-                // 指定尺寸模式
+            // 优先处理百分比模式（用于批量处理）
+            if (options.resizeMode === 'percentage' && options.scalePercentage !== undefined && options.scalePercentage !== 100) {
+                // 百分比缩放：基于当前图片的原始尺寸
+                const percentage = options.scalePercentage / 100;
+                if (percentage !== 1) {
+                    const resized = image.resize(percentage);
+                    image.delete();
+                    image = resized;
+                }
+            } else if (options.targetWidth || options.targetHeight) {
+            // 指定尺寸模式（精确像素）
                 const targetW = options.targetWidth || image.width;
                 const targetH = options.targetHeight || image.height;
                 const scaleW = targetW / image.width;
@@ -450,7 +461,7 @@ async function processStaticImage(
                     }
                 }
             } else if (options.scale !== 1) {
-                // 比例缩放模式
+                // 旧的比例缩放模式（向后兼容）
                 const resized = image.resize(options.scale);
                 image.delete();
                 image = resized;

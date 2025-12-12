@@ -197,7 +197,7 @@ export const BatchControlPanel: React.FC = () => {
             <div className="p-4 space-y-2 flex-shrink-0 bg-background rounded-b-lg">
                 <Button
                     onClick={isProcessing ? cancelProcessing : startProcessing}
-                    disabled={!hasPending && !isProcessing}
+                    disabled={tasks.length === 0}
                     className="w-full"
                     size="lg"
                     variant={isProcessing ? "destructive" : "default"}

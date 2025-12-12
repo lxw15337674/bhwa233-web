@@ -142,9 +142,18 @@ export const useBatchImageStore = create<BatchImageStore>((set, get) => ({
         const { isProcessing, tasks } = get();
         if (isProcessing) return;
 
+        // 自动重置已完成或失败的任务为 pending，以便重新处理
+        set(state => ({
+            tasks: state.tasks.map(t =>
+                (t.status === 'success' || t.status === 'error')
+                    ? { ...t, status: 'pending' as const, progress: 0, error: undefined, outputBlob: undefined, outputMetadata: undefined }
+                    : t
+            )
+        }));
+
         set({ isProcessing: true });
 
-        const pendingTasks = tasks.filter(t => t.status === 'pending');
+        const pendingTasks = get().tasks.filter(t => t.status === 'pending');
         if (pendingTasks.length === 0) {
             set({ isProcessing: false });
             return;

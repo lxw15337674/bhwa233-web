@@ -226,7 +226,13 @@
         "keepAspectRatio": "Keep Aspect Ratio",
         "finalSize": "Final Size",
         "willBe": "will be",
-        "presetSizes": "Preset Sizes"
+        "presetSizes": "Preset Sizes",
+        "resizeTabExact": "Exact Size",
+        "resizeTabPercentage": "Scale by Percentage",
+        "scaleRatioLabel": "Scale Ratio",
+        "percentageInput": "Percentage",
+        "previewScale": "Preview: {{original}} → {{scaled}}",
+        "batchScaleHint": "Will apply {{percent}}% scale to each image"
     },
     "batchImageProcessor": {
         "title": "Batch Image Processor",

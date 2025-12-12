@@ -227,7 +227,13 @@
         "keepAspectRatio": "保持宽高比",
         "finalSize": "最终尺寸",
         "willBe": "将为",
-        "presetSizes": "预设尺寸"
+        "presetSizes": "预设尺寸",
+        "resizeTabExact": "精确尺寸",
+        "resizeTabPercentage": "按比例缩放",
+        "scaleRatioLabel": "缩放比例",
+        "percentageInput": "百分比",
+        "previewScale": "预览：{{original}} → {{scaled}}",
+        "batchScaleHint": "将对每张图片应用 {{percent}}% 缩放"
     },
     "batchImageProcessor": {
         "title": "图片批量处理器",
