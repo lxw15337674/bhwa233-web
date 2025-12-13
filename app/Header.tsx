@@ -1,22 +1,17 @@
 'use client'
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { ModeToggle } from 'src/components/ModeToggle';
 import { useTranslation } from '../src/components/TranslationProvider';
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
   NavigationMenuContent
 } from '../src/components/ui/navigation-menu';
-import { Button } from '../src/components/ui/button';
-import { LayoutGrid } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Categories, CategoryItem } from './RouterConfig';
 import Link from 'next/link';
-import { ScrollToTop } from '../src/components/ScrollToTop';
-import { ArrowUpToLine } from 'lucide-react';
 import { cn } from '../src/lib/utils';
 import { LanguageSwitcher } from '../src/components/LanguageSwitcher';
 import { locales } from '../src/lib/i18n';
@@ -126,9 +121,6 @@ export default function Header() {
         <div className="flex-1" />
         <div className='flex items-center space-x-2'>
           <LanguageSwitcher />
-          <ScrollToTop scrollTo={10} variant="outline" size="icon">
-            <ArrowUpToLine />
-          </ScrollToTop>
           <ModeToggle />
         </div>
       </div>

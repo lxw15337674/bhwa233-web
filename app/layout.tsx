@@ -3,6 +3,7 @@ import Header from './Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Toaster } from '../src/components/ui/toaster';
 import { ClientProviders } from '../src/components/client-providers';
+import { GlobalStructuredData } from '../src/components/structured-data';
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
@@ -72,6 +73,9 @@ export default function RootLayout({
   }) {
   return (
     <html suppressHydrationWarning lang="en">
+      <head>
+        <GlobalStructuredData />
+      </head>
       <body>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-LDWSSHPH6W"

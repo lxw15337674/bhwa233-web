@@ -1,5 +1,12 @@
 import FishingTimeView from './FishingTimeView';
 import type { Metadata } from 'next';
+import {
+  generateToolBreadcrumbs,
+  generateSoftwareAppSchema,
+  generateCombinedSchema,
+  generateBreadcrumbSchema,
+} from '@/lib/seo';
+import { StructuredData } from '@/components/structured-data';
 
 export const metadata: Metadata = {
   title: '摸鱼办 - 假期工资倒计时工具 | 上班族必备神器',
@@ -81,41 +88,32 @@ async function getHolidays(): Promise<Holiday[] | undefined> {
 const Page = async () => {
   const nextHolidayData = await getHolidays();
 
+  const breadcrumbs = generateToolBreadcrumbs('zh', '摸鱼办', '/fishingTime');
+
+  const appSchema = generateSoftwareAppSchema({
+    name: '摸鱼办 - 假期工资倒计时工具',
+    description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
+    url: 'https://tools.bhwa233.com/zh/fishingTime',
+    applicationCategory: 'UtilityApplication',
+    datePublished: '2024-01-01',
+    dateModified: '2024-12-01',
+    featureList: [
+      '假期倒计时 - 春节、国庆、中秋等法定假日',
+      '工资倒计时 - 实时显示距离发薪日天数',
+      '调休安排 - 查看补班日期',
+      '工作日计算 - 统计剩余工作日',
+      '节假日查询 - 全年法定假日一览',
+    ],
+  });
+
+  const combinedSchema = generateCombinedSchema([
+    generateBreadcrumbSchema(breadcrumbs),
+    appSchema,
+  ]);
+
   return (
     <>
-      {/* 结构化数据 - JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebApplication',
-            name: '摸鱼办 - 假期工资倒计时工具',
-            description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
-            url: 'https://tools.bhwa233.com/fishingTime',
-            applicationCategory: 'UtilityApplication',
-            operatingSystem: 'Any',
-            inLanguage: 'zh-CN',
-            offers: {
-              '@type': 'Offer',
-              price: '0',
-              priceCurrency: 'CNY',
-              availability: 'https://schema.org/InStock',
-            },
-            browserRequirements: 'HTML5, JavaScript enabled',
-            softwareVersion: '1.0',
-            author: {
-              '@type': 'Person',
-              name: '233tools',
-            },
-            provider: {
-              '@type': 'Organization',
-              name: '233工具箱',
-              url: 'https://tools.bhwa233.com',
-            },
-          }),
-        }}
-      />
+      <StructuredData data={combinedSchema} id="fishing-time-structured-data" />
       <FishingTimeView nextHolidayData={nextHolidayData} />
     </>
   );
