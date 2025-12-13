@@ -114,9 +114,6 @@ export default function Header() {
               })}
             </NavigationMenuList>
           </NavigationMenu>
-          <span className="font-bold">
-            {currentApp?.translationKey ? t(currentApp.translationKey) : currentApp?.name}
-          </span>
         </div>
         <div className="flex-1" />
         <div className='flex items-center space-x-2'>
