@@ -64,17 +64,17 @@
     },
     "upload": {
         "title": "免费在线文件上传工具",
-        "description": "选择或拖拽文件进行上传，支持批量（最多10个），支持任意文件格式、最大10MB，永久保存。",
+        "description": "选择或拖拽文件进行上传，支持批量（最多10个），支持任意文件格式、最大50MB，永久保存。",
         "features": {
             "free": "免费使用",
             "anyFormat": "任意格式",
-            "anySize": "最大10MB",
+            "anySize": "最大50MB",
             "permanent": "永久保存",
             "batch": "批量上传（最多10个文件）"
         },
         "uploadFiles": "上传文件",
         "dragOrClick": "拖拽文件到这里或点击选择",
-        "supportAnyFormat": "支持任意格式文件，单个文件最大10MB",
+        "supportAnyFormat": "支持任意格式文件，单个文件最大50MB",
         "selectedFiles": "已选择 {{count}} 个文件",
         "clickToReselect": "点击重新选择文件",
         "uploading": "上传中...",
@@ -83,8 +83,8 @@
         "clearHistory": "清空历史",
         "noHistory": "暂无上传历史记录",
         "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "以下文件超过10MB限制已被过滤：{{files}}。其余{{count}}个文件可正常上传。",
-        "allOversized": "所有文件都超过10MB限制：{{files}}",
+        "oversizedFiltered": "以下文件超过50MB限制已被过滤：{{files}}。其余{{count}}个文件可正常上传。",
+        "allOversized": "所有文件都超过50MB限制：{{files}}",
         "errors": {
             "maxFiles": "一次最多只能上传10个文件",
             "uploadFailed": "上传失败",

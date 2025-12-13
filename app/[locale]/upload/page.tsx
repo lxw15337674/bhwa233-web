@@ -32,8 +32,8 @@ export default function UploadPage() {
     const uploadingCount = useRef(0);
     const queueRef = useRef<UploadFileState[]>([]);
 
-    // 文件大小限制：10MB
-    const MAX_FILE_SIZE = 1024 * 1024 * 10;
+    // 文件大小限制：50MB
+    const MAX_FILE_SIZE = 1024 * 1024 * 50;
 
     // 验证文件大小
     const validateFileSizes = (files: File[]) => {

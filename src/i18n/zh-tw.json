@@ -64,17 +64,17 @@
     },
     "upload": {
         "title": "免費線上檔案上傳工具",
-        "description": "選擇或拖拽檔案進行上傳，支援批次（最多10個），支援任意檔案格式、最大10MB，永久保存。",
+        "description": "選擇或拖拽檔案進行上傳，支援批次（最多10個），支援任意檔案格式、最大50MB，永久保存。",
         "features": {
             "free": "免費使用",
             "anyFormat": "任意格式",
-            "anySize": "最大10MB",
+            "anySize": "最大50MB",
             "permanent": "永久保存",
             "batch": "批次上傳（最多10個檔案）"
         },
         "uploadFiles": "上傳檔案",
         "dragOrClick": "拖拽檔案到這裡或點擊選擇",
-        "supportAnyFormat": "支援任意格式檔案，單個檔案最大10MB",
+        "supportAnyFormat": "支援任意格式檔案，單個檔案最大50MB",
         "selectedFiles": "已選擇 {{count}} 個檔案",
         "clickToReselect": "點擊重新選擇檔案",
         "uploading": "上傳中...",
@@ -83,8 +83,8 @@
         "clearHistory": "清空歷史",
         "noHistory": "暫無上傳歷史記錄",
         "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "以下檔案超過10MB限制已被過濾：{{files}}。其餘{{count}}個檔案可正常上傳。",
-        "allOversized": "所有檔案都超過10MB限制：{{files}}",
+        "oversizedFiltered": "以下檔案超過50MB限制已被過濾：{{files}}。其餘{{count}}個檔案可正常上傳。",
+        "allOversized": "所有檔案都超過50MB限制：{{files}}",
         "errors": {
             "maxFiles": "一次最多只能上傳10個檔案",
             "uploadFailed": "上傳失敗",

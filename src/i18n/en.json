@@ -63,17 +63,17 @@
     },
     "upload": {
         "title": "Free Online File Upload Tool",
-        "description": "Select or drag files to upload, supports batch upload (up to 10 files), any file format, up to 10GB, permanent storage.",
+        "description": "Select or drag files to upload, supports batch upload (up to 10 files), any file format, up to 50MB, permanent storage.",
         "features": {
             "free": "Free to Use",
             "anyFormat": "Any Format",
-            "anySize": "Up to 10MB",
+            "anySize": "Up to 50MB",
             "permanent": "Permanent Storage",
             "batch": "Batch Upload (up to 10 files)"
         },
         "uploadFiles": "Upload Files",
         "dragOrClick": "Drag files here or click to select",
-        "supportAnyFormat": "Supports any file format, up to 10MB per file",
+        "supportAnyFormat": "Supports any file format, up to 50MB per file",
         "selectedFiles": "{{count}} files selected",
         "clickToReselect": "Click to reselect files",
         "uploading": "Uploading...",
@@ -82,8 +82,8 @@
         "clearHistory": "Clear History",
         "noHistory": "No upload history",
         "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "The following files exceed 10MB limit and have been filtered: {{files}}. The remaining {{count}} files can be uploaded normally.",
-        "allOversized": "All files exceed 10MB limit: {{files}}",
+        "oversizedFiltered": "The following files exceed 50MB limit and have been filtered: {{files}}. The remaining {{count}} files can be uploaded normally.",
+        "allOversized": "All files exceed 50MB limit: {{files}}",
         "errors": {
             "maxFiles": "Maximum 10 files allowed at once",
             "uploadFailed": "Upload failed",
