@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     '节假日查询', '春节倒计时', '国庆倒计时', '中秋倒计时', '劳动节倒计时',
     'fishing time', 'countdown', 'holiday countdown', 'salary countdown'
   ],
-  authors: [{ name: '233tools', url: 'https://233tools.vercel.app' }],
+  authors: [{ name: '233tools', url: 'https://tools.bhwa233.com' }],
   creator: '233tools',
   publisher: '233工具箱',
   robots: {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '摸鱼办 - 假期工资倒计时工具',
     description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
-    url: 'https://233tools.vercel.app/fishingTime',
+    url: 'https://tools.bhwa233.com/fishingTime',
     siteName: '233工具箱',
     locale: 'zh_CN',
     type: 'website',
@@ -92,7 +92,7 @@ const Page = async () => {
             '@type': 'WebApplication',
             name: '摸鱼办 - 假期工资倒计时工具',
             description: '专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排',
-            url: 'https://233tools.vercel.app/fishingTime',
+            url: 'https://tools.bhwa233.com/fishingTime',
             applicationCategory: 'UtilityApplication',
             operatingSystem: 'Any',
             inLanguage: 'zh-CN',
@@ -111,7 +111,7 @@ const Page = async () => {
             provider: {
               '@type': 'Organization',
               name: '233工具箱',
-              url: 'https://233tools.vercel.app',
+              url: 'https://tools.bhwa233.com',
             },
           }),
         }}

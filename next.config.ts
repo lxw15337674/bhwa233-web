@@ -41,7 +41,7 @@ const nextConfig: NextConfig = withSerwist({
       },
       {
         protocol: 'https',
-        hostname: '233tools.vercel.app',
+        hostname: 'tools.bhwa233.com',
       },
       {
         protocol: 'https',

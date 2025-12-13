@@ -7,7 +7,7 @@ interface Props {
 }
 
 const locales = ['en', 'zh', 'zh-tw'];
-const baseUrl = 'https://233tools.vercel.app';
+const baseUrl = 'https://tools.bhwa233.com';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { locale } = await params;

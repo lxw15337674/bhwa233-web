@@ -1,17 +1,10 @@
 User-agent: *
 Allow: /
 
-# 允许访问重要页面
-Allow: /fishingTime
-Allow: /upload
-
 # 禁止访问 API 路径和私有目录
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 
 # 站点地图
-Sitemap: https://233tools.vercel.app/sitemap.xml
-
-# 抓取延迟（可选）
-Crawl-delay: 1
+Sitemap: https://tools.bhwa233.com/sitemap.xml

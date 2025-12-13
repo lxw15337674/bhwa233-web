@@ -9,7 +9,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations(locale);
-    const baseUrl = 'https://233tools.vercel.app';
+    const baseUrl = 'https://tools.bhwa233.com';
     const path = '/processor/image';
 
     return {

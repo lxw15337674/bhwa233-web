@@ -8,7 +8,7 @@ import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://233tools.vercel.app'),
+  metadataBase: new URL('https://tools.bhwa233.com'),
   title: {
     default: 'Toolbox - Online Productivity Tools Collection | 工具箱',
     template: '%s | Toolbox'
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     '在线工具', '工具箱', '文件上传', '媒体处理', '音频转换', '图片编辑',
     '摸鱼办', 'Chinese tools', '生产力工具'
   ],
-  authors: [{ name: '233tools', url: 'https://233tools.vercel.app' }],
+  authors: [{ name: '233tools', url: 'https://tools.bhwa233.com' }],
   creator: '233tools',
   publisher: 'Toolbox',
   robots: {
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     alternateLocale: ['zh_CN', 'zh_TW'],
-    url: 'https://233tools.vercel.app',
+    url: 'https://tools.bhwa233.com',
     siteName: 'Toolbox | 工具箱',
     title: 'Toolbox - Online Productivity Tools Collection | 工具箱',
     description: 'Integrated file upload, media processing and other multi-functional online toolbox with tools to enhance productivity. 集成多功能在线工具箱，提升生产力。',
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     google: 'fc9f0f35f747acd0',
   },
   alternates: {
-    canonical: 'https://233tools.vercel.app',
+    canonical: 'https://tools.bhwa233.com',
   },
 };
 
