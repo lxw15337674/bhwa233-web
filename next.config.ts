@@ -102,12 +102,13 @@ const nextConfig: NextConfig = withSerwist({
   },
   rewrites: async () => {
     return [
+      // 支持带 locale 前缀的请求（例如 /en/telegraph-upload）
       {
-        source: '/telegraph-upload',
+        source: '/:locale/telegraph-upload',
         destination: 'https://cloudflare-imgbed-76v.pages.dev/upload',
       },
       {
-        source: '/jiaqi',
+        source: '/:locale/jiaqi',
         destination:
           'https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json',
       },
