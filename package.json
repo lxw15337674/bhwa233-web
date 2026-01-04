@@ -108,8 +108,7 @@
       "@vercel/speed-insights",
       "esbuild",
       "sharp",
-      "unrs-resolver",
-      "canvas"
+      "unrs-resolver"
     ],
     "overrides": {
       "@types/react": "19.2.7",
