@@ -13,6 +13,19 @@ interface AppStore {
   mediaMetadata: MediaMetadata | null;
   audioInfo: AudioInfo | null;
   
+  // --- 视频元数据（用于视频转GIF等功能）---
+  videoMetadata: {
+    duration: number;
+    width: number;
+    height: number;
+  } | null;
+  
+  // --- GIF 时间范围（用于视频转GIF功能）---
+  gifTimeRange: {
+    startTime: number;
+    endTime: number;
+  };
+  
   // --- 分析状态 ---
   isAnalyzing: boolean;
   analyzeError: string | null;
@@ -28,6 +41,14 @@ interface AppStore {
   // 分析操作
   analyzeMedia: (file: File) => Promise<void>;
   
+  // 视频元数据操作
+  setVideoMetadata: (metadata: { duration: number; width: number; height: number }) => void;
+  
+  // GIF 时间范围操作
+  setGifTimeRange: (timeRange: { startTime: number; endTime: number }) => void;
+  setGifStartTime: (time: number) => void;
+  setGifEndTime: (time: number) => void;
+  
   // 处理操作
   updateProcessingState: (updates: Partial<ProcessingState>) => void;
   setProcessingError: (error: string) => void;
@@ -36,6 +57,7 @@ interface AppStore {
 
   // 重置
   reset: () => void;
+  resetProcessingOutput: () => void;
 }
 
 const initialProcessingState: ProcessingState = {
@@ -54,6 +76,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   dragOver: false,
   mediaMetadata: null,
   audioInfo: null,
+  videoMetadata: null,
+  gifTimeRange: { startTime: 0, endTime: 10 },
   isAnalyzing: false,
   analyzeError: null,
   processingState: initialProcessingState,
@@ -65,7 +89,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // 当文件改变时，重置相关状态
     set({ 
       mediaMetadata: null, 
-      audioInfo: null, 
+      audioInfo: null,
+      videoMetadata: null,
       analyzeError: null,
       processingState: initialProcessingState
     });
@@ -77,11 +102,33 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   setDragOver: (isDragOver) => set({ dragOver: isDragOver }),
 
+  setVideoMetadata: (metadata) => {
+    set({ videoMetadata: metadata });
+    // 当视频元数据变化时，重置时间范围
+    set({ gifTimeRange: { startTime: 0, endTime: Math.min(10, metadata.duration) } });
+  },
+
+  setGifTimeRange: (timeRange) => {
+    set({ gifTimeRange: timeRange });
+  },
+
+  setGifStartTime: (time) => {
+    set((state) => ({
+      gifTimeRange: { ...state.gifTimeRange, startTime: time }
+    }));
+  },
+
+  setGifEndTime: (time) => {
+    set((state) => ({
+      gifTimeRange: { ...state.gifTimeRange, endTime: time }
+    }));
+  },
+
   analyzeMedia: async (file) => {
     const { ffmpeg, isLoaded } = useFFmpegStore.getState();
 
     if (!isLoaded || !ffmpeg) {
-      set({ analyzeError: 'FFmpeg 未就绪' });
+      set({ analyzeError: 'common.errors.ffmpegNotReady' });
       return;
     }
 
@@ -100,7 +147,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       console.error('[Store] 分析失败:', error);
       set({ 
         isAnalyzing: false, 
-        analyzeError: error.message || '文件分析失败' 
+        analyzeError: error.message || 'common.errors.analysisFailed' 
       });
     }
   },
@@ -145,12 +192,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   reset: () => {
     set({
+      videoMetadata: null,
+      gifTimeRange: { startTime: 0, endTime: 10 },
       selectedFile: null,
       dragOver: false,
       mediaMetadata: null,
       audioInfo: null,
       isAnalyzing: false,
       analyzeError: null,
+      processingState: initialProcessingState
+    });
+  },
+
+  resetProcessingOutput: () => {
+    set({
       processingState: initialProcessingState
     });
   }

@@ -10,7 +10,8 @@ export default function TestPage() {
     const messageRef = useRef<HTMLParagraphElement>(null);
 
     const load = async () => {
-        const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/umd'
+        // 使用 unpkg CDN，与 cnvrt 项目一致
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
         if (!ffmpegRef.current) {
             ffmpegRef.current = new FFmpeg();
         }
@@ -21,8 +22,7 @@ export default function TestPage() {
             }
             console.log(message);
         });
-        // toBlobURL is used to bypass CORS issue, urls with the same
-        // domain can be used directly.
+        // toBlobURL is used to bypass CORS issue
         await ffmpeg.load({
             coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
             wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),

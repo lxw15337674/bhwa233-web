@@ -8,7 +8,7 @@ interface FFmpegState {
   error: string | null;
   ffmpeg: FFmpeg | null;
   isMultiThread: boolean;
-  loadFFmpeg: () => Promise<void>; // Renamed to avoid conflict with 'load' in store
+  loadFFmpeg: () => Promise<void>;
 }
 
 export const useFFmpegStore = create<FFmpegState>((set, get) => ({
@@ -35,22 +35,15 @@ export const useFFmpegStore = create<FFmpegState>((set, get) => ({
       // Detect multi-thread support (SharedArrayBuffer)
       const isMultiThread = typeof SharedArrayBuffer !== 'undefined';
       
-      // Using jsdelivr CDN for loading.
-      // Note: Using core-mt (multi-threaded version) for better performance.
-      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core-mt@0.12.10/dist/umd';
+      // 使用 unpkg CDN，参考 cnvrt 项目的实现方式
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
 
-      console.log(`[FFmpegStore] Loading FFmpeg (${isMultiThread ? 'multi-threaded' : 'single-threaded'}) from ${baseURL}...`);
+      console.log(`[FFmpegStore] Loading FFmpeg from ${baseURL}...`);
       
-      // Add log listener for debugging and progress (can be extended later)
-      ffmpeg.on('log', ({ message }) => {
-        // console.log('[FFmpeg Core Log]:', message); // Uncomment for verbose logging
-      });
-
-      // Load FFmpeg core, WASM, and worker
+      // Load FFmpeg core and WASM（不使用 worker）
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
       });
 
       console.log('[FFmpegStore] ✅ FFmpeg loaded successfully.');
@@ -60,14 +53,14 @@ export const useFFmpegStore = create<FFmpegState>((set, get) => ({
         isLoading: false, 
         ffmpeg,
         isMultiThread,
-        error: null // Clear any previous errors on successful load
+        error: null
       });
     } catch (error: any) {
       console.error('[FFmpegStore] ❌ FFmpeg loading failed:', error);
       set({ 
         isLoading: false, 
         error: error.message || 'Failed to load FFmpeg',
-        isLoaded: false, // Ensure isLoaded is false on error
+        isLoaded: false,
         ffmpeg: null
       });
     }

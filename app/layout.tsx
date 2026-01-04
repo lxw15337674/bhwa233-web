@@ -35,6 +35,11 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  other: {
+    // 预加载 FFmpeg 资源（优化性能）
+    'preload-ffmpeg-core': 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+    'preload-ffmpeg-wasm': 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -75,6 +80,19 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <head>
         <GlobalStructuredData />
+        {/* 预加载 FFmpeg 资源以提升性能 */}
+        <link
+          rel="preload"
+          href="https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         <Script
