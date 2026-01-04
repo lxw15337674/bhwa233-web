@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { ProcessingState } from '@/types/media-processor'; // Import ProcessingState
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface UnifiedProgressDisplayProps {
     // Make processingState optional. If not provided, it will read from useAppStore.
@@ -15,6 +16,7 @@ interface UnifiedProgressDisplayProps {
 export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
     processingState: propProcessingState, // Renamed to avoid conflict
 }) => {
+    const { t } = useTranslation();
     // If prop is provided, use it. Otherwise, use from AppStore.
     const { processingState: appStoreProcessingState } = useAppStore();
     const currentProcessingState = propProcessingState || appStoreProcessingState;
@@ -37,7 +39,7 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                     ) : (
                         <Clock className="h-5 w-5 text-blue-500" />
                     )}
-                    处理进度
+                    {t('common.progress.title')}
                 </CardTitle>
             </CardHeader>
 
@@ -46,7 +48,7 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
-                                {progress >= 100 ? '处理完成' : currentStep || '准备中...'}
+                                {progress >= 100 ? t('common.progress.complete') : currentStep || t('common.progress.preparing')}
                             </span>
                             <span className="font-medium">
                                 {progress}%

@@ -72,12 +72,12 @@ export const VideoToGifControlPanel: React.FC = () => {
     // 时间范围验证
     const timeRangeError = useMemo(() => {
         if (!videoMetadata) return null;
-        if (endTime <= startTime) return '结束时间必须大于开始时间';
-        if (endTime - startTime > 30) return '最多选择30秒';
-        if (endTime > videoMetadata.duration) return '结束时间超出视频长度';
-        if (startTime < 0) return '开始时间不能小于0';
+        if (endTime <= startTime) return t('videoControlPanels.gif.timeRangeError');
+        if (endTime - startTime > 30) return t('videoControlPanels.gif.maxDurationError');
+        if (endTime > videoMetadata.duration) return t('videoControlPanels.gif.endTimeError');
+        if (startTime < 0) return t('videoControlPanels.gif.startTimeError');
         return null;
-    }, [startTime, endTime, videoMetadata]);
+    }, [startTime, endTime, videoMetadata, t]);
 
     const canStartProcessing = selectedFile && ffmpeg && ffmpegLoaded && !processingState.isProcessing && !timeRangeError && videoMetadata;
 
@@ -95,7 +95,7 @@ export const VideoToGifControlPanel: React.FC = () => {
 
             const progressListener = createFFmpegProgressListener((progress, step, remainingTime) => {
                 updateProcessingState({ progress, currentStep: step, remainingTime });
-            }, 'video');
+            }, 'video', t);
 
             const detailedLogListener = ({ type, message }: { type: string; message: string }) => {
                 console.log(`[FFmpeg ${type}] ${message}`);
@@ -108,7 +108,7 @@ export const VideoToGifControlPanel: React.FC = () => {
             ffmpeg.on('log', detailedLogListener);
 
             try {
-                updateProcessingState({ progress: 10, currentStep: '正在转换视频为 GIF...' });
+                updateProcessingState({ progress: 10, currentStep: t('videoControlPanels.gif.converting') });
 
                 // 计算实际分辨率
                 const actualWidth = resolution === 0 && videoMetadata
@@ -137,10 +137,10 @@ export const VideoToGifControlPanel: React.FC = () => {
 
                 console.log('[GIF] 转换完成，返回值:', ret);
                 if (ret !== 0) {
-                    throw new Error('GIF 转换失败');
+                    throw new Error(t('videoControlPanels.gif.conversionFailed'));
                 }
 
-                updateProcessingState({ progress: 95, currentStep: '即将完成...' });
+                updateProcessingState({ progress: 95, currentStep: t('videoControlPanels.gif.finishing') });
 
                 const data = await ffmpeg.readFile(outputFileName);
                 const outputBlob = new Blob([data], { type: 'image/gif' });
@@ -155,7 +155,7 @@ export const VideoToGifControlPanel: React.FC = () => {
 
         } catch (error) {
             console.error('GIF conversion failed:', error);
-            setProcessingError(error instanceof Error ? error.message : 'GIF 转换失败');
+            setProcessingError(error instanceof Error ? error.message : t('videoControlPanels.gif.conversionFailed'));
         }
     };
 
@@ -173,7 +173,7 @@ export const VideoToGifControlPanel: React.FC = () => {
         return (
             <Card className="bg-card border-border">
                 <CardContent className="p-6 text-center text-muted-foreground">
-                    请先上传视频文件
+                    {t('videoControlPanels.gif.uploadVideo')}
                 </CardContent>
             </Card>
         );
@@ -185,7 +185,7 @@ export const VideoToGifControlPanel: React.FC = () => {
             {gifPreviewUrl && (
                 <Card className="bg-card border-border">
                     <CardContent className="p-4">
-                        <h3 className="font-medium mb-3">GIF 预览</h3>
+                        <h3 className="font-medium mb-3">{t('videoControlPanels.gif.preview')}</h3>
                         <div className="relative w-full rounded-lg overflow-hidden bg-muted flex items-center justify-center min-h-[200px]">
                             <img src={gifPreviewUrl} alt="GIF Preview" className="max-w-full max-h-full" />
                         </div>
@@ -198,7 +198,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                 <CardContent className="p-4 space-y-4">
                     <div className="flex items-center gap-2 mb-2">
                         <Settings2 className="w-4 h-4" />
-                        <h3 className="font-medium">GIF 设置</h3>
+                        <h3 className="font-medium">{t('videoControlPanels.gif.settings')}</h3>
                     </div>
 
                     {/* FFmpeg 加载状态 */}
@@ -206,24 +206,24 @@ export const VideoToGifControlPanel: React.FC = () => {
                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                             <div className="flex items-center gap-2">
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                <p className="text-sm text-blue-900 dark:text-blue-100">正在加载 FFmpeg...</p>
+                                <p className="text-sm text-blue-900 dark:text-blue-100">{t('videoControlPanels.gif.waitingFFmpeg')}</p>
                             </div>
                         </div>
                     )}
 
                     {ffmpegError && !ffmpegLoaded && (
                         <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                            <p className="text-sm text-red-900 dark:text-red-100 font-medium">FFmpeg 加载失败</p>
+                            <p className="text-sm text-red-900 dark:text-red-100 font-medium">{t('videoControlPanels.gif.ffmpegError')}</p>
                             <p className="text-xs text-red-700 dark:text-red-300 mt-1">{ffmpegError}</p>
                         </div>
                     )}
 
                     {/* 时间范围选择 */}
                     <div className="space-y-3">
-                        <Label>时间范围（秒）</Label>
+                        <Label>{t('videoControlPanels.gif.timeRange')}</Label>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label className="text-xs text-muted-foreground mb-1">开始时间</Label>
+                                <Label className="text-xs text-muted-foreground mb-1">{t('videoControlPanels.gif.startTime')}</Label>
                                 <Input
                                     type="number"
                                     min={0}
@@ -235,7 +235,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs text-muted-foreground mb-1">结束时间</Label>
+                                <Label className="text-xs text-muted-foreground mb-1">{t('videoControlPanels.gif.endTime')}</Label>
                                 <Input
                                     type="number"
                                     min={startTime + 1}
@@ -249,11 +249,11 @@ export const VideoToGifControlPanel: React.FC = () => {
                         </div>
                         <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">
-                                选中时长: <span className="font-medium text-foreground">{Math.round(endTime - startTime)}秒</span>
+                                {t('videoControlPanels.gif.selectedDuration')} <span className="font-medium text-foreground">{Math.round(endTime - startTime)}s</span>
                             </span>
                             {videoMetadata && (
                                 <span className="text-muted-foreground">
-                                    视频总长: {Math.round(videoMetadata.duration)}秒
+                                    {t('videoControlPanels.gif.totalDuration')} {Math.round(videoMetadata.duration)}s
                                 </span>
                             )}
                         </div>
@@ -264,49 +264,49 @@ export const VideoToGifControlPanel: React.FC = () => {
 
                     {/* FPS 选择 */}
                     <div className="space-y-2">
-                        <Label>帧率 (FPS)</Label>
+                        <Label>{t('videoControlPanels.gif.fps')}</Label>
                         <Select value={String(fps)} onValueChange={(v) => setFps(Number(v))} disabled={processingState.isProcessing}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="10">10 FPS - 标准</SelectItem>
-                                <SelectItem value="30">30 FPS - 流畅</SelectItem>
+                                <SelectItem value="10">{t('videoControlPanels.gif.fps10')}</SelectItem>
+                                <SelectItem value="30">{t('videoControlPanels.gif.fps30')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
-                            较低的 FPS 会减小文件大小
+                            {t('videoControlPanels.gif.fpsHint')}
                         </p>
                     </div>
 
                     {/* 分辨率选择 */}
                     <div className="space-y-2">
-                        <Label>分辨率</Label>
+                        <Label>{t('videoControlPanels.gif.resolution')}</Label>
                         <Select value={String(resolution)} onValueChange={(v) => setResolution(Number(v))} disabled={processingState.isProcessing}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="0">保持原始</SelectItem>
-                                <SelectItem value="480">480p - 标准</SelectItem>
-                                <SelectItem value="720">720p - 高清</SelectItem>
+                                <SelectItem value="0">{t('videoControlPanels.gif.originalSize')}</SelectItem>
+                                <SelectItem value="480">{t('videoControlPanels.gif.res480')}</SelectItem>
+                                <SelectItem value="720">{t('videoControlPanels.gif.res720')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
-                            较高的分辨率会增加文件大小
+                            {t('videoControlPanels.gif.resHint')}
                         </p>
                     </div>
 
                     {/* 文件大小预估 */}
                     {videoMetadata && (
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">预估文件大小</p>
+                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">{t('videoControlPanels.gif.estimatedSize')}</p>
                             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                                 {estimatedSize.toFixed(2)} MB
                             </p>
                             {estimatedSize > 10 && (
                                 <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                                    ⚠️ 文件较大，建议降低参数
+                                    {t('videoControlPanels.gif.largeFileWarning')}
                                 </p>
                             )}
                         </div>
@@ -322,16 +322,16 @@ export const VideoToGifControlPanel: React.FC = () => {
                             size="lg"
                         >
                             <Play className="w-4 h-4 mr-2" />
-                            {processingState.isProcessing ? '正在转换...' : '开始转换'}
+                            {processingState.isProcessing ? t('videoControlPanels.gif.converting') : t('videoControlPanels.gif.startConvert')}
                         </Button>
                     ) : (
                         <div className="space-y-2">
                             <Button onClick={handleDownload} className="w-full" variant="default" size="lg">
                                 <Download className="w-4 h-4 mr-2" />
-                                    下载 GIF
+                                    {t('videoControlPanels.gif.downloadResult')}
                             </Button>
                             <Button onClick={handleRestart} variant="outline" className="w-full" size="sm">
-                                    重新转换
+                                    {t('videoControlPanels.gif.reconvert')}
                             </Button>
                             </div>
                     )}

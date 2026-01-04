@@ -803,7 +803,8 @@ export const convertAudio = async (
     isMultiThread: boolean,
     audioInfo?: AudioInfo | null,
     originalCodec?: string,
-    onProgress?: (progress: number, step: string, remainingTime?: string) => void
+    onProgress?: (progress: number, step: string, remainingTime?: string) => void,
+    t?: (key: string, values?: any) => string
 ): Promise<Blob> => {
     const inputExtension = getFileExtension(file.name);
     const inputFileName = `input.${inputExtension}`;
@@ -824,7 +825,7 @@ export const convertAudio = async (
     console.log(`FFmpeg params: ${smartParams.params.join(' ')}`);
     console.log('[audioConverter] inputFileName:', inputFileName, 'outputFileName:', outputFileName);
 
-    const progressListener = createFFmpegProgressListener(onProgress, 'audio');
+    const progressListener = createFFmpegProgressListener(onProgress, 'audio', t);
     
     // 临时添加进度监听器
     ffmpeg.on('log', progressListener);
@@ -937,7 +938,8 @@ export const convertAudioSpeed = async (
     params: AudioSpeedParams,
     isMultiThread: boolean,
     audioInfo?: AudioInfo | null,
-    onProgress?: (progress: number, step: string, remainingTime?: string) => void
+    onProgress?: (progress: number, step: string, remainingTime?: string) => void,
+    t?: (key: string, values?: any) => string
 ): Promise<AudioSpeedResult> => {
     const inputExtension = getFileExtension(file.name);
     const inputFileName = `input.${inputExtension}`;
@@ -952,7 +954,7 @@ export const convertAudioSpeed = async (
     console.log(`Speed filter: ${speedFilter}`);
     console.log(`Preserve pitch: ${params.preservePitch}`);
 
-    const progressListener = createFFmpegProgressListener(onProgress, 'audio');
+    const progressListener = createFFmpegProgressListener(onProgress, 'audio', t);
     
     // 临时添加进度监听器
     ffmpeg.on('log', progressListener);

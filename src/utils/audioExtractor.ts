@@ -25,18 +25,19 @@ export interface AudioDetectionResult {
 export async function detectAudioTracks(
     file: File,
     ffmpeg: FFmpeg,
-    onProgress?: (progress: number, status: string) => void
+    onProgress?: (progress: number, status: string) => void,
+    t?: (key: string, values?: any) => string
 ): Promise<AudioDetectionResult> {
     const inputFileName = 'input_video';
     const DETECTION_TIMEOUT = 30000; // 30秒超时
 
     try {
         // 步骤1: 写入文件
-        onProgress?.(10, '正在加载文件...');
+        onProgress?.(10, t ? t('audioExtractor.detecting') : '正在加载文件...');
         const fileData = new Uint8Array(await file.arrayBuffer());
         await ffmpeg.writeFile(inputFileName, fileData);
 
-        onProgress?.(30, '正在分析文件格式...');
+        onProgress?.(30, t ? t('audioExtractor.analyzing') : '正在分析文件格式...');
 
         // 步骤2: 收集 FFmpeg 日志
         const logs: string[] = [];
@@ -47,7 +48,7 @@ export async function detectAudioTracks(
             const timeoutId = setTimeout(() => {
                 if (!detectionComplete) {
                     if (logHandler) ffmpeg.off('log', logHandler);
-                    reject(new Error('检测超时，请重试'));
+                    reject(new Error(t ? t('audioExtractor.detectTimeout') : '检测超时，请重试'));
                 }
             }, DETECTION_TIMEOUT);
 
@@ -56,7 +57,7 @@ export async function detectAudioTracks(
 
                 // 检测到关键信息说明元数据已加载
                 if (message.includes('Duration:') || message.includes('Stream #')) {
-                    onProgress?.(60, '正在解析音轨信息...');
+                    onProgress?.(60, t ? t('audioExtractor.parsing') : '正在解析音轨信息...');
                 }
             };
 
@@ -81,7 +82,7 @@ export async function detectAudioTracks(
 
         const output = await collectLogs;
 
-        onProgress?.(80, '正在整理音轨列表...');
+        onProgress?.(80, t ? t('audioExtractor.organizing') : '正在整理音轨列表...');
 
         // 步骤3: 解析音轨信息
         const tracks = parseAudioTracksFromOutput(output);
@@ -93,7 +94,7 @@ export async function detectAudioTracks(
             console.warn('Failed to delete temp file:', e);
         }
 
-        onProgress?.(100, '检测完成');
+        onProgress?.(100, t ? t('audioExtractor.detectComplete') : '检测完成');
 
         return {
             tracks,
@@ -109,11 +110,11 @@ export async function detectAudioTracks(
 
         console.error('Audio detection failed:', error);
 
-        if (error instanceof Error && error.message.includes('超时')) {
+        if (error instanceof Error && (error.message.includes('超时') || (t && error.message === t('audioExtractor.detectTimeout')))) {
             throw error;
         }
 
-        throw new Error('无法检测音频轨道，请检查文件格式');
+        throw new Error(t ? t('audioExtractor.detectFailed') : '无法检测音频轨道，请检查文件格式');
     }
 }
 
@@ -243,7 +244,8 @@ export async function extractAudioTrack(
     ffmpeg: FFmpeg,
     trackIndex: number,
     outputExtension: string,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    t?: (key: string, values?: any) => string
 ): Promise<Blob> {
     const inputFileName = 'input_video';
     const outputFileName = `output.${outputExtension}`;
@@ -263,9 +265,9 @@ export async function extractAudioTrack(
         // 执行音频提取（流复制）
         await ffmpeg.exec([
             '-i', inputFileName,
-            '-map', `0:a:${trackIndex}`,  // 选择特定音轨
-            '-c:a', 'copy',                // 流复制（不重新编码）
-            '-vn',                         // 不包含视频
+            '-map', `0:a:${trackIndex}`,
+            '-c:a', 'copy',
+            '-vn',
             outputFileName
         ]);
 
@@ -289,14 +291,28 @@ export async function extractAudioTrack(
         return blob;
     } catch (error) {
         console.error('Audio extraction failed:', error);
-        throw new Error('音频提取失败，请重试');
+        throw new Error(t ? t('audioExtractor.extractFailed') : '音频提取失败，请重试');
     }
 }
 
 /**
  * 格式化声道布局为友好的中文显示
  */
-export function formatChannelLayout(channelLayout: string): string {
+export function formatChannelLayout(channelLayout: string, t?: (key: string, values?: any) => string): string {
+    if (t) {
+        const keyMap: Record<string, string> = {
+            'mono': 'channels.mono',
+            'stereo': 'channels.stereo',
+            '5.1': 'channels.surround51',
+            '5.1(side)': 'channels.surround51',
+            'quad': 'channels.quad',
+            '7.1': 'channels.surround71',
+        };
+        const key = keyMap[channelLayout.toLowerCase()];
+        if (key) return t(`audioExtractor.${key}`);
+        return channelLayout;
+    }
+
     const mapping: Record<string, string> = {
         'mono': '单声道',
         'stereo': '立体声',
@@ -332,14 +348,14 @@ export function formatSampleRate(sampleRate: number): string {
 /**
  * 验证视频文件格式
  */
-export function validateVideoFile(file: File): { valid: boolean; error?: string } {
+export function validateVideoFile(file: File, t?: (key: string, values?: any) => string): { valid: boolean; error?: string } {
     const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 
     // 检查文件大小
     if (file.size > MAX_FILE_SIZE) {
         return {
             valid: false,
-            error: '文件过大（超过2GB），无法处理'
+            error: t ? t('audioExtractor.fileTooLarge') : '文件过大（超过2GB），无法处理'
         };
     }
 
@@ -354,7 +370,7 @@ export function validateVideoFile(file: File): { valid: boolean; error?: string 
     if (!extension || !supportedFormats.includes(extension)) {
         return {
             valid: false,
-            error: '不支持的文件格式。仅支持：MP4, MKV, AVI, MOV, WebM, FLV, WMV 等'
+            error: t ? t('audioExtractor.unsupportedFormat') : '不支持的文件格式。仅支持：MP4, MKV, AVI, MOV, WebM, FLV, WMV 等'
         };
     }
 

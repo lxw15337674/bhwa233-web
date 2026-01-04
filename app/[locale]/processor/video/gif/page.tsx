@@ -49,6 +49,7 @@ export default function VideoGifPage() {
       description={t('mediaProcessor.functions.videoGif.description')}
       leftColumn={leftColumn}
       rightColumn={rightColumn}
+      category="video"
     />
   );
 }

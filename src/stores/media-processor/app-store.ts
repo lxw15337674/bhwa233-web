@@ -128,7 +128,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const { ffmpeg, isLoaded } = useFFmpegStore.getState();
 
     if (!isLoaded || !ffmpeg) {
-      set({ analyzeError: 'FFmpeg 未就绪' });
+      set({ analyzeError: 'common.errors.ffmpegNotReady' });
       return;
     }
 
@@ -147,7 +147,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       console.error('[Store] 分析失败:', error);
       set({ 
         isAnalyzing: false, 
-        analyzeError: error.message || '文件分析失败' 
+        analyzeError: error.message || 'common.errors.analysisFailed' 
       });
     }
   },

@@ -47,7 +47,7 @@ export const AudioExtractControlPanel: React.FC = () => {
         if (!selectedFile || !ffmpeg || !ffmpegLoaded) return;
 
         // 验证文件
-        const validation = validateVideoFile(selectedFile);
+        const validation = validateVideoFile(selectedFile, t);
         if (!validation.valid) {
             setFileError(validation.error || t('audioControlPanels.extract.unsupportedFormat'));
             return;
@@ -66,7 +66,8 @@ export const AudioExtractControlPanel: React.FC = () => {
                 (progress, status) => {
                     setDetectionProgress(progress);
                     setDetectionStatus(status);
-                }
+                },
+                t
             );
 
             if (!result.hasAudio) {
@@ -125,7 +126,8 @@ export const AudioExtractControlPanel: React.FC = () => {
                 outputExt,
                 (progress) => {
                     updateProcessingState({ progress });
-                }
+                },
+                t
             );
 
             finishProcessing(audioBlob, outputFileName);
@@ -353,7 +355,7 @@ export const AudioExtractControlPanel: React.FC = () => {
 
                                                     <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                                                         <p>
-                                                            {track.codec.toUpperCase()}, {formatBitrate(track.bitrate)}, {formatChannelLayout(track.channelLayout)}, {formatSampleRate(track.sampleRate)}
+                                                            {track.codec.toUpperCase()}, {formatBitrate(track.bitrate)}, {formatChannelLayout(track.channelLayout, t)}, {formatSampleRate(track.sampleRate)}
                                                         </p>
                                                         {track.language && (
                                                             <p>

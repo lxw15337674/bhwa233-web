@@ -15,7 +15,29 @@
         "search": "搜索",
         "filter": "筛选",
         "reset": "重置",
-        "apply": "应用"
+        "apply": "应用",
+        "errors": {
+            "ffmpegNotReady": "FFmpeg 未就绪",
+            "analysisFailed": "文件分析失败"
+        },
+        "progress": {
+            "initializing": "正在初始化编码器...",
+            "configuring": "正在配置编码器...",
+            "settingOutput": "正在设置输出流...",
+            "processing": "开始处理视频...",
+            "convertingAudio": "正在转换音频...",
+            "compressingVideo": "正在压缩视频...",
+            "processingGeneric": "正在处理中...",
+            "finishing": "即将完成...",
+            "remainingSeconds": "剩余约 {{seconds}}秒",
+            "remainingMinutes": "剩余约 {{minutes}}分钟",
+            "remainingMinutesSeconds": "剩余约 {{minutes}}分{{seconds}}秒",
+            "remainingHours": "剩余约 {{hours}}小时",
+            "remainingHoursMinutes": "剩余约 {{hours}}小时{{minutes}}分",
+            "title": "处理进度",
+            "complete": "处理完成",
+            "preparing": "准备中..."
+        }
     },
     "navigation": {
         "home": "首页",
@@ -198,7 +220,46 @@
             "maxDuration": "最大时长",
             "previewClip": "预览片段",
             "clipDuration": "选中片段时长",
-            "exceedsLimit": "已达10秒上限"
+            "exceedsLimit": "已达10秒上限",
+            "preview": "GIF 预览",
+            "waitingFFmpeg": "正在加载 FFmpeg...",
+            "ffmpegError": "FFmpeg 加载失败",
+            "selectedDuration": "选中时长:",
+            "totalDuration": "视频总长:",
+            "maxDurationError": "最多选择30秒",
+            "endTimeError": "结束时间超出视频长度",
+            "startTimeError": "开始时间不能小于0",
+            "fps10": "10 FPS - 标准",
+            "fps30": "30 FPS - 流畅",
+            "fpsHint": "较低的 FPS 会减小文件大小",
+            "resolution": "分辨率",
+            "res480": "480p - 标准",
+            "res720": "720p - 高清",
+            "resHint": "较高的分辨率会增加文件大小",
+            "estimatedSize": "预估文件大小",
+            "largeFileWarning": "⚠️ 文件较大，建议降低参数",
+            "finishing": "即将完成...",
+            "timeRangeError": "结束时间必须大于开始时间",
+            "uploadVideo": "请先上传视频文件"
+        }
+    },
+    "audioExtractor": {
+        "detecting": "正在加载文件...",
+        "analyzing": "正在分析文件格式...",
+        "parsing": "正在解析音轨信息...",
+        "organizing": "正在整理音轨列表...",
+        "detectComplete": "检测完成",
+        "detectTimeout": "检测超时，请重试",
+        "detectFailed": "无法检测音频轨道，请检查文件格式",
+        "extractFailed": "音频提取失败，请重试",
+        "fileTooLarge": "文件过大（超过2GB），无法处理",
+        "unsupportedFormat": "不支持的文件格式。仅支持：MP4, MKV, AVI, MOV, WebM, FLV, WMV 等",
+        "channels": {
+            "mono": "单声道",
+            "stereo": "立体声",
+            "surround51": "5.1 环绕声",
+            "surround71": "7.1 环绕声",
+            "quad": "四声道"
         }
     },
     "audioFormatConverter": {
@@ -470,5 +531,9 @@
                 "description": "最大2倍速度"
             }
         }
+    },
+    "videoCompressor": {
+        "unsupportedFormat": "不支持的视频格式，请选择常见的视频文件",
+        "fileSizeLimit": "文件大小 {{size}} 超过 1.5GB 限制，请选择较小的视频文件"
     }
 }
