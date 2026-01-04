@@ -1,17 +1,9 @@
-/**
- * 图片编辑器组件 - 使用 filerobot-image-editor
- */
 'use client';
 
 import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { ImageCanvasEditorProps } from './types';
-
-// 动态导入 FilerobotImageEditor（仅客户端）
-const FilerobotImageEditor = dynamic(
-    () => import('react-filerobot-image-editor').then((mod) => mod.default),
-    { ssr: false }
-);
+import FilerobotImageEditor from 'react-filerobot-image-editor';
 
 // 深色主题配置 - 完整的 @scaleflex/ui 调色板覆盖
 const darkTheme = {

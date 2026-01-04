@@ -184,14 +184,21 @@
             "downloadResult": "下载 GIF",
             "reconvert": "重新转换",
             "settings": "转换设置",
-            "startTime": "开始时间 (秒)",
+            "startTime": "开始时间",
+            "endTime": "结束时间",
             "duration": "持续时长 (秒)",
             "width": "宽度 (像素)",
             "fps": "帧率 (FPS)",
             "selectWidth": "选择宽度",
             "selectFps": "选择FPS",
             "originalSize": "原尺寸",
-            "conversionFailed": "转换失败"
+            "conversionFailed": "转换失败",
+            "timeRange": "时间范围选择",
+            "selected": "已选中",
+            "maxDuration": "最大时长",
+            "previewClip": "预览片段",
+            "clipDuration": "选中片段时长",
+            "exceedsLimit": "已达10秒上限"
         }
     },
     "audioFormatConverter": {

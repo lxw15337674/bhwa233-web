@@ -10,7 +10,7 @@ import { UnifiedOutputPreview } from '@/components/media-processor/UnifiedOutput
 import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
 import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
-import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
+import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
 
 export default function AudioExtractPage() {
   const { t } = useTranslation();
