@@ -3,7 +3,12 @@
 import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { ImageCanvasEditorProps } from './types';
-import FilerobotImageEditor from 'react-filerobot-image-editor';
+
+// 动态导入 FilerobotImageEditor，禁用 SSR 以避免 canvas native 模块问题
+const FilerobotImageEditor = dynamic(
+    () => import('react-filerobot-image-editor'),
+    { ssr: false }
+);
 
 // 深色主题配置 - 完整的 @scaleflex/ui 调色板覆盖
 const darkTheme = {

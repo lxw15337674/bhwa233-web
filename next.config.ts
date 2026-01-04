@@ -13,8 +13,13 @@ const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
-  turbopack: {},
-  webpack: (config, { }) => {
+  // turbopack: {}, // 暂时禁用 turbopack，因为它与 dynamic import 有兼容性问题
+  webpack: (config, { isServer }) => {
+    // 在服务器端排除 canvas 包
+    if (isServer) {
+      config.externals = config.externals || [];
+      config.externals.push('canvas');
+    }
 
     // 处理 WASM 文件
     config.module.rules.push({
