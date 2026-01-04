@@ -69,8 +69,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
       analyzeError: null,
       processingState: initialProcessingState
     });
-    // 自动触发分析
-    if (file) {
+    // 只对音频文件自动触发分析，视频文件由各自的功能组件处理
+    if (file && file.type.startsWith('audio/')) {
       get().analyzeMedia(file);
     }
   },

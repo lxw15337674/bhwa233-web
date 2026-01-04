@@ -126,21 +126,38 @@ function parseAudioTracksFromOutput(output: string): AudioTrack[] {
 
     let currentAudioTrackIndex = 0;
     let duration = 0;
+    let isInInputSection = false;
+    let isInOutputSection = false;
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
 
-        // 先匹配时长信息
-        // 例如：Duration: 00:02:30.50, start: 0.000000, bitrate: 1234 kb/s
-        const durationMatch = line.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d{2})/);
-        if (durationMatch) {
-            const [, hours, minutes, seconds] = durationMatch;
-            duration = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+        // 检测 Input 和 Output 部分
+        if (line.startsWith('Input #')) {
+            isInInputSection = true;
+            isInOutputSection = false;
+            continue;
+        }
+        if (line.startsWith('Output #')) {
+            isInInputSection = false;
+            isInOutputSection = true;
+            continue;
+        }
+
+        // 只处理 Input 部分的流
+        if (!isInInputSection) {
+            // 仍然提取时长信息（在 Metadata 部分）
+            const durationMatch = line.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d{2})/);
+            if (durationMatch) {
+                const [, hours, minutes, seconds] = durationMatch;
+                duration = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+            }
+            continue;
         }
 
         // 匹配音频流信息行（更宽松的匹配）
         // 例如：Stream #0:0[0x1](und): Audio: aac (LC) (mp4a / 0x6134706D), 44100 Hz, stereo, fltp, 128 kb/s (default)
-        if (line.includes('Audio:')) {
+        if (line.includes('Audio:') && line.includes('Stream #')) {
             // 提取流索引
             const streamIndexMatch = line.match(/Stream #\d+:(\d+)/);
             if (!streamIndexMatch) continue;
