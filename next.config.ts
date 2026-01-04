@@ -14,7 +14,7 @@ const nextConfig: NextConfig = withSerwist({
     ignoreBuildErrors: true,
   },
   turbopack: {},
-  webpack: (config, { isServer }) => {
+  webpack: (config, { }) => {
 
     // 处理 WASM 文件
     config.module.rules.push({
@@ -23,6 +23,7 @@ const nextConfig: NextConfig = withSerwist({
     });
     return config;
   },
+  transpilePackages: ['react-filerobot-image-editor'],
   images: {
     dangerouslyAllowSVG: true,
     // 启用图片优化，移除unoptimized配置
