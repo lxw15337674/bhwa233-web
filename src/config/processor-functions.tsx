@@ -1,5 +1,6 @@
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
+import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
 import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 import { VideoToGifControlPanel } from '@/components/media-processor/control-panels/VideoToGifControlPanel';
@@ -26,7 +27,7 @@ const videoFileValidator = (file: File): boolean => {
 
 
 const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
-// 音频功能
+    // 音频功能
     {
         id: 'audio-convert',
         path: 'convert',
@@ -67,6 +68,19 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
     },
     // 视频功能
+    {
+        id: 'audio-extract',
+        path: 'extract',
+        label: '音频提取',
+        labelKey: 'mediaProcessor.functions.audioExtract.label',
+        category: 'video',
+        description: '从视频文件中快速提取音频轨道。',
+        descriptionKey: 'mediaProcessor.functions.audioExtract.description',
+        icon: '🎬',
+        component: AudioExtractControlPanel,
+        fileValidator: videoFileValidator,
+        supportedFormats: ['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', 'wmv'],
+    },
     {
         id: 'video-gif',
         path: 'gif',

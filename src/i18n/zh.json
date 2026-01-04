@@ -31,6 +31,7 @@
         "categories": {
             "tools": "工具箱",
             "mediaProcessor": "图片处理",
+            "videoTools": "视频工具",
             "audioTools": "音频工具"
         },
         "menuItems": {
@@ -46,6 +47,10 @@
             "batchProcessDesc": "批量压缩、格式转换，高效处理多张图片",
             "audioFormatConvert": "音频格式转换",
             "audioFormatConvertDesc": "将音频文件转换为不同的格式和质量，支持多种音频格式",
+            "audioExtract": "音频提取",
+            "audioExtractDesc": "从视频文件中快速提取音频轨道",
+            "videoToGif": "视频转 GIF",
+            "videoToGifDesc": "将视频片段转换为高质量的 GIF 动图",
             "audioSpeedChange": "音频倍速调整",
             "audioSpeedChangeDesc": "调整音频的播放速度，同时保持音调不变",
             "speechToText": "语音转文字",
@@ -146,6 +151,10 @@
         "selectFunctionToStart": "选择功能开始处理",
         "unsupportedFormat": "不支持的文件格式。支持的格式: {{formats}}",
         "functions": {
+            "audioExtract": {
+                "label": "音频提取",
+                "description": "从视频文件中快速提取音频轨道。"
+            },
             "audioConvert": {
                 "label": "音频格式转换",
                 "description": "将音频文件转换为不同的格式和质量。"
@@ -320,6 +329,39 @@
         "description": "支持裁剪、滤镜、标注、水印等高级编辑功能"
     },
     "audioControlPanels": {
+        "extract": {
+            "title": "音频提取",
+            "description": "从视频文件中快速提取音频轨道",
+            "uploadVideo": "上传视频文件",
+            "fileSizeWarning": "文件较大，处理可能需要一些时间",
+            "fileSizeError": "文件过大（超过2GB），无法处理",
+            "fileSizeLimit": "文件大小不能超过 2GB",
+            "detectingTracks": "正在检测音轨...",
+            "tracksFound": "检测到 {count} 条音轨",
+            "noAudioTrack": "该视频不包含音频轨道",
+            "trackInfo": "音轨 {index}",
+            "defaultTrack": "[默认]",
+            "language": "语言",
+            "unknownLanguage": "未标记",
+            "extractButton": "提取音频",
+            "extracting": "正在提取...",
+            "extractSuccess": "提取完成！",
+            "extractFailed": "提取失败",
+            "downloadAudio": "下载音频",
+            "convertPrompt": "需要转换为其他格式？",
+            "convertButton": "转换此文件",
+            "unsupportedFormat": "不支持的文件格式",
+            "supportedFormats": "仅支持常见视频格式：MP4, MKV, AVI, MOV, WebM, FLV, WMV",
+            "selectVideo": "请选择视频文件",
+            "selectTrack": "请选择要提取的音轨",
+            "waitingFFmpeg": "等待 FFmpeg 加载完成...",
+            "reextract": "重新提取",
+            "channels": {
+                "mono": "单声道",
+                "stereo": "立体声",
+                "surround": "环绕声"
+            }
+        },
         "convert": {
             "startConvert": "开始转换音频",
             "converting": "正在转换音频...",

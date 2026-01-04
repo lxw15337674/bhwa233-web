@@ -90,6 +90,30 @@ export const Categories: CategoryItem[] = [
     ]
   },
   {
+    id: 'video-tools',
+    name: '视频工具',
+    translationKey: 'navigation.categories.videoTools',
+    icon: FileVideo,
+    items: [
+      {
+        name: '音频提取',
+        translationKey: 'navigation.menuItems.audioExtract',
+        descriptionKey: 'navigation.menuItems.audioExtractDesc',
+        url: '/processor/video/extract',
+        icon: Music,
+        description: '从视频文件中快速提取音频轨道'
+      },
+      {
+        name: '视频转 GIF',
+        translationKey: 'navigation.menuItems.videoToGif',
+        descriptionKey: 'navigation.menuItems.videoToGifDesc',
+        url: '/processor/video/gif',
+        icon: FileImage,
+        description: '将视频片段转换为高质量的 GIF 动图'
+      }
+    ]
+  },
+  {
     id: 'audio-tools',
     name: '音频工具',
     translationKey: 'navigation.categories.audioTools',
