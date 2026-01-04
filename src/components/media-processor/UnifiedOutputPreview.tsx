@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Play, Pause, FileAudio, FileVideo, FileText, ImageIcon } from 'lucide-react';
 import { downloadBlob } from '@/utils/audioConverter';
 import { useAppStore } from '@/stores/media-processor/app-store';
+import { useTranslation } from '@/components/TranslationProvider';
 
 interface UnifiedOutputPreviewProps {
   mediaType: 'audio' | 'video' | 'text' | 'image'; 
@@ -14,6 +15,7 @@ interface UnifiedOutputPreviewProps {
 export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
   mediaType
 }) => {
+  const { t } = useTranslation();
   const { processingState } = useAppStore();
   const { outputFile, outputFileName } = processingState;
 
@@ -89,7 +91,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
   switch (mediaType) {
     case 'audio':
       IconComponent = FileAudio;
-      titleText = '输出音频';
+      titleText = t('mediaProcessor.preview.outputAudio');
       mediaElement = (
         <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
           <Button
@@ -106,10 +108,10 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
           </Button>
           <div className="flex-1">
             <div className="text-sm font-medium mb-1">
-              音频预览
+              {t('mediaProcessor.preview.audioPreview')}
             </div>
             <div className="text-xs text-muted-foreground">
-              点击播放按钮预听音频
+              {t('mediaProcessor.preview.clickToPlay')}
             </div>
           </div>
           <audio
@@ -125,7 +127,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
       break;
     case 'video':
       IconComponent = FileVideo;
-      titleText = '输出视频';
+      titleText = t('mediaProcessor.preview.outputVideo');
       mediaElement = (
         <video
           ref={mediaRef as React.RefObject<HTMLVideoElement>}
@@ -140,7 +142,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
       break;
     case 'image':
         IconComponent = ImageIcon;
-        titleText = '输出图片';
+        titleText = t('mediaProcessor.preview.outputImage');
         mediaElement = (
             <img
                 src={outputFile ? URL.createObjectURL(outputFile) : undefined}
@@ -151,7 +153,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         break;
     case 'text':
       IconComponent = FileText;
-      titleText = '输出文本';
+      titleText = t('mediaProcessor.preview.outputText');
       mediaElement = (
         <textarea
           readOnly
@@ -162,7 +164,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
       break;
     default:
       IconComponent = FileText; // Default to text icon
-      titleText = '输出文件';
+      titleText = t('mediaProcessor.preview.outputFile');
       break;
   }
 
@@ -180,14 +182,14 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
         {/* 文件信息 */}
         <div className="space-y-2">
           <div className="text-sm">
-            <div className="text-muted-foreground mb-1">文件名</div>
+            <div className="text-muted-foreground mb-1">{t('mediaProcessor.preview.filename')}</div>
             <div className="font-medium break-all">
               {outputFileName}
             </div>
           </div>
           
           <div className="text-sm">
-            <div className="text-muted-foreground mb-1">文件大小</div>
+            <div className="text-muted-foreground mb-1">{t('mediaProcessor.preview.fileSize')}</div>
             <div className="font-medium">
               {formatFileSize(outputFile.size)}
             </div>
@@ -204,7 +206,7 @@ export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
           variant="default"
         >
           <Download className="w-4 h-4 mr-2" />
-          下载文件
+          {t('mediaProcessor.preview.download')}
         </Button>
       </CardContent>
     </Card>

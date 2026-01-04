@@ -121,7 +121,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                 const paletteFileName = 'palette.png';
 
                 // ============ 步骤 1: 生成调色板 ============
-                updateProcessingState({ progress: 10, currentStep: '第1步：正在分析视频颜色并生成专属调色板...' });
+                updateProcessingState({ progress: 10, currentStep: t('videoControlPanels.gif.steps.1') });
 
                 const paletteArgs: string[] = [];
                 if (isMultiThread) {
@@ -157,7 +157,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                 }
 
                 // ============ 步骤 2: 使用调色板生成 GIF ============
-                updateProcessingState({ progress: 40, currentStep: '第2步：正在使用专属调色板生成高质量 GIF...' });
+                updateProcessingState({ progress: 40, currentStep: t('videoControlPanels.gif.steps.2') });
 
                 const gifArgs: string[] = [];
                 if (isMultiThread) {
@@ -186,7 +186,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                     throw new Error('GIF 生成失败');
                 }
 
-                updateProcessingState({ progress: 95, currentStep: '即将完成...' });
+                updateProcessingState({ progress: 95, currentStep: t('videoControlPanels.gif.steps.final') });
 
                 const data = await ffmpeg.readFile(outputFileName);
                 const outputBlob = new Blob([data], { type: 'image/gif' });
@@ -241,7 +241,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                             <div className="flex items-center gap-2">
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                                 <p className="text-sm text-blue-900 dark:text-blue-100">
-                                    正在加载 FFmpeg 引擎，请稍候...
+                                    {t('videoControlPanels.gif.ffmpeg.loading')}
                                 </p>
                             </div>
                         </div>
@@ -251,13 +251,13 @@ export const VideoToGifControlPanel: React.FC = () => {
                     {ffmpegError && !ffmpegLoaded && (
                         <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                             <p className="text-sm text-red-900 dark:text-red-100 font-medium mb-1">
-                                FFmpeg 加载失败
+                                {t('videoControlPanels.gif.ffmpeg.failed')}
                             </p>
                             <p className="text-xs text-red-700 dark:text-red-300">
                                 {ffmpegError}
                             </p>
                             <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                                请刷新页面重试，或检查网络连接
+                                {t('videoControlPanels.gif.ffmpeg.refresh')}
                             </p>
                         </div>
                     )}
@@ -266,7 +266,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                     {!ffmpegLoaded && !ffmpegLoading && !ffmpegError && (
                         <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                             <p className="text-sm text-amber-900 dark:text-amber-100">
-                                FFmpeg 未就绪，请等待加载完成
+                                {t('videoControlPanels.gif.ffmpeg.notReady')}
                             </p>
                         </div>
                     )}
@@ -360,8 +360,8 @@ export const VideoToGifControlPanel: React.FC = () => {
                                         <SelectItem value="10">10 fps</SelectItem>
                                         <SelectItem value="15">15 fps</SelectItem>
                                         <SelectItem value="20">20 fps</SelectItem>
-                                        <SelectItem value="24">24 fps (电影)</SelectItem>
-                                        <SelectItem value="30">30 fps (流畅)</SelectItem>
+                                        <SelectItem value="24">24 fps ({t('videoControlPanels.gif.fpsDescriptions.cinema')})</SelectItem>
+                                        <SelectItem value="30">30 fps ({t('videoControlPanels.gif.fpsDescriptions.smooth')})</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

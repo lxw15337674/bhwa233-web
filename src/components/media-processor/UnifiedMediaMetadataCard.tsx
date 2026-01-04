@@ -8,8 +8,10 @@ import { RefreshCw, FileVideo, FileAudio, AlertTriangle } from 'lucide-react';
 import { formatDuration, formatResolution, formatChannelLayout } from '@/utils/audioConverter';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
+import { useTranslation } from '@/components/TranslationProvider';
 
 export const UnifiedMediaMetadataCard: React.FC = () => {
+  const { t } = useTranslation();
   const { 
     selectedFile, 
     mediaMetadata, 
@@ -48,7 +50,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
           ) : (
             <FileAudio className="h-5 w-5 text-green-500" />
           )}
-          媒体信息
+          {t('mediaMetadata.card.title')}
           {mediaMetadata && (
             <Badge variant="secondary" className="ml-auto">
               {mediaMetadata.container}
@@ -61,13 +63,13 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
         {/* 基本文件信息 */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-muted-foreground">文件名</div>
+            <div className="text-muted-foreground">{t('mediaMetadata.card.filename')}</div>
             <div className="font-medium truncate" title={selectedFile.name}>
               {selectedFile.name}
             </div>
           </div>
           <div>
-            <div className="text-muted-foreground">文件大小</div>
+            <div className="text-muted-foreground">{t('mediaMetadata.card.fileSize')}</div>
             <div className="font-medium">
               {formatFileSize(selectedFile.size)}
             </div>
@@ -79,7 +81,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
           <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
             <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />
             <span className="text-sm text-blue-700 dark:text-blue-300">
-              正在分析媒体信息...
+              {t('mediaMetadata.card.analyzing')}
             </span>
           </div>
         )}
@@ -100,7 +102,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
                     onClick={onRetryAnalysis}
                     className="h-7 text-xs"
                   >
-                    重试分析
+                    {t('mediaMetadata.card.retryAnalysis')}
                   </Button>
                 )}
               </div>
@@ -114,7 +116,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
             <div className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4 text-muted-foreground animate-spin" />
               <span className="text-sm text-muted-foreground">
-                等待 FFmpeg 加载完成后分析媒体信息...
+                {t('mediaMetadata.card.waitingFFmpeg')}
               </span>
             </div>
           </div>
@@ -126,15 +128,15 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
             {/* 基本信息 */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="text-muted-foreground">时长</div>
+                <div className="text-muted-foreground">{t('mediaMetadata.card.duration')}</div>
                 <div className="font-medium">
                   {formatDuration(mediaMetadata.totalDuration)}
                 </div>
               </div>
               <div>
-                <div className="text-muted-foreground">总码率</div>
+                <div className="text-muted-foreground">{t('mediaMetadata.card.overallBitrate')}</div>
                 <div className="font-medium">
-                  {mediaMetadata.overallBitrate > 0 ? `${mediaMetadata.overallBitrate} kbps` : '未知'}
+                  {mediaMetadata.overallBitrate > 0 ? `${mediaMetadata.overallBitrate} kbps` : t('common.unknown', 'Unknown')}
                 </div>
               </div>
             </div>
@@ -144,29 +146,29 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
               <div className="border-t pt-4">
                 <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
                   <FileVideo className="h-4 w-4 text-blue-500" />
-                  视频流信息
+                  {t('mediaMetadata.card.videoStream')}
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <div className="text-muted-foreground">编码:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.codec')}:</div>
                     <div className="font-medium uppercase">{mediaMetadata.video.codec}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">分辨率:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.resolution')}:</div>
                     <div className="font-medium">
                       {formatResolution(mediaMetadata.video.width, mediaMetadata.video.height)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">帧率:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.frameRate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.video.frameRate > 0 ? `${mediaMetadata.video.frameRate} fps` : '未知'}
+                      {mediaMetadata.video.frameRate > 0 ? `${mediaMetadata.video.frameRate} fps` : t('common.unknown', 'Unknown')}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">码率:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.bitrate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.video.bitrate > 0 ? `${mediaMetadata.video.bitrate} kbps` : '未知'}
+                      {mediaMetadata.video.bitrate > 0 ? `${mediaMetadata.video.bitrate} kbps` : t('common.unknown', 'Unknown')}
                     </div>
                   </div>
                 </div>
@@ -178,29 +180,29 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
               <div className="border-t pt-4">
                 <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
                   <FileAudio className="h-4 w-4 text-green-500" />
-                  音频流信息
+                  {t('mediaMetadata.card.audioStream')}
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <div className="text-muted-foreground">编码:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.codec')}:</div>
                     <div className="font-medium uppercase">{mediaMetadata.audio.codec}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">采样率:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.sampleRate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.audio.sampleRate > 0 ? `${mediaMetadata.audio.sampleRate} Hz` : '未知'}
+                      {mediaMetadata.audio.sampleRate > 0 ? `${mediaMetadata.audio.sampleRate} Hz` : t('common.unknown', 'Unknown')}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">声道:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.channels')}:</div>
                     <div className="font-medium">
                       {formatChannelLayout(mediaMetadata.audio.channels, mediaMetadata.audio.channelLayout)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">码率:</div>
+                    <div className="text-muted-foreground">{t('mediaMetadata.card.bitrate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.audio.bitrate > 0 ? `${mediaMetadata.audio.bitrate} kbps` : '未知'}
+                      {mediaMetadata.audio.bitrate > 0 ? `${mediaMetadata.audio.bitrate} kbps` : t('common.unknown', 'Unknown')}
                     </div>
                   </div>
                 </div>

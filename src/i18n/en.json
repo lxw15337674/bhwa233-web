@@ -3,6 +3,7 @@
         "loading": "Loading...",
         "error": "Error",
         "success": "Success",
+        "unknown": "Unknown",
         "save": "Save",
         "cancel": "Cancel",
         "confirm": "Confirm",
@@ -57,9 +58,27 @@
         "appNavigation": "Application Navigation",
         "useToolTitle": "Use {{name}} tool"
     },
-    "metadata": {
+    "mediaMetadata": {
         "defaultTitle": "Toolbox - Online Productivity Tools Collection",
-        "defaultDescription": "Integrated file upload, media processing and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience"
+        "defaultDescription": "Integrated file upload, media processing and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience",
+        "card": {
+            "title": "Media Information",
+            "filename": "Filename",
+            "fileSize": "File Size",
+            "analyzing": "Analyzing media info...",
+            "retryAnalysis": "Retry Analysis",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "duration": "Duration",
+            "overallBitrate": "Total Bitrate",
+            "videoStream": "Video Stream Info",
+            "audioStream": "Audio Stream Info",
+            "codec": "Codec",
+            "resolution": "Resolution",
+            "frameRate": "Frame Rate",
+            "bitrate": "Bitrate",
+            "sampleRate": "Sample Rate",
+            "channels": "Channels"
+        }
     },
     "upload": {
         "title": "Free Online File Upload Tool",
@@ -165,9 +184,27 @@
                 "label": "Video to GIF",
                 "description": "Convert video clips to high-quality GIF animations."
             }
+        },
+        "preview": {
+            "outputAudio": "Output Audio",
+            "outputVideo": "Output Video",
+            "outputImage": "Output Image",
+            "outputText": "Output Text",
+            "outputFile": "Output File",
+            "filename": "Filename",
+            "fileSize": "File Size",
+            "download": "Download File",
+            "clickToPlay": "Click play to preview audio",
+            "loading": "Loading...",
+            "audioPreview": "Audio Preview"
+        },
+        "progress": {
+            "title": "Processing Progress",
+            "complete": "Processing Complete",
+            "preparing": "Preparing..."
         }
     },
-    "videoControlPanels": {
+    "mediaMetadata": {
         "gif": {
             "startConvert": "Start GIF Conversion",
             "converting": "Converting...",
@@ -175,13 +212,35 @@
             "reconvert": "Convert Another",
             "settings": "Conversion Settings",
             "startTime": "Start Time (s)",
+            "endTime": "End Time (s)",
             "duration": "Duration (s)",
             "width": "Width (px)",
             "fps": "FPS",
             "selectWidth": "Select Width",
             "selectFps": "Select FPS",
             "originalSize": "Original Size",
-            "conversionFailed": "Conversion Failed"
+            "conversionFailed": "Conversion Failed",
+            "timeRange": "Time Range",
+            "selected": "Selected",
+            "maxDuration": "Max Duration",
+            "previewClip": "Preview Clip",
+            "clipDuration": "Clip Duration",
+            "exceedsLimit": "Exceeds 10s Limit",
+            "steps": {
+                "1": "Step 1: Analyzing video colors and generating palette...",
+                "2": "Step 2: Generating high-quality GIF using palette...",
+                "final": "Almost done..."
+            },
+            "fpsDescriptions": {
+                "cinema": "Cinema",
+                "smooth": "Smooth"
+            },
+            "ffmpeg": {
+                "loading": "Loading FFmpeg engine, please wait...",
+                "failed": "FFmpeg failed to load",
+                "refresh": "Please refresh or check your connection",
+                "notReady": "FFmpeg is not ready, please wait"
+            }
         }
     },
     "audioFormatConverter": {
@@ -319,6 +378,40 @@
         "description": "Support cropping, filters, annotations, watermarks and advanced editing"
     },
     "audioControlPanels": {
+        "extract": {
+            "title": "Audio Extraction",
+            "description": "Extract audio tracks quickly from video files",
+            "uploadVideo": "Upload Video File",
+            "fileSizeWarning": "Large file, processing may take some time",
+            "fileSizeError": "File too large (>2GB), cannot process",
+            "fileSizeLimit": "File size cannot exceed 2GB",
+            "detectingTracks": "Detecting audio tracks...",
+            "tracksFound": "Found {count} audio tracks",
+            "noAudioTrack": "This video contains no audio tracks",
+            "trackInfo": "Track {index}",
+            "defaultTrack": "[Default]",
+            "language": "Language",
+            "unknownLanguage": "Unknown",
+            "output": "Output",
+            "extractButton": "Extract Audio",
+            "extracting": "Extracting...",
+            "extractSuccess": "Extraction Complete!",
+            "extractFailed": "Extraction Failed",
+            "downloadAudio": "Download Audio",
+            "convertPrompt": "Need to convert to other formats?",
+            "convertButton": "Convert this file",
+            "unsupportedFormat": "Unsupported file format",
+            "supportedFormats": "Supported formats: MP4, MKV, AVI, MOV, WebM, FLV, WMV",
+            "selectVideo": "Please select a video file",
+            "selectTrack": "Please select a track to extract",
+            "waitingFFmpeg": "Waiting for FFmpeg to load...",
+            "reextract": "Extract Again",
+            "channels": {
+                "mono": "Mono",
+                "stereo": "Stereo",
+                "surround": "Surround"
+            }
+        },
         "convert": {
             "startConvert": "Start Audio Conversion",
             "converting": "Converting audio...",

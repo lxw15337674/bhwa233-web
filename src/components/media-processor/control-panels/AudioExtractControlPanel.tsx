@@ -361,7 +361,7 @@ export const AudioExtractControlPanel: React.FC = () => {
                                                             </p>
                                                         )}
                                                         <p className="text-xs text-gray-500 dark:text-gray-500">
-                                                            输出: {generateOutputFileName(selectedFile?.name || '', outputExt, track.index, track.language)}
+                                                            {t('audioControlPanels.extract.output')}: {generateOutputFileName(selectedFile?.name || '', outputExt, track.index, track.language)}
                                                         </p>
                                                     </div>
                                                 </div>
