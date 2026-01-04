@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Play, Download, Settings2 } from 'lucide-react';
 import { useTranslation } from '@/components/TranslationProvider';
 import { useAppStore } from '@/stores/media-processor/app-store';
@@ -13,16 +11,13 @@ import { useFFmpegStore } from '@/stores/ffmpeg-store';
 import { fetchFile } from '@ffmpeg/util';
 import { downloadBlob, getFileExtension } from '@/utils/audioConverter';
 import { safeCleanupFiles, createFFmpegProgressListener } from '@/utils/ffmpeg-helpers';
-import { VideoPreviewPlayer } from '@/components/media-processor/shared/VideoPreviewPlayer';
 
 export const VideoToGifControlPanel: React.FC = () => {
     const { t } = useTranslation();
 
     // Store access
     const selectedFile = useAppStore(state => state.selectedFile);
-    const mediaMetadata = useAppStore(state => state.mediaMetadata);
     const processingState = useAppStore(state => state.processingState);
-    const analyzeMedia = useAppStore(state => state.analyzeMedia);
     const startProcessing = useAppStore(state => state.startProcessing);
     const finishProcessing = useAppStore(state => state.finishProcessing);
     const setProcessingError = useAppStore(state => state.setProcessingError);
@@ -31,56 +26,31 @@ export const VideoToGifControlPanel: React.FC = () => {
 
     const { ffmpeg, isMultiThread, isLoaded: ffmpegLoaded, isLoading: ffmpegLoading, error: ffmpegError } = useFFmpegStore();
 
-    // Local state for GIF parameters
-    const [startTime, setStartTime] = useState<number>(0);
-    const [endTime, setEndTime] = useState<number>(5);
-    const [currentPreviewTime, setCurrentPreviewTime] = useState<number>(0);
+    // Local state for GIF parameters（参考代码方式）
     const [fps, setFps] = useState<number>(10);
-    const [width, setWidth] = useState<number>(320);
+    const [resolution, setResolution] = useState<number>(480);
+    const [videoPreviewUrl, setVideoPreviewUrl] = useState<string>('');
+    const [gifPreviewUrl, setGifPreviewUrl] = useState<string>('');
 
-    const duration = endTime - startTime;
-    const videoDuration = mediaMetadata?.video?.duration || 0;
-
-    // 自动分析视频元数据（如果还没有）
+    // 创建视频预览URL
     useEffect(() => {
-        if (selectedFile && !mediaMetadata && selectedFile.type.startsWith('video/')) {
-            analyzeMedia(selectedFile);
+        if (selectedFile) {
+            const url = URL.createObjectURL(selectedFile);
+            setVideoPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
         }
-    }, [selectedFile, mediaMetadata, analyzeMedia]);
+    }, [selectedFile]);
 
-    // Initialize/Update default values based on metadata
+    // 处理输出文件的GIF预览
     useEffect(() => {
-        if (mediaMetadata?.video) {
-            // Default width to something reasonable, max 480 or original width
-            const originalWidth = mediaMetadata.video.width || 640;
-            if (originalWidth > 480) {
-                setWidth(480);
-            } else {
-                setWidth(originalWidth);
-            }
-
-            // Set initial end time based on video duration
-            const initialDuration = Math.min(5, mediaMetadata.video.duration || 5);
-            setEndTime(initialDuration);
-            setCurrentPreviewTime(0);
+        if (processingState.outputFile) {
+            const url = URL.createObjectURL(processingState.outputFile);
+            setGifPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } else {
+            setGifPreviewUrl('');
         }
-    }, [mediaMetadata]);
-
-    // 时间范围变化处理
-    const handleTimeRangeChange = (newStart: number, newEnd: number) => {
-        setStartTime(newStart);
-        setEndTime(newEnd);
-    };
-
-    // 视频预览时间更新
-    const handleVideoTimeUpdate = (time: number) => {
-        setCurrentPreviewTime(time);
-    };
-
-    // 跳转到指定时间（用于预览片段）
-    const handleSeek = (time: number) => {
-        setCurrentPreviewTime(time);
-    };
+    }, [processingState.outputFile]);
 
     const canStartProcessing = selectedFile && ffmpeg && ffmpegLoaded && !processingState.isProcessing;
 
@@ -114,76 +84,33 @@ export const VideoToGifControlPanel: React.FC = () => {
             ffmpeg.on('log', detailedLogListener);
 
             try {
-                // 使用两步法生成高质量 GIF（稳定方案）
-                // 步骤1：生成专属调色板
-                // 步骤2：使用调色板生成最终 GIF
+                // 参考代码实现：单步转换（简单快速验证）
+                // ffmpeg -i upload.mp4 -vf "fps=10,scale=720:-1:flags=lanczos" -f gif converted_file.gif
                 
-                const paletteFileName = 'palette.png';
+                updateProcessingState({ progress: 10, currentStep: '正在转换视频为 GIF...' });
 
-                // ============ 步骤 1: 生成调色板 ============
-                updateProcessingState({ progress: 10, currentStep: '第1步：正在分析视频颜色并生成专属调色板...' });
-
-                const paletteArgs: string[] = [];
+                const args: string[] = [];
                 if (isMultiThread) {
-                    paletteArgs.push('-threads', '0');
+                    args.push('-threads', '0');
                 }
 
-                // 生成调色板：裁剪时间段 + 调整尺寸 + 生成256色调色板
-                paletteArgs.push(
-                    '-ss', startTime.toString(),
-                    '-t', duration.toString(),
+                // 单步转换命令（完全按照参考代码）
+                args.push(
                     '-i', inputFileName,
-                    '-vf', `fps=${fps},scale=${width}:-1:flags=lanczos,palettegen=stats_mode=diff`,
-                    '-y',
-                    paletteFileName
-                );
-
-                console.log('[GIF Step 1] 生成调色板参数:', paletteArgs);
-                console.log('[GIF Step 1] 开始生成调色板...');
-
-                const paletteRet = await ffmpeg.exec(paletteArgs);
-
-                console.log('[GIF Step 1] 调色板生成完成，返回值:', paletteRet);
-                if (paletteRet !== 0) {
-                    throw new Error('调色板生成失败');
-                }
-
-                // 验证调色板文件是否生成
-                try {
-                    const paletteData = await ffmpeg.readFile(paletteFileName);
-                    console.log('[GIF Step 1] ✓ 调色板文件已生成，大小:', paletteData.byteLength, 'bytes');
-                } catch (e) {
-                    throw new Error('调色板文件生成失败，请重试');
-                }
-
-                // ============ 步骤 2: 使用调色板生成 GIF ============
-                updateProcessingState({ progress: 40, currentStep: '第2步：正在使用专属调色板生成高质量 GIF...' });
-
-                const gifArgs: string[] = [];
-                if (isMultiThread) {
-                    gifArgs.push('-threads', '0');
-                }
-
-                // 应用调色板：读取视频 + 调色板 + 应用颜色映射
-                gifArgs.push(
-                    '-ss', startTime.toString(),
-                    '-t', duration.toString(),
-                    '-i', inputFileName,
-                    '-i', paletteFileName,
-                    '-lavfi', `fps=${fps},scale=${width}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`,
-                    '-loop', '0',
+                    '-vf', `fps=${fps},scale=${resolution}:-1:flags=lanczos`,
+                    '-f', 'gif',
                     '-y',
                     outputFileName
                 );
 
-                console.log('[GIF Step 2] 生成 GIF 参数:', gifArgs);
-                console.log('[GIF Step 2] 开始生成最终 GIF...');
+                console.log('[GIF] 转换参数:', args);
+                console.log('[GIF] 开始转换...');
 
-                const gifRet = await ffmpeg.exec(gifArgs);
+                const ret = await ffmpeg.exec(args);
 
-                console.log('[GIF Step 2] GIF 生成完成，返回值:', gifRet);
-                if (gifRet !== 0) {
-                    throw new Error('GIF 生成失败');
+                console.log('[GIF] 转换完成，返回值:', ret);
+                if (ret !== 0) {
+                    throw new Error('GIF 转换失败');
                 }
 
                 updateProcessingState({ progress: 95, currentStep: '即将完成...' });
@@ -196,8 +123,7 @@ export const VideoToGifControlPanel: React.FC = () => {
             } finally {
                 ffmpeg.off('log', progressListener);
                 ffmpeg.off('log', detailedLogListener);
-                // 清理所有临时文件（包括调色板）
-                await safeCleanupFiles(ffmpeg, [inputFileName, outputFileName, 'palette.png']);
+                await safeCleanupFiles(ffmpeg, [inputFileName, outputFileName]);
             }
 
         } catch (error) {
@@ -218,21 +144,37 @@ export const VideoToGifControlPanel: React.FC = () => {
 
     return (
         <div className="space-y-4">
-            {/* 视频预览播放器 */}
+            {/* 文件名显示 */}
             {selectedFile && (
-                <VideoPreviewPlayer
-                    file={selectedFile}
-                    currentTime={currentPreviewTime}
-                    onTimeUpdate={handleVideoTimeUpdate}
-                />
+                <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm font-medium text-foreground mb-1">选中的文件:</p>
+                    <p className="text-xs text-muted-foreground break-all">{selectedFile.name}</p>
+                </div>
             )}
+
+            {/* 预览区域 */}
+            <div className="relative flex items-center justify-center border border-dashed border-border rounded-lg p-4 min-h-[350px] bg-muted/20">
+                {processingState.isProcessing ? (
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                        <div className="text-center">
+                            <p className="text-lg font-medium mb-2">{Math.round(processingState.progress)}%</p>
+                            <p className="text-sm text-muted-foreground">{processingState.currentStep || '正在处理...'}</p>
+                        </div>
+                    </div>
+                ) : gifPreviewUrl ? (
+                    <img src={gifPreviewUrl} alt="GIF Preview" className="max-w-full max-h-full rounded" />
+                ) : videoPreviewUrl ? (
+                    <video src={videoPreviewUrl} controls className="max-w-full max-h-full rounded" />
+                ) : null}
+            </div>
 
             {/* 转换设置面板 */}
             <Card className="bg-card border-border">
                 <CardContent className="p-4 space-y-4">
                     <div className="flex items-center gap-2 mb-2">
                         <Settings2 className="w-4 h-4" />
-                        <h3 className="font-medium">{t('videoControlPanels.gif.settings')}</h3>
+                        <h3 className="font-medium">GIF 设置</h3>
                     </div>
 
                     {/* FFmpeg 加载状态提示 */}
@@ -262,140 +204,75 @@ export const VideoToGifControlPanel: React.FC = () => {
                         </div>
                     )}
 
-                    {/* 未加载 FFmpeg 提示 */}
-                    {!ffmpegLoaded && !ffmpegLoading && !ffmpegError && (
-                        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                            <p className="text-sm text-amber-900 dark:text-amber-100">
-                                FFmpeg 未就绪，请等待加载完成
+                    {/* 参数控制 */}
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label className="flex items-center justify-between">
+                                <span>FPS (帧率)</span>
+                                <span className="text-primary font-medium">{fps}</span>
+                            </Label>
+                            <input
+                                type="range"
+                                min={5}
+                                max={60}
+                                value={fps}
+                                onChange={(e) => setFps(parseInt(e.target.value))}
+                                disabled={processingState.isProcessing}
+                                className="w-full h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg appearance-none cursor-pointer accent-primary"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                较低的 FPS 会减小文件大小，但可能影响流畅度
                             </p>
                         </div>
-                    )}
 
-                    {/* 时间范围选择 */}
-                    <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>{t('videoControlPanels.gif.startTime')}</Label>
-                            <Input
-                                type="number"
-                                min="0"
-                                max={videoDuration}
-                                step="0.1"
-                                value={startTime.toFixed(1)}
-                                onChange={(e) => {
-                                    const newStart = Math.max(0, Math.min(parseFloat(e.target.value) || 0, videoDuration));
-                                    setStartTime(newStart);
-                                    // 确保至少1秒时长
-                                    if (endTime - newStart < 1) {
-                                        setEndTime(Math.min(videoDuration, newStart + 1));
-                                    }
-                                    // 确保不超过10秒
-                                    if (endTime - newStart > 10) {
-                                        setEndTime(newStart + 10);
-                                    }
-                                }}
+                            <Label className="flex items-center justify-between">
+                                <span>分辨率</span>
+                                <span className="text-primary font-medium">{resolution}p</span>
+                            </Label>
+                            <input
+                                type="range"
+                                min={144}
+                                max={2160}
+                                step={1}
+                                value={resolution}
+                                onChange={(e) => setResolution(parseInt(e.target.value))}
                                 disabled={processingState.isProcessing}
+                                className="w-full h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg appearance-none cursor-pointer accent-primary"
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>{t('videoControlPanels.gif.endTime')}</Label>
-                            <Input
-                                type="number"
-                                min="0"
-                                max={videoDuration}
-                                step="0.1"
-                                value={endTime.toFixed(1)}
-                                onChange={(e) => {
-                                    const newEnd = Math.max(0, Math.min(parseFloat(e.target.value) || 0, videoDuration));
-                                    setEndTime(newEnd);
-                                    // 确保至少1秒时长
-                                    if (newEnd - startTime < 1) {
-                                        setStartTime(Math.max(0, newEnd - 1));
-                                    }
-                                    // 确保不超过10秒
-                                    if (newEnd - startTime > 10) {
-                                        setStartTime(newEnd - 10);
-                                    }
-                                }}
-                                disabled={processingState.isProcessing}
-                            />
+                            <p className="text-xs text-muted-foreground">
+                                较高的分辨率会增加文件大小和转换时间
+                            </p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>{t('videoControlPanels.gif.width')}</Label>
-                                <Select
-                                    value={width.toString()}
-                                    onValueChange={(v) => setWidth(parseInt(v))}
-                                    disabled={processingState.isProcessing}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={t('videoControlPanels.gif.selectWidth')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="240">240px</SelectItem>
-                                        <SelectItem value="320">320px</SelectItem>
-                                        <SelectItem value="480">480px</SelectItem>
-                                        <SelectItem value="640">640px</SelectItem>
-                                        {mediaMetadata?.video?.width && (
-                                            <SelectItem value={mediaMetadata.video.width.toString()}>
-                                                {t('videoControlPanels.gif.originalSize')} ({mediaMetadata.video.width}px)
-                                            </SelectItem>
-                                        )}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>{t('videoControlPanels.gif.fps')}</Label>
-                                <Select
-                                    value={fps.toString()}
-                                    onValueChange={(v) => setFps(parseInt(v))}
-                                    disabled={processingState.isProcessing}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={t('videoControlPanels.gif.selectFps')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="5">5 fps</SelectItem>
-                                        <SelectItem value="10">10 fps</SelectItem>
-                                        <SelectItem value="15">15 fps</SelectItem>
-                                        <SelectItem value="20">20 fps</SelectItem>
-                                        <SelectItem value="24">24 fps (电影)</SelectItem>
-                                        <SelectItem value="30">30 fps (流畅)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                    {/* 时长提示 */}
-                    <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        {t('videoControlPanels.gif.clipDuration')}: <span className="font-medium text-foreground">{duration.toFixed(1)}s</span>
-                        {duration > 10 && (
-                            <span className="text-amber-600 dark:text-amber-400 ml-2">
-                                ({t('videoControlPanels.gif.exceedsLimit')})
-                            </span>
-                        )}
+                    {/* 提示信息 */}
+                    <div className="text-xs text-muted-foreground bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                        <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">📌 提示</p>
+                        <p className="text-amber-800 dark:text-amber-200">
+                            将转换整个视频为 GIF。所有处理都在本地浏览器中完成，文件不会上传到服务器。
+                        </p>
                     </div>
 
                     {/* 转换按钮 */}
                     {!processingState.outputFile ? (
                         <Button
                             onClick={handleStartProcessing}
-                            disabled={!canStartProcessing}
+                            disabled={!canStartProcessing || processingState.isProcessing}
                             className="w-full"
                             size="lg"
                         >
                             <Play className="w-4 h-4 mr-2" />
-                            {processingState.isProcessing ? t('videoControlPanels.gif.converting') : t('videoControlPanels.gif.startConvert')}
+                            {processingState.isProcessing ? '正在转换...' : '开始转换'}
                         </Button>
                     ) : (
                         <div className="space-y-2">
                             <Button onClick={handleDownload} className="w-full" variant="default" size="lg">
                                 <Download className="w-4 h-4 mr-2" />
-                                {t('videoControlPanels.gif.downloadResult')}
+                                    下载 GIF
                             </Button>
                             <Button onClick={handleRestart} variant="outline" className="w-full" size="sm">
-                                {t('videoControlPanels.gif.reconvert')}
+                                    重新转换
                             </Button>
                             </div>
                     )}
