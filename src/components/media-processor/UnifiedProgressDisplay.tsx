@@ -58,11 +58,6 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                             value={progress}
                             className="h-2"
                         />
-                        {remainingTime && progress > 0 && progress < 100 && (
-                            <div className="text-xs text-muted-foreground text-right">
-                                {remainingTime}
-                            </div>
-                        )}
                     </div>
                 )}
                 {error && (

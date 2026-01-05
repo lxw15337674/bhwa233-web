@@ -13,6 +13,7 @@ import { useFFmpegStore } from '@/stores/ffmpeg-store';
 import { fetchFile } from '@ffmpeg/util';
 import { downloadBlob, getFileExtension } from '@/utils/audioConverter';
 import { safeCleanupFiles, createFFmpegProgressListener } from '@/utils/ffmpeg-helpers';
+import { toast } from "sonner"
 
 // 时间转换工具函数
 const secondsToTimeString = (seconds: number): string => {
@@ -81,7 +82,10 @@ export const VideoToGifControlPanel: React.FC = () => {
     const canStartProcessing = selectedFile && ffmpeg && ffmpegLoaded && !processingState.isProcessing && !timeRangeError && videoMetadata;
 
     const handleStartProcessing = async () => {
-        if (!selectedFile || !ffmpeg || !canStartProcessing) return;
+        if (!selectedFile || !ffmpeg || !canStartProcessing) {
+            toast(timeRangeError)
+            return;
+        }
 
         const inputExtension = getFileExtension(selectedFile.name);
         const inputFileName = `input.${inputExtension}`;
@@ -92,9 +96,10 @@ export const VideoToGifControlPanel: React.FC = () => {
 
             await ffmpeg.writeFile(inputFileName, await fetchFile(selectedFile));
 
+            const totalDuration = endTime - startTime; // 片段时长
             const progressListener = createFFmpegProgressListener((progress, step, remainingTime) => {
                 updateProcessingState({ progress, currentStep: step, remainingTime });
-            }, 'video', t);
+            }, 'video', t, { expectedDuration: totalDuration });
 
             const detailedLogListener = ({ type, message }: { type: string; message: string }) => {
                 console.log(`[FFmpeg ${type}] ${message}`);
@@ -273,9 +278,9 @@ export const VideoToGifControlPanel: React.FC = () => {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="0">{t('videoControlPanels.gif.originalSize')}</SelectItem>
                                 <SelectItem value="480">{t('videoControlPanels.gif.res480')}</SelectItem>
                                 <SelectItem value="720">{t('videoControlPanels.gif.res720')}</SelectItem>
+                                <SelectItem value="0">{t('videoControlPanels.gif.originalSize')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
@@ -299,7 +304,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                                 <Download className="w-4 h-4 mr-2" />
                                     {t('videoControlPanels.gif.downloadResult')}
                             </Button>
-                            <Button onClick={handleRestart} variant="outline" className="w-full" size="sm">
+                                <Button onClick={handleStartProcessing} variant="outline" className="w-full" size="sm">
                                     {t('videoControlPanels.gif.reconvert')}
                             </Button>
                             </div>

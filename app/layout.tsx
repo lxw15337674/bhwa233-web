@@ -1,12 +1,11 @@
-import './global.css';
-import Header from './Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Toaster } from '../src/components/ui/toaster';
 import { ClientProviders } from '../src/components/client-providers';
 import { GlobalStructuredData } from '../src/components/structured-data';
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
+import { Toaster } from '../src/components/ui/toaster';
+import './global.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tools.bhwa233.com'),
@@ -110,11 +109,11 @@ export default function RootLayout({
         <ClientProviders>
           <main className='min-h-screen h-full w-screen'>
             {children}
-            <Toaster />
             <SpeedInsights />
             <Analytics />
           </main>
         </ClientProviders>
+        <Toaster />
       </body>
     </html>
   );

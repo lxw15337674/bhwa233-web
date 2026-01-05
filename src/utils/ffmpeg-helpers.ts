@@ -58,14 +58,18 @@ export const formatRemainingTime = (seconds: number, t?: (key: string, values?: 
  * @param onProgress 进度更新回调函数
  * @param mediaType 媒体类型 ('audio' 或 'video')，用于定制进度文本
  * @param t 翻译函数
+ * @param options 可选配置项
+ * @param options.expectedDuration 预期时长（秒），用于精确计算进度（优先于从日志解析）
+ * @param options.expectedFrames 预期帧数，用于基于帧数计算进度
  * @returns 进度监听器函数
  */
 export const createFFmpegProgressListener = (
     onProgress?: (progress: number, step: string, remainingTime?: string) => void,
     mediaType: 'audio' | 'video' = 'audio',
-    t?: (key: string, values?: any) => string
+    t?: (key: string, values?: any) => string,
+    options?: { expectedDuration?: number; expectedFrames?: number }
 ) => {
-    let totalDuration = 0;
+    let totalDuration = options?.expectedDuration || 0;
     const startTime = Date.now();
     let lastProgress = 0;
     let lastProgressTime = startTime; // 用于视频压缩中的兜底方案
