@@ -220,7 +220,7 @@ export const VideoToGifControlPanel: React.FC = () => {
 
                     {/* 时间范围选择 */}
                     <div className="space-y-3">
-                        <Label>{t('videoControlPanels.gif.timeRange')}</Label>
+                        <Label>{t('videoControlPanels.gif.timeRange')} - {t('videoControlPanels.gif.selectedDuration')} <span className="font-medium text-foreground">{Math.round(endTime - startTime)}s</span></Label>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <Label className="text-xs text-muted-foreground mb-1">{t('videoControlPanels.gif.startTime')}</Label>
@@ -247,16 +247,7 @@ export const VideoToGifControlPanel: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">
-                                {t('videoControlPanels.gif.selectedDuration')} <span className="font-medium text-foreground">{Math.round(endTime - startTime)}s</span>
-                            </span>
-                            {videoMetadata && (
-                                <span className="text-muted-foreground">
-                                    {t('videoControlPanels.gif.totalDuration')} {Math.round(videoMetadata.duration)}s
-                                </span>
-                            )}
-                        </div>
+
                         {timeRangeError && (
                             <p className="text-xs text-red-600">{timeRangeError}</p>
                         )}
