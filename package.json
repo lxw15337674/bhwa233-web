@@ -9,7 +9,7 @@
     "typescript"
   ],
   "scripts": {
-    "dev": "cross-env next dev ",
+    "dev": "cross-env next dev",
     "build": "node scripts/copy-wasm-libs.js && next build --webpack",
     "start": "pnpm dev",
     "postinstall": "node scripts/copy-wasm-libs.js",

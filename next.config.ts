@@ -13,7 +13,7 @@ const nextConfig: NextConfig = withSerwist({
   typescript: {
     ignoreBuildErrors: true,
   },
-  // turbopack: {}, // 暂时禁用 turbopack，因为它与 dynamic import 有兼容性问题
+  turbopack: {}, // 暂时禁用 turbopack，因为它与 dynamic import 有兼容性问题
   webpack: (config, { isServer }) => {
     // 在服务器端排除 canvas 包
     if (isServer) {
