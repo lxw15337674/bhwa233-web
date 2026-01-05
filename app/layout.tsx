@@ -1,12 +1,11 @@
-import './global.css';
-import Header from './Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Toaster } from '../src/components/ui/toaster';
 import { ClientProviders } from '../src/components/client-providers';
 import { GlobalStructuredData } from '../src/components/structured-data';
 import type { Metadata } from 'next';
 import { Analytics } from "@vercel/analytics/next"
 import Script from 'next/script'
+import { Toaster } from '../src/components/ui/toaster';
+import './global.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://tools.bhwa233.com'),
@@ -34,6 +33,11 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+  },
+  other: {
+    // 预加载 FFmpeg 资源（优化性能）
+    'preload-ffmpeg-core': 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
+    'preload-ffmpeg-wasm': 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm',
   },
   openGraph: {
     type: 'website',
@@ -75,6 +79,19 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <head>
         <GlobalStructuredData />
+        {/* 预加载 FFmpeg 资源以提升性能 */}
+        <link
+          rel="preload"
+          href="https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm"
+          as="fetch"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         <Script
@@ -92,11 +109,11 @@ export default function RootLayout({
         <ClientProviders>
           <main className='min-h-screen h-full w-screen'>
             {children}
-            <Toaster />
             <SpeedInsights />
             <Analytics />
           </main>
         </ClientProviders>
+        <Toaster />
       </body>
     </html>
   );

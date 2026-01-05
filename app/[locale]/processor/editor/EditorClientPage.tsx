@@ -1,10 +1,17 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { ImageCanvasEditor } from '@/components/media-processor/ImageCanvasEditor';
+import dynamic from 'next/dynamic';
 import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
 import { PageHeader } from '@/components/media-processor/PageHeader';
 import { useTranslation } from '@/components/TranslationProvider';
+
+// 动态导入 ImageCanvasEditor，禁用 SSR
+// 因为 react-filerobot-image-editor -> konva -> canvas (Node.js 原生模块)
+const ImageCanvasEditor = dynamic(
+    () => import('@/components/media-processor/ImageCanvasEditor').then(mod => mod.ImageCanvasEditor),
+    { ssr: false }
+);
 
 const EditorClientPage: React.FC = () => {
     const { t } = useTranslation();

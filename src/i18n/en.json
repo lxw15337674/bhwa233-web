@@ -16,7 +16,29 @@
         "search": "Search",
         "filter": "Filter",
         "reset": "Reset",
-        "apply": "Apply"
+        "apply": "Apply",
+        "errors": {
+            "ffmpegNotReady": "FFmpeg not ready",
+            "analysisFailed": "File analysis failed"
+        },
+        "progress": {
+            "initializing": "Initializing encoder...",
+            "configuring": "Configuring encoder...",
+            "settingOutput": "Setting up output stream...",
+            "processing": "Starting video processing...",
+            "convertingAudio": "Converting audio...",
+            "compressingVideo": "Compressing video...",
+            "processingGeneric": "Processing...",
+            "finishing": "Finishing up...",
+            "remainingSeconds": "Approx. {{seconds}}s remaining",
+            "remainingMinutes": "Approx. {{minutes}}m remaining",
+            "remainingMinutesSeconds": "Approx. {{minutes}}m {{seconds}}s remaining",
+            "remainingHours": "Approx. {{hours}}h remaining",
+            "remainingHoursMinutes": "Approx. {{hours}}h {{minutes}}m remaining",
+            "title": "Processing Progress",
+            "complete": "Processing Complete",
+            "preparing": "Preparing..."
+        }
     },
     "navigation": {
         "home": "Home",
@@ -220,27 +242,45 @@
             "selectFps": "Select FPS",
             "originalSize": "Original Size",
             "conversionFailed": "Conversion Failed",
-            "timeRange": "Time Range",
-            "selected": "Selected",
-            "maxDuration": "Max Duration",
-            "previewClip": "Preview Clip",
-            "clipDuration": "Clip Duration",
-            "exceedsLimit": "Exceeds 10s Limit",
-            "steps": {
-                "1": "Step 1: Analyzing video colors and generating palette...",
-                "2": "Step 2: Generating high-quality GIF using palette...",
-                "final": "Almost done..."
-            },
-            "fpsDescriptions": {
-                "cinema": "Cinema",
-                "smooth": "Smooth"
-            },
-            "ffmpeg": {
-                "loading": "Loading FFmpeg engine, please wait...",
-                "failed": "FFmpeg failed to load",
-                "refresh": "Please refresh or check your connection",
-                "notReady": "FFmpeg is not ready, please wait"
-            }
+            "preview": "GIF Preview",
+            "waitingFFmpeg": "Loading FFmpeg...",
+            "ffmpegError": "FFmpeg Failed to Load",
+            "selectedDuration": "Selected Duration:",
+            "totalDuration": "Total Duration:",
+            "maxDurationError": "Maximum 30 seconds allowed",
+            "endTimeError": "End time exceeds video duration",
+            "startTimeError": "Start time cannot be less than 0",
+            "fps10": "10 FPS - Standard",
+            "fps30": "30 FPS - Smooth",
+            "fpsHint": "Lower FPS reduces file size",
+            "resolution": "Resolution",
+            "res480": "480p - Standard",
+            "res720": "720p - HD",
+            "resHint": "Higher resolution increases file size",
+            "estimatedSize": "Estimated File Size",
+            "largeFileWarning": "⚠️ Large file size, consider lowering parameters",
+            "finishing": "Finishing up...",
+            "timeRangeError": "End time must be greater than start time",
+            "uploadVideo": "Please upload a video file first"
+        }
+    },
+    "audioExtractor": {
+        "detecting": "Loading file...",
+        "analyzing": "Analyzing file format...",
+        "parsing": "Parsing audio track info...",
+        "organizing": "Organizing track list...",
+        "detectComplete": "Detection complete",
+        "detectTimeout": "Detection timed out, please retry",
+        "detectFailed": "Could not detect audio tracks, please check file format",
+        "extractFailed": "Audio extraction failed, please retry",
+        "fileTooLarge": "File too large (over 2GB), cannot process",
+        "unsupportedFormat": "Unsupported file format. Only supports: MP4, MKV, AVI, MOV, WebM, FLV, WMV etc.",
+        "channels": {
+            "mono": "Mono",
+            "stereo": "Stereo",
+            "surround51": "5.1 Surround",
+            "surround71": "7.1 Surround",
+            "quad": "Quadraphonic"
         }
     },
     "audioFormatConverter": {
@@ -513,5 +553,9 @@
                 "description": "Maximum 2x speed"
             }
         }
+    },
+    "videoCompressor": {
+        "unsupportedFormat": "Unsupported video format, please select a common video file",
+        "fileSizeLimit": "File size {{size}} exceeds 1.5GB limit, please select a smaller video file"
     }
 }

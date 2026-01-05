@@ -29,25 +29,27 @@ export const safeCleanupFiles = async (ffmpeg: FFmpeg, fileNames: string[]): Pro
 /**
  * 格式化剩余时间为易读的字符串。
  * @param seconds 剩余秒数
+ * @param t 翻译函数
  * @returns 格式化后的字符串
  */
-export const formatRemainingTime = (seconds: number): string => {
+export const formatRemainingTime = (seconds: number, t?: (key: string, values?: any) => string): string => {
     if (seconds < 60) {
-        return `剩余约 ${Math.round(seconds)}秒`;
+        const sec = Math.round(seconds);
+        return t ? t('common.progress.remainingSeconds', { seconds: sec }) : `剩余约 ${sec}秒`;
     } else if (seconds < 3600) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.round(seconds % 60);
         if (remainingSeconds === 0) {
-            return `剩余约 ${minutes}分钟`;
+            return t ? t('common.progress.remainingMinutes', { minutes }) : `剩余约 ${minutes}分钟`;
         }
-        return `剩余约 ${minutes}分${remainingSeconds}秒`;
+        return t ? t('common.progress.remainingMinutesSeconds', { minutes, seconds: remainingSeconds }) : `剩余约 ${minutes}分${remainingSeconds}秒`;
     } else {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.round((seconds % 3600) / 60);
         if (minutes === 0) {
-            return `剩余约 ${hours}小时`;
+            return t ? t('common.progress.remainingHours', { hours }) : `剩余约 ${hours}小时`;
         }
-        return `剩余约 ${hours}小时${minutes}分`;
+        return t ? t('common.progress.remainingHoursMinutes', { hours, minutes }) : `剩余约 ${hours}小时${minutes}分`;
     }
 };
 
@@ -55,13 +57,19 @@ export const formatRemainingTime = (seconds: number): string => {
  * 创建一个 FFmpeg 进度监听器。
  * @param onProgress 进度更新回调函数
  * @param mediaType 媒体类型 ('audio' 或 'video')，用于定制进度文本
+ * @param t 翻译函数
+ * @param options 可选配置项
+ * @param options.expectedDuration 预期时长（秒），用于精确计算进度（优先于从日志解析）
+ * @param options.expectedFrames 预期帧数，用于基于帧数计算进度
  * @returns 进度监听器函数
  */
 export const createFFmpegProgressListener = (
     onProgress?: (progress: number, step: string, remainingTime?: string) => void,
-    mediaType: 'audio' | 'video' = 'audio'
+    mediaType: 'audio' | 'video' = 'audio',
+    t?: (key: string, values?: any) => string,
+    options?: { expectedDuration?: number; expectedFrames?: number }
 ) => {
-    let totalDuration = 0;
+    let totalDuration = options?.expectedDuration || 0;
     const startTime = Date.now();
     let lastProgress = 0;
     let lastProgressTime = startTime; // 用于视频压缩中的兜底方案
@@ -76,7 +84,7 @@ export const createFFmpegProgressListener = (
                 const seconds = parseFloat(durationMatch[3]);
                 totalDuration = hours * 3600 + minutes * 60 + seconds;
                 if (mediaType === 'video') {
-                    onProgress?.(2, '正在初始化编码器...', undefined); // 视频特有
+                    onProgress?.(2, t ? t('common.progress.initializing') : '正在初始化编码器...', undefined); // 视频特有
                 }
             }
         }
@@ -110,7 +118,7 @@ export const createFFmpegProgressListener = (
                         const remainingSeconds = estimatedTotalTime - elapsedTime;
 
                         if (remainingSeconds > 0) {
-                            remainingTimeStr = formatRemainingTime(remainingSeconds);
+                            remainingTimeStr = formatRemainingTime(remainingSeconds, t);
                         }
                     }
 
@@ -119,9 +127,11 @@ export const createFFmpegProgressListener = (
 
                     let stepText = '';
                     if (progress >= 95) {
-                        stepText = '即将完成...';
+                        stepText = t ? t('common.progress.finishing') : '即将完成...';
                     } else {
-                        const baseText = mediaType === 'audio' ? '正在转换音频...' : '正在压缩视频...';
+                        const baseText = mediaType === 'audio' 
+                            ? (t ? t('common.progress.convertingAudio') : '正在转换音频...')
+                            : (t ? t('common.progress.compressingVideo') : '正在压缩视频...');
                         stepText = `${baseText} ${progress}%`;
                     }
                     onProgress?.(progress, stepText, remainingTimeStr);
@@ -136,7 +146,9 @@ export const createFFmpegProgressListener = (
                 if (simpleProgress > lastProgress) {
                     lastProgress = simpleProgress;
                     lastProgressTime = now;
-                    const baseText = mediaType === 'audio' ? '正在转换音频...' : '正在处理中...';
+                    const baseText = mediaType === 'audio'
+                        ? (t ? t('common.progress.convertingAudio') : '正在转换音频...')
+                        : (t ? t('common.progress.processingGeneric') : '正在处理中...');
                     onProgress?.(simpleProgress, baseText);
                 }
             }
@@ -146,17 +158,17 @@ export const createFFmpegProgressListener = (
         if (mediaType === 'video') {
             if (message.includes('libx264') || message.includes('libvpx')) {
                 if (lastProgress < 5) {
-                    onProgress?.(5, '正在配置编码器...', undefined);
+                    onProgress?.(5, t ? t('common.progress.configuring') : '正在配置编码器...', undefined);
                     lastProgress = 5;
                 }
             } else if (message.includes('Output #0') || message.includes('Stream #0:')) {
                 if (lastProgress < 8) {
-                    onProgress?.(8, '正在设置输出流...', undefined);
+                    onProgress?.(8, t ? t('common.progress.settingOutput') : '正在设置输出流...', undefined);
                     lastProgress = 8;
                 }
             } else if (message.includes('Press [q] to stop') || (message.includes('frame=') && lastProgress < 10)) {
                 if (lastProgress < 10) {
-                    onProgress?.(10, '开始处理视频...', undefined);
+                    onProgress?.(10, t ? t('common.progress.processing') : '开始处理视频...', undefined);
                     lastProgress = 10;
                 }
             }

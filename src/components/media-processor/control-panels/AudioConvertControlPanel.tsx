@@ -88,7 +88,8 @@ export const AudioConvertControlPanel: React.FC = () => { // No props received
         isMultiThread,
         audioInfo,
         mediaMetadata?.audio?.codec,
-        (progress, step, remainingTime) => updateProcessingState({ progress, currentStep: step, remainingTime }) // 更新进度回调
+        (progress, step, remainingTime) => updateProcessingState({ progress, currentStep: step, remainingTime }), // 更新进度回调
+        t
       );
 
       finishProcessing(outputBlob, outputFileName); // 完成处理状态
@@ -269,7 +270,7 @@ export const AudioConvertControlPanel: React.FC = () => { // No props received
             {analyzeError && (
               <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <div className="text-xs text-yellow-700 dark:text-yellow-300">
-                  {analyzeError}
+                  {t(analyzeError)}
                   <div className="mt-1 text-yellow-600 dark:text-yellow-400">
                     {t('audioControlPanels.convert.cannotAnalyze')}
                   </div>

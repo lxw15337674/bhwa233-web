@@ -10,7 +10,7 @@ import { useTranslation } from '@/components/TranslationProvider';
 
 interface UnifiedProgressDisplayProps {
     // Make processingState optional. If not provided, it will read from useAppStore.
-    processingState?: ProcessingState; 
+    processingState?: ProcessingState;
 }
 
 export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
@@ -39,7 +39,7 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                     ) : (
                         <Clock className="h-5 w-5 text-blue-500" />
                     )}
-                    {t('mediaProcessor.progress.title')}
+                    {t('common.progress.title')}
                 </CardTitle>
             </CardHeader>
 
@@ -48,7 +48,7 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
-                                {progress >= 100 ? t('mediaProcessor.progress.complete') : currentStep || t('mediaProcessor.progress.preparing')}
+                                {progress >= 100 ? t('common.progress.complete') : currentStep || t('common.progress.preparing')}
                             </span>
                             <span className="font-medium">
                                 {progress}%
@@ -58,11 +58,6 @@ export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
                             value={progress}
                             className="h-2"
                         />
-                        {remainingTime && progress > 0 && progress < 100 && (
-                            <div className="text-xs text-muted-foreground text-right">
-                                {remainingTime}
-                            </div>
-                        )}
                     </div>
                 )}
                 {error && (

@@ -114,12 +114,12 @@ export const getVideoCompressionParams = (
 };
 
 // 文件大小验证
-export const validateVideoFile = (file: File): { valid: boolean; error?: string } => {
+export const validateVideoFile = (file: File, t?: (key: string, values?: any) => string): { valid: boolean; error?: string } => {
   // 检查文件是否存在
   if (!file) {
     return {
       valid: false,
-      error: '不支持的视频格式，请选择常见的视频文件'
+      error: t ? t('videoCompressor.unsupportedFormat') : '不支持的视频格式，请选择常见的视频文件'
     };
   }
 
@@ -128,7 +128,9 @@ export const validateVideoFile = (file: File): { valid: boolean; error?: string 
     const sizeMB = file.size / (1024 * 1024);
     return {
       valid: false,
-      error: `文件大小 ${formatFileSize(sizeMB)} 超过 1.5GB 限制，请选择较小的视频文件`
+      error: t 
+        ? t('videoCompressor.fileSizeLimit', { size: formatFileSize(sizeMB) })
+        : `文件大小 ${formatFileSize(sizeMB)} 超过 1.5GB 限制，请选择较小的视频文件`
     };
   }
 
@@ -142,7 +144,7 @@ export const validateVideoFile = (file: File): { valid: boolean; error?: string 
     !file.name?.match(/\.(mp4|avi|mov|mkv|webm|wmv|flv|3gp)$/i)) {
     return {
       valid: false,
-      error: '不支持的视频格式，请选择常见的视频文件'
+      error: t ? t('videoCompressor.unsupportedFormat') : '不支持的视频格式，请选择常见的视频文件'
     };
   }
 
@@ -221,7 +223,8 @@ export const compressVideo = async (
   params: VideoCompressionParams,
   isMultiThread: boolean,
   metadata?: MediaMetadata | null,
-  onProgress?: (progress: number, step: string, remainingTime?: string) => void
+  onProgress?: (progress: number, step: string, remainingTime?: string) => void,
+  t?: (key: string, values?: any) => string
 ): Promise<Blob> => {
   const { outputFormat, resolution } = params;
   const inputExtension = file.name.split('.').pop()?.toLowerCase() || 'mp4';
@@ -229,7 +232,7 @@ export const compressVideo = async (
   const outputFileName = `output.${VIDEO_FORMATS[outputFormat].ext}`;
 
   // 验证文件
-  const validation = validateVideoFile(file);
+  const validation = validateVideoFile(file, t);
   if (!validation.valid) {
     throw new Error(validation.error);
   }
@@ -247,7 +250,7 @@ export const compressVideo = async (
   console.log(`Video compression strategy: ${ffmpegParams.description}`);
   console.log(`FFmpeg params: ${[...ffmpegParams.video, ...ffmpegParams.audio].join(' ')}`);
 
-  const progressListener = createFFmpegProgressListener(onProgress, 'video');
+  const progressListener = createFFmpegProgressListener(onProgress, 'video', t);
 
   // 临时添加进度监听器
   ffmpeg.on('log', progressListener);

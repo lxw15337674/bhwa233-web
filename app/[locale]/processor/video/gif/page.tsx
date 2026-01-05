@@ -8,6 +8,7 @@ import { UnifiedMediaMetadataCard } from '@/components/media-processor/UnifiedMe
 import { UnifiedProgressDisplay } from '@/components/media-processor/UnifiedProgressDisplay';
 import { UnifiedOutputPreview } from '@/components/media-processor/UnifiedOutputPreview';
 import { VideoToGifControlPanel } from '@/components/media-processor/control-panels/VideoToGifControlPanel';
+import { VideoPreviewCard } from '@/components/media-processor/VideoPreviewCard';
 import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
@@ -29,6 +30,7 @@ export default function VideoGifPage() {
   const leftColumn = (
     <>
       <UnifiedFileUploadArea category="video" />
+      <VideoPreviewCard />
       <UnifiedMediaMetadataCard />
     </>
   );
@@ -38,7 +40,6 @@ export default function VideoGifPage() {
       <FunctionSelector />
       <VideoToGifControlPanel />
       <UnifiedProgressDisplay />
-      <UnifiedOutputPreview mediaType="image" />
     </>
   );
 
