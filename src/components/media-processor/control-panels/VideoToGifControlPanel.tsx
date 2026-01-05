@@ -14,6 +14,22 @@ import { fetchFile } from '@ffmpeg/util';
 import { downloadBlob, getFileExtension } from '@/utils/audioConverter';
 import { safeCleanupFiles, createFFmpegProgressListener } from '@/utils/ffmpeg-helpers';
 
+// 时间转换工具函数
+const secondsToTimeString = (seconds: number): string => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
+
+const timeStringToSeconds = (timeString: string): number => {
+    const parts = timeString.split(':').map(Number);
+    if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return 0;
+};
+
 export const VideoToGifControlPanel: React.FC = () => {
     const { t } = useTranslation();
 
@@ -51,23 +67,6 @@ export const VideoToGifControlPanel: React.FC = () => {
             setGifPreviewUrl('');
         }
     }, [processingState.outputFile]);
-
-    // 计算文件大小预估
-    const estimatedSize = useMemo(() => {
-        if (!videoMetadata) return 0;
-
-        const duration = endTime - startTime;
-        const width = resolution === 0 ? videoMetadata.width : resolution;
-        const height = resolution === 0 ? videoMetadata.height : Math.round(resolution * (videoMetadata.height / videoMetadata.width));
-
-        // 粗略估算：每帧 = (宽 * 高) / 压缩率
-        const compressionRatio = 20;
-        const bytesPerFrame = (width * height) / compressionRatio;
-        const totalFrames = duration * fps;
-        const estimatedBytes = totalFrames * bytesPerFrame;
-
-        return estimatedBytes / (1024 * 1024); // 转换为 MB
-    }, [videoMetadata, startTime, endTime, fps, resolution]);
 
     // 时间范围验证
     const timeRangeError = useMemo(() => {
@@ -225,24 +224,20 @@ export const VideoToGifControlPanel: React.FC = () => {
                             <div>
                                 <Label className="text-xs text-muted-foreground mb-1">{t('videoControlPanels.gif.startTime')}</Label>
                                 <Input
-                                    type="number"
-                                    min={0}
-                                    max={videoMetadata ? videoMetadata.duration : 0}
-                                    step={1}
-                                    value={Math.round(startTime)}
-                                    onChange={(e) => setGifStartTime(Number(e.target.value))}
+                                    type="time"
+                                    step="1"
+                                    value={secondsToTimeString(startTime)}
+                                    onChange={(e) => setGifStartTime(timeStringToSeconds(e.target.value))}
                                     disabled={processingState.isProcessing || !videoMetadata}
                                 />
                             </div>
                             <div>
                                 <Label className="text-xs text-muted-foreground mb-1">{t('videoControlPanels.gif.endTime')}</Label>
                                 <Input
-                                    type="number"
-                                    min={startTime + 1}
-                                    max={videoMetadata ? Math.min(startTime + 30, videoMetadata.duration) : 30}
-                                    step={1}
-                                    value={Math.round(endTime)}
-                                    onChange={(e) => setGifEndTime(Number(e.target.value))}
+                                    type="time"
+                                    step="1"
+                                    value={secondsToTimeString(endTime)}
+                                    onChange={(e) => setGifEndTime(timeStringToSeconds(e.target.value))}
                                     disabled={processingState.isProcessing || !videoMetadata}
                                 />
                             </div>
@@ -288,23 +283,6 @@ export const VideoToGifControlPanel: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* 文件大小预估 */}
-                    {videoMetadata && (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">{t('videoControlPanels.gif.estimatedSize')}</p>
-                            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                {estimatedSize.toFixed(2)} MB
-                            </p>
-                            {estimatedSize > 10 && (
-                                <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                                    {t('videoControlPanels.gif.largeFileWarning')}
-                                </p>
-                            )}
-                        </div>
-                    )}
-
-
-                    {/* 转换按钮 */}
                     {!processingState.outputFile ? (
                         <Button
                             onClick={handleStartProcessing}
