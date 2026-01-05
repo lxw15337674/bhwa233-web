@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "cross-env next dev ",
-    "build": "node scripts/copy-wasm-libs.js && next build",
+    "build": "node scripts/copy-wasm-libs.js && next build --webpack",
     "start": "pnpm dev",
     "postinstall": "node scripts/copy-wasm-libs.js",
     "type-check": " tsc --noEmit",

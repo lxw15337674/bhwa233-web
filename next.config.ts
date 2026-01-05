@@ -21,6 +21,20 @@ const nextConfig: NextConfig = withSerwist({
       test: /\.wasm$/,
       type: 'asset/resource',
     });
+
+    // 排除 canvas 原生模块（react-filerobot-image-editor -> konva -> canvas）
+    // canvas 是 Node.js 原生模块，不能在浏览器环境中使用
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+      encoding: false,
+    };
+
+    // 如果是服务端构建，也需要将 canvas 标记为 external
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'canvas', 'encoding'];
+    }
+
     return config;
   },
   images: {
