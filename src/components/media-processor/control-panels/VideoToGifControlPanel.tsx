@@ -190,8 +190,8 @@ export const VideoToGifControlPanel: React.FC = () => {
                 <Card className="bg-card border-border">
                     <CardContent className="p-4">
                         <h3 className="font-medium mb-3">{t('videoControlPanels.gif.preview')}</h3>
-                        <div className="relative w-full rounded-lg overflow-hidden bg-muted flex items-center justify-center min-h-[200px]">
-                            <img src={gifPreviewUrl} alt="GIF Preview" className="max-w-full max-h-full" />
+                        <div className="relative w-full rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                            <img src={gifPreviewUrl} alt="GIF Preview" className="max-w-full max-h-[400px] md:max-h-[500px] lg:max-h-[600px] object-contain" />
                         </div>
                     </CardContent>
                 </Card>

@@ -75,13 +75,13 @@ export const VideoPreviewPlayer: React.FC<VideoPreviewPlayerProps> = ({
         <Card className={className}>
             <CardContent className="p-4">
                 <div className="space-y-3">
-                    <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                    <div className="relative bg-black rounded-lg overflow-hidden flex items-center justify-center">
                         {videoUrl ? (
                             <>
                                 <video
                                     ref={videoRef}
                                     src={videoUrl}
-                                    className="w-full h-full object-contain"
+                                    className="max-w-full max-h-[400px] md:max-h-[500px] lg:max-h-[600px] object-contain"
                                     onLoadedMetadata={handleLoadedMetadata}
                                     onTimeUpdate={handleTimeUpdate}
                                     onEnded={() => setIsPlaying(false)}

@@ -60,11 +60,11 @@ export const VideoPreviewCard: React.FC = () => {
         <Card className="bg-card border-border">
             <CardContent className="p-4">
                 <h3 className="font-medium mb-3">视频预览</h3>
-                <div className="relative w-full bg-black rounded-lg overflow-hidden">
+                <div className="relative w-full bg-black rounded-lg overflow-hidden flex items-center justify-center">
                     <video
                         ref={videoRef}
                         controls
-                        className="w-full h-auto"
+                        className="max-w-full max-h-[400px] md:max-h-[500px] lg:max-h-[600px] object-contain"
                         onLoadedMetadata={handleLoadedMetadata}
                         onTimeUpdate={handleTimeUpdate}
                     />

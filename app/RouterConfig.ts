@@ -30,25 +30,25 @@ export interface CategoryItem {
 
 // 定义功能分类
 export const Categories: CategoryItem[] = [
-  {
-    id: 'tools',
-    translationKey: 'navigation.categories.tools',
-    icon: Wrench,
-    items: [
-      {
-        translationKey: 'navigation.menuItems.fileUpload',
-        descriptionKey: 'navigation.menuItems.fileUploadDesc',
-        url: '/upload',
-        icon: Upload
-      },
-      {
-        translationKey: 'navigation.menuItems.fishingTime',
-        descriptionKey: 'navigation.menuItems.fishingTimeDesc',
-        url: '/fishingTime',
-        icon: Fish
-      }
-    ]
-  },
+  // {
+  //   id: 'tools',
+  //   translationKey: 'navigation.categories.tools',
+  //   icon: Wrench,
+  //   items: [
+  //     {
+  //       translationKey: 'navigation.menuItems.fileUpload',
+  //       descriptionKey: 'navigation.menuItems.fileUploadDesc',
+  //       url: '/upload',
+  //       icon: Upload
+  //     },
+  //     {
+  //       translationKey: 'navigation.menuItems.fishingTime',
+  //       descriptionKey: 'navigation.menuItems.fishingTimeDesc',
+  //       url: '/fishingTime',
+  //       icon: Fish
+  //     }
+  //   ]
+  // },
   {
     id: 'media-processor',
     translationKey: 'navigation.categories.mediaProcessor',
