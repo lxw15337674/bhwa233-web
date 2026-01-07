@@ -280,6 +280,8 @@
             "estimatedSize": "预估文件大小",
             "largeFileWarning": "⚠️ 文件较大，建议降低参数",
             "finishing": "即将完成...",
+            "completed": "转换完成",
+            "fileSize": "文件大小",
             "timeRangeError": "结束时间必须大于开始时间",
             "uploadVideo": "请先上传视频文件"
         }

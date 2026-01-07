@@ -149,8 +149,14 @@ export const VideoToGifControlPanel: React.FC = () => {
                 const data = await ffmpeg.readFile(outputFileName);
                 const outputBlob = new Blob([data], { type: 'image/gif' });
 
-                console.log('[GIF] ✅ 转换成功！GIF 大小:', (data.byteLength / 1024 / 1024).toFixed(2), 'MB');
+                const fileSizeMB = (data.byteLength / 1024 / 1024).toFixed(2);
+                console.log('[GIF] ✅ 转换成功！GIF 大小:', fileSizeMB, 'MB');
+                
                 finishProcessing(outputBlob, outputFileName);
+                updateProcessingState({ 
+                    progress: 100, 
+                    currentStep: `${t('videoControlPanels.gif.completed')} - ${t('videoControlPanels.gif.fileSize')}: ${fileSizeMB} MB`
+                });
             } finally {
                 ffmpeg.off('log', progressListener);
                 ffmpeg.off('log', detailedLogListener);

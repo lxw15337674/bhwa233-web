@@ -234,6 +234,8 @@
             "estimatedSize": "預估檔案大小",
             "largeFileWarning": "⚠️ 檔案較大，建議降低參數",
             "finishing": "即將完成...",
+            "completed": "轉換完成",
+            "fileSize": "檔案大小",
             "timeRangeError": "結束時間必須大於開始時間",
             "uploadVideo": "請先上傳影片檔案"
         }

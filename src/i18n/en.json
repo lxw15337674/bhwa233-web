@@ -265,6 +265,8 @@
             "estimatedSize": "Estimated File Size",
             "largeFileWarning": "⚠️ Large file size, consider lowering parameters",
             "finishing": "Finishing up...",
+            "completed": "Conversion completed",
+            "fileSize": "File size",
             "timeRangeError": "End time must be greater than start time",
             "uploadVideo": "Please upload a video file first"
         }
