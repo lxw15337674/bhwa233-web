@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { BatchTaskGrid } from '@/components/media-processor/batch/BatchTaskGrid';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 
 export default function BatchImagePage() {
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const leftColumn = (
     <BatchTaskGrid />

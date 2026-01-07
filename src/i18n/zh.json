@@ -30,11 +30,11 @@
             "compressingVideo": "正在压缩视频...",
             "processingGeneric": "正在处理中...",
             "finishing": "即将完成...",
-            "remainingSeconds": "剩余约 {{seconds}}秒",
-            "remainingMinutes": "剩余约 {{minutes}}分钟",
-            "remainingMinutesSeconds": "剩余约 {{minutes}}分{{seconds}}秒",
-            "remainingHours": "剩余约 {{hours}}小时",
-            "remainingHoursMinutes": "剩余约 {{hours}}小时{{minutes}}分",
+            "remainingSeconds": "剩余约 {seconds}秒",
+            "remainingMinutes": "剩余约 {minutes}分钟",
+            "remainingMinutesSeconds": "剩余约 {minutes}分{seconds}秒",
+            "remainingHours": "剩余约 {hours}小时",
+            "remainingHoursMinutes": "剩余约 {hours}小时{minutes}分",
             "title": "处理进度",
             "complete": "处理完成",
             "preparing": "准备中..."
@@ -84,7 +84,7 @@
         "title": "工具箱 - 在线生产力工具集合",
         "description": "集成摸鱼办热榜、文件上传、媒体处理等多功能工具，一站式提升您的工作效率和娱乐体验",
         "appNavigation": "应用导航",
-        "useToolTitle": "使用 {{name}} 工具"
+        "useToolTitle": "使用 {name} 工具"
     },
     "metadata": {
         "defaultTitle": "工具箱 - 在线生产力工具集合",
@@ -103,16 +103,16 @@
         "uploadFiles": "上传文件",
         "dragOrClick": "拖拽文件到这里或点击选择",
         "supportAnyFormat": "支持任意格式文件，单个文件最大50MB",
-        "selectedFiles": "已选择 {{count}} 个文件",
+        "selectedFiles": "已选择 {count} 个文件",
         "clickToReselect": "点击重新选择文件",
         "uploading": "上传中...",
         "copyLink": "复制链接",
         "uploadHistory": "上传历史记录",
         "clearHistory": "清空历史",
         "noHistory": "暂无上传历史记录",
-        "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "以下文件超过50MB限制已被过滤：{{files}}。其余{{count}}个文件可正常上传。",
-        "allOversized": "所有文件都超过50MB限制：{{files}}",
+        "fileSizeLabel": "{size} MB",
+        "oversizedFiltered": "以下文件超过50MB限制已被过滤：{files}。其余{count}个文件可正常上传。",
+        "allOversized": "所有文件都超过50MB限制：{files}",
         "errors": {
             "maxFiles": "一次最多只能上传10个文件",
             "uploadFailed": "上传失败",
@@ -124,21 +124,21 @@
         "subtitle": "上班族必备神器",
         "description": "专为上班族打造的摸鱼神器，实时显示假期倒计时、工资倒计时、调休安排",
         "reminderTitle": "【摸鱼办】提醒您:",
-        "today": "今天是 {{year}}年{{month}}月{{day}}日，星期{{weekday}}。",
+        "today": "今天是 {year}年{month}月{day}日，星期{weekday}。",
         "salary": "【工资】",
-        "salaryEndOfMonth": "距离【月底发工资】: {{days}} 天",
-        "salaryDay5": "距离【05号发工资】: {{days}} 天",
-        "salaryDay10": "距离【10号发工资】: {{days}} 天",
-        "salaryDay15": "距离【15号发工资】: {{days}} 天",
-        "salaryDay20": "距离【20号发工资】: {{days}} 天",
+        "salaryEndOfMonth": "距离【月底发工资】: {days} 天",
+        "salaryDay5": "距离【05号发工资】: {days} 天",
+        "salaryDay10": "距离【10号发工资】: {days} 天",
+        "salaryDay15": "距离【15号发工资】: {days} 天",
+        "salaryDay20": "距离【20号发工资】: {days} 天",
         "countdown": "【倒计时】",
-        "weekEnd": "距离【本周结束】还有 {{remaining}} 天 (已过去 {{passed}} 天)",
-        "monthEnd": "距离【本月结束】还有 {{remaining}} 天 (已过去 {{passed}} 天)",
-        "yearEnd": "距离【本年结束】还有 {{remaining}} 天 (已过去 {{passed}} 天)",
+        "weekEnd": "距离【本周结束】还有 {remaining} 天 (已过去 {passed} 天)",
+        "monthEnd": "距离【本月结束】还有 {remaining} 天 (已过去 {passed} 天)",
+        "yearEnd": "距离【本年结束】还有 {remaining} 天 (已过去 {passed} 天)",
         "holiday": "【假期】",
-        "weekend": "距离【周六】还有 {{days}} 天",
-        "holidayCountdown": "距离【{{name}}】还有 {{days}} 天。",
-        "holidayDetail": "距离【{{name}}】还有 {{days}} 天。{{start}} 至 {{end}} 放假调休，共{{total}}天。"
+        "weekend": "距离【周六】还有 {days} 天",
+        "holidayCountdown": "距离【{name}】还有 {days} 天。",
+        "holidayDetail": "距离【{name}】还有 {days} 天。{start} 至 {end} 放假调休，共{total}天。"
     },
     "fileUpload": {
         "selectImageFile": "选择图片文件",
@@ -157,14 +157,14 @@
     },
     "imageUpload": {
         "validationFailed": "文件验证失败",
-        "unsupportedFormat": "不支持的文件格式。支持的格式: {{formats}}",
-        "fileSizeExceeded": "文件大小不能超过{{maxSize}}MB",
+        "unsupportedFormat": "不支持的文件格式。支持的格式: {formats}",
+        "fileSizeExceeded": "文件大小不能超过{maxSize}MB",
         "originalImage": "原图",
         "originalImagePreview": "原图预览",
         "dimensions": "尺寸",
         "format": "格式",
         "dragOrClickImage": "拖拽图片到此处，或点击选择文件",
-        "maxFileSize": "最大文件大小: {{maxSize}}MB"
+        "maxFileSize": "最大文件大小: {maxSize}MB"
     },
     "mediaProcessor": {
         "title": "媒体处理器",
@@ -172,7 +172,7 @@
         "functionSelect": "功能选择",
         "selectFunction": "选择功能...",
         "selectFunctionToStart": "选择功能开始处理",
-        "unsupportedFormat": "不支持的文件格式。支持的格式: {{formats}}",
+        "unsupportedFormat": "不支持的文件格式。支持的格式: {formats}",
         "functions": {
             "audioExtract": {
                 "label": "音频提取",
@@ -323,12 +323,12 @@
         "rotateCCW": "逆时针旋转 90°",
         "rotateCW": "顺时针旋转 90°",
         "rotate180": "旋转 180°",
-        "currentRotation": "当前: 旋转 {{degrees}}°",
+        "currentRotation": "当前: 旋转 {degrees}°",
         "otherOptions": "其他选项",
         "stripExif": "去除 EXIF 信息",
         "stripExifHint": "移除 GPS 位置、拍摄设备等隐私信息",
         "outputFilename": "输出文件名",
-        "filenamePlaceholder": "例如: {{name}}_edited",
+        "filenamePlaceholder": "例如: {name}_edited",
         "customFilename": "自定义文件名",
         "autoProcess": "自动处理",
         "autoProcessHint": "调整参数后自动处理图片",
@@ -350,8 +350,8 @@
         "resizeTabPercentage": "按比例缩放",
         "scaleRatioLabel": "缩放比例",
         "percentageInput": "百分比",
-        "previewScale": "预览：{{original}} → {{scaled}}",
-        "batchScaleHint": "将对每张图片应用 {{percent}}% 缩放"
+        "previewScale": "预览：{original} → {scaled}",
+        "batchScaleHint": "将对每张图片应用 {percent}% 缩放"
     },
     "batchImageProcessor": {
         "title": "图片批量处理器",
@@ -576,6 +576,6 @@
     },
     "videoCompressor": {
         "unsupportedFormat": "不支持的视频格式，请选择常见的视频文件",
-        "fileSizeLimit": "文件大小 {{size}} 超过 1.5GB 限制，请选择较小的视频文件"
+        "fileSizeLimit": "文件大小 {size} 超过 1.5GB 限制，请选择较小的视频文件"
     }
 }

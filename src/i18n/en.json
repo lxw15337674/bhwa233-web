@@ -30,11 +30,11 @@
             "compressingVideo": "Compressing video...",
             "processingGeneric": "Processing...",
             "finishing": "Finishing up...",
-            "remainingSeconds": "Approx. {{seconds}}s remaining",
-            "remainingMinutes": "Approx. {{minutes}}m remaining",
-            "remainingMinutesSeconds": "Approx. {{minutes}}m {{seconds}}s remaining",
-            "remainingHours": "Approx. {{hours}}h remaining",
-            "remainingHoursMinutes": "Approx. {{hours}}h {{minutes}}m remaining",
+            "remainingSeconds": "Approx. {seconds}s remaining",
+            "remainingMinutes": "Approx. {minutes}m remaining",
+            "remainingMinutesSeconds": "Approx. {minutes}m {seconds}s remaining",
+            "remainingHours": "Approx. {hours}h remaining",
+            "remainingHoursMinutes": "Approx. {hours}h {minutes}m remaining",
             "title": "Processing Progress",
             "complete": "Processing Complete",
             "preparing": "Preparing..."
@@ -53,6 +53,7 @@
         "categories": {
             "tools": "Toolbox",
             "mediaProcessor": "Image Processing",
+            "videoTools": "Video Tools",
             "audioTools": "Audio Tools"
         },
         "menuItems": {
@@ -66,6 +67,10 @@
             "imageEditorDesc": "Online image editor with cropping, rotation, filters and advanced editing",
             "batchProcess": "Batch Processing",
             "batchProcessDesc": "Batch compression and format conversion for efficient multi-image processing",
+            "audioExtract": "Audio Extract",
+            "audioExtractDesc": "Quickly extract audio tracks from video files",
+            "videoToGif": "Video to GIF",
+            "videoToGifDesc": "Convert video clips to high-quality GIF animations",
             "audioFormatConvert": "Audio Format Conversion",
             "audioFormatConvertDesc": "Convert audio files to different formats and quality levels",
             "audioSpeedChange": "Audio Speed Adjustment",
@@ -78,7 +83,7 @@
         "title": "Toolbox - Online Productivity Tools Collection",
         "description": "Integrated file upload, media processing and other practical tools to enhance your productivity and entertainment experience",
         "appNavigation": "Application Navigation",
-        "useToolTitle": "Use {{name}} tool"
+        "useToolTitle": "Use {name} tool"
     },
     "mediaMetadata": {
         "defaultTitle": "Toolbox - Online Productivity Tools Collection",
@@ -115,16 +120,16 @@
         "uploadFiles": "Upload Files",
         "dragOrClick": "Drag files here or click to select",
         "supportAnyFormat": "Supports any file format, up to 50MB per file",
-        "selectedFiles": "{{count}} files selected",
+        "selectedFiles": "{count} files selected",
         "clickToReselect": "Click to reselect files",
         "uploading": "Uploading...",
         "copyLink": "Copy Link",
         "uploadHistory": "Upload History",
         "clearHistory": "Clear History",
         "noHistory": "No upload history",
-        "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "The following files exceed 50MB limit and have been filtered: {{files}}. The remaining {{count}} files can be uploaded normally.",
-        "allOversized": "All files exceed 50MB limit: {{files}}",
+        "fileSizeLabel": "{size} MB",
+        "oversizedFiltered": "The following files exceed 50MB limit and have been filtered: {files}. The remaining {count} files can be uploaded normally.",
+        "allOversized": "All files exceed 50MB limit: {files}",
         "errors": {
             "maxFiles": "Maximum 10 files allowed at once",
             "uploadFailed": "Upload failed",
@@ -148,35 +153,35 @@
     },
     "imageUpload": {
         "validationFailed": "File validation failed",
-        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}",
-        "fileSizeExceeded": "File size cannot exceed {{maxSize}}MB",
+        "unsupportedFormat": "Unsupported file format. Supported formats: {formats}",
+        "fileSizeExceeded": "File size cannot exceed {maxSize}MB",
         "originalImage": "Original Image",
         "originalImagePreview": "Original image preview",
         "dimensions": "Dimensions",
         "format": "Format",
         "dragOrClickImage": "Drag image here or click to select file",
-        "maxFileSize": "Max file size: {{maxSize}}MB"
+        "maxFileSize": "Max file size: {maxSize}MB"
     },
     "fishingTime": {
         "title": "Fishing Time - Holiday & Salary Countdown",
         "subtitle": "Essential Tool for Office Workers",
         "description": "Real-time holiday countdown, salary countdown, and time-off arrangements for office workers",
         "reminderTitle": "【Fishing Time】Reminder:",
-        "today": "Today is {{year}}/{{month}}/{{day}}, {{weekday}}.",
+        "today": "Today is {year}/{month}/{day}, {weekday}.",
         "salary": "【Salary】",
-        "salaryEndOfMonth": "End of month salary: {{days}} days left",
-        "salaryDay5": "5th day salary: {{days}} days left",
-        "salaryDay10": "10th day salary: {{days}} days left",
-        "salaryDay15": "15th day salary: {{days}} days left",
-        "salaryDay20": "20th day salary: {{days}} days left",
+        "salaryEndOfMonth": "End of month salary: {days} days left",
+        "salaryDay5": "5th day salary: {days} days left",
+        "salaryDay10": "10th day salary: {days} days left",
+        "salaryDay15": "15th day salary: {days} days left",
+        "salaryDay20": "20th day salary: {days} days left",
         "countdown": "【Countdown】",
-        "weekEnd": "End of week: {{remaining}} days left ({{passed}} days passed)",
-        "monthEnd": "End of month: {{remaining}} days left ({{passed}} days passed)",
-        "yearEnd": "End of year: {{remaining}} days left ({{passed}} days passed)",
+        "weekEnd": "End of week: {remaining} days left ({passed} days passed)",
+        "monthEnd": "End of month: {remaining} days left ({passed} days passed)",
+        "yearEnd": "End of year: {remaining} days left ({passed} days passed)",
         "holiday": "【Holiday】",
-        "weekend": "Next Saturday: {{days}} days left",
-        "holidayCountdown": "{{name}}: {{days}} days left.",
-        "holidayDetail": "{{name}}: {{days}} days left. Holiday from {{start}} to {{end}}, total {{total}} days."
+        "weekend": "Next Saturday: {days} days left",
+        "holidayCountdown": "{name}: {days} days left.",
+        "holidayDetail": "{name}: {days} days left. Holiday from {start} to {end}, total {total} days."
     },
     "mediaProcessor": {
         "title": "Media Processor",
@@ -184,7 +189,7 @@
         "functionSelect": "Function Selection",
         "selectFunction": "Select a function...",
         "selectFunctionToStart": "Select a function to start processing",
-        "unsupportedFormat": "Unsupported file format. Supported formats: {{formats}}",
+        "unsupportedFormat": "Unsupported file format. Supported formats: {formats}",
         "functions": {
             "audioConvert": {
                 "label": "Audio Format Conversion",
@@ -303,12 +308,12 @@
         "rotateCCW": "Rotate 90° Counterclockwise",
         "rotateCW": "Rotate 90° Clockwise",
         "rotate180": "Rotate 180°",
-        "currentRotation": "Current: Rotated {{degrees}}°",
+        "currentRotation": "Current: Rotated {degrees}°",
         "otherOptions": "Other Options",
         "stripExif": "Remove EXIF Data",
         "stripExifHint": "Remove GPS location, camera info, and other privacy metadata",
         "outputFilename": "Output Filename",
-        "filenamePlaceholder": "e.g: {{name}}_edited",
+        "filenamePlaceholder": "e.g: {name}_edited",
         "customFilename": "Custom filename",
         "autoProcess": "Auto Process",
         "autoProcessHint": "Automatically process image after adjusting parameters",
@@ -330,8 +335,8 @@
         "resizeTabPercentage": "Scale by Percentage",
         "scaleRatioLabel": "Scale Ratio",
         "percentageInput": "Percentage",
-        "previewScale": "Preview: {{original}} → {{scaled}}",
-        "batchScaleHint": "Will apply {{percent}}% scale to each image"
+        "previewScale": "Preview: {original} → {scaled}",
+        "batchScaleHint": "Will apply {percent}% scale to each image"
     },
     "batchImageProcessor": {
         "title": "Batch Image Processor",
@@ -556,6 +561,6 @@
     },
     "videoCompressor": {
         "unsupportedFormat": "Unsupported video format, please select a common video file",
-        "fileSizeLimit": "File size {{size}} exceeds 1.5GB limit, please select a smaller video file"
+        "fileSizeLimit": "File size {size} exceeds 1.5GB limit, please select a smaller video file"
     }
 }

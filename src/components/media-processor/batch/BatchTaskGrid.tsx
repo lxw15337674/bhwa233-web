@@ -8,10 +8,10 @@ import { formatFileSize } from '@/utils/imageProcessor';
 import { X, FileImage, CheckCircle2, AlertCircle, Upload, Info, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BatchExifPopover } from './BatchExifPopover';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const BatchTaskGrid: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const { tasks, removeTask, addFiles, isProcessing, downloadSingle } = useBatchImageStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,7 +98,7 @@ export const BatchTaskGrid: React.FC = () => {
 };
 
 const TaskRow: React.FC<{ task: ImageTask; onRemove: () => void; disabled: boolean }> = ({ task, onRemove, disabled }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [isLoadingExif, setIsLoadingExif] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
     const { loadExifForTask, downloadSingle } = useBatchImageStore();

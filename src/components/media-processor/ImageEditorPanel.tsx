@@ -27,10 +27,10 @@ import { FormatSelector } from './shared/FormatSelector';
 import { ResizeControl } from './shared/ResizeControl';
 import { ExifSwitch } from './shared/ExifSwitch';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const ImageEditorPanel: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const {
         inputFile,
         inputMetadata,
@@ -140,15 +140,6 @@ export const ImageEditorPanel: React.FC = () => {
 
     return (
         <Card className="p-4 space-y-6">
-            {/* 状态提示 */}
-            {!inputFile && (
-                <Alert>
-                    <AlertDescription className="text-center">
-                        {t('imageProcessor.uploadOrPaste')}
-                    </AlertDescription>
-                </Alert>
-            )}
-
             {/* 添加/更换图片和粘贴图片 */}
             <div className="flex gap-2">
                 <input

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Locale, getTranslations } from '@/lib/i18n';
+import { Locale } from '@/lib/i18n';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({
     params,
@@ -8,13 +9,13 @@ export async function generateMetadata({
     params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
     const { locale } = await params;
-    const t = await getTranslations(locale);
+    const t = await getTranslations({ locale, namespace: 'audioFormatConverter' });
     const baseUrl = 'https://tools.bhwa233.com';
     const path = '/audio-format-converter';
     
     return {
-        title: t.audioFormatConverter.title,
-        description: t.audioFormatConverter.description,
+        title: t('title'),
+        description: t('description'),
         alternates: {
             canonical: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
             languages: {
@@ -24,8 +25,8 @@ export async function generateMetadata({
             }
         },
         openGraph: {
-            title: t.audioFormatConverter.title,
-            description: t.audioFormatConverter.description,
+            title: t('title'),
+            description: t('description'),
             url: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
             type: 'website',
         },

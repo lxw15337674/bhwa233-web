@@ -3,18 +3,6 @@ export const locales = ['en', 'zh', 'zh-tw'] as const
 export type Locale = typeof locales[number]
 export const defaultLocale: Locale = 'en'
 
-// 加载翻译文件（服务端使用）
-export async function getTranslations(locale: Locale) {
-    try {
-        const translations = await import(`../i18n/${locale}.json`)
-        return translations.default
-    } catch (error) {
-        // 如果找不到对应语言文件，回退到英文
-        const fallback = await import('../i18n/en.json')
-        return fallback.default
-    }
-}
-
 // 格式化文件大小，根据语言环境
 export function formatFileSize(bytes: number, locale: Locale): string {
     const mb = bytes / 1024 / 1024

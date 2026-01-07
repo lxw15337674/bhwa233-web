@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
 import { PageHeader } from '@/components/media-processor/PageHeader';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 // 动态导入 ImageCanvasEditor，禁用 SSR
 // 因为 react-filerobot-image-editor -> konva -> canvas (Node.js 原生模块)
@@ -14,7 +14,7 @@ const ImageCanvasEditor = dynamic(
 );
 
 const EditorClientPage: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     // 处理文件选择

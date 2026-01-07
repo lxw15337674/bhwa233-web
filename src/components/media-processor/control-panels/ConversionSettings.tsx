@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ControlPanelProps } from '@/types/media-processor';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const ConversionSettings: React.FC<ControlPanelProps> = ({ selectedFile, ffmpeg, onStateChange, onOutputReady }) => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [format, setFormat] = useState('mp3');
 
   const handleConvert = async () => {

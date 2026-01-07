@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { formatFileSize } from '@/utils/imageProcessor';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface ImageUploadAreaProps {
     /** 最大文件大小 (MB) */
@@ -49,7 +49,7 @@ export const ImageUploadArea: React.FC<ImageUploadAreaProps> = ({
     showPreview = true,
     validateFile,
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [dragOver, setDragOver] = useState(false);
     const [error, setError] = useState<string>('');

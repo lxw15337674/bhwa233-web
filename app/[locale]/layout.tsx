@@ -1,5 +1,6 @@
-import { TranslationProvider } from '../../src/components/TranslationProvider'
-import { getTranslations, locales, type Locale } from '../../src/lib/i18n'
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations } from 'next-intl/server';
+import { locales, type Locale } from '../../src/lib/i18n'
 import { notFound } from 'next/navigation'
 import Header from '../Header'
 import { Metadata } from 'next'
@@ -14,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>
 }): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations(locale)
+  const t = await getTranslations({ locale, namespace: 'home' })
   const baseUrl = 'https://tools.bhwa233.com'
 
   const languageNames = {
@@ -25,10 +26,10 @@ export async function generateMetadata({
 
   return {
     title: {
-      default: t.home?.title || 'Toolbox - Online Productivity Tools',
-      template: `%s | ${t.home?.title?.split(' - ')[0] || 'Toolbox'}`
+      default: t('title') || 'Toolbox - Online Productivity Tools',
+      template: `%s | ${t('title')?.split(' - ')[0] || 'Toolbox'}`
     },
-    description: t.home?.description || 'Integrated file upload, media processing and other multi-functional online toolbox',
+    description: t('description') || 'Integrated file upload, media processing and other multi-functional online toolbox',
     alternates: {
       canonical: locale === 'en' ? baseUrl : `${baseUrl}/${locale}`,
       languages: {
@@ -64,12 +65,12 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const translations = await getTranslations(locale as Locale)
+  const messages = await getMessages();
 
   return (
-    <TranslationProvider locale={locale as Locale} translations={translations}>
+    <NextIntlClientProvider messages={messages}>
       <Header />
       {children}
-    </TranslationProvider>
+    </NextIntlClientProvider>
   )
 }

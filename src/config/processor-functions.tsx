@@ -1,7 +1,7 @@
 import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
 import { AudioSpeedControlPanel } from '@/components/media-processor/control-panels/AudioSpeedControlPanel';
 import { AudioExtractControlPanel } from '@/components/media-processor/control-panels/AudioExtractControlPanel';
-import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
+// import { SpeechToTextControlPanel } from '@/components/media-processor/control-panels/SpeechToTextControlPanel';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 import { VideoToGifControlPanel } from '@/components/media-processor/control-panels/VideoToGifControlPanel';
 import { ProcessorFunction, ProcessorCategory } from '@/types/media-processor';
@@ -54,19 +54,19 @@ const PROCESSOR_FUNCTIONS: ProcessorFunction[] = [
         fileValidator: audioFileValidator,
         supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'aiff'],
     },
-    {
-        id: 'speech-to-text',
-        path: 'speech-text',
-        label: '语音转文字',
-        labelKey: 'mediaProcessor.functions.speechToText.label',
-        category: 'audio',
-        description: '将音频文件转换为文字，支持自动语言检测。',
-        descriptionKey: 'mediaProcessor.functions.speechToText.description',
-        icon: '🎤',
-        component: SpeechToTextControlPanel,
-        fileValidator: audioFileValidator,
-        supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
-    },
+    // {
+    //     id: 'speech-to-text',
+    //     path: 'speech-text',
+    //     label: '语音转文字',
+    //     labelKey: 'mediaProcessor.functions.speechToText.label',
+    //     category: 'audio',
+    //     description: '将音频文件转换为文字，支持自动语言检测。',
+    //     descriptionKey: 'mediaProcessor.functions.speechToText.description',
+    //     icon: '🎤',
+    //     component: SpeechToTextControlPanel,
+    //     fileValidator: audioFileValidator,
+    //     supportedFormats: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
+    // },
     // 视频功能
     {
         id: 'audio-extract',

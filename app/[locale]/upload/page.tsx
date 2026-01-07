@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, File, CheckCircle, XCircle, Copy } from 'lucide-react';
 import { uploadToGalleryServer } from '@/api/upload';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface UploadFileState {
     file: File;
@@ -25,7 +25,7 @@ interface UploadHistoryItem {
 }
 
 export default function UploadPage() {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [uploadFiles, setUploadFiles] = useState<UploadFileState[]>([]);
     const [history, setHistory] = useState<UploadHistoryItem[]>([]);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);

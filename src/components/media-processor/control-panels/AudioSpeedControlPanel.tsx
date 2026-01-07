@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Download, Play, RotateCcw } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import {
     AUDIO_SPEED_PRESETS,
     AudioSpeedPreset,
@@ -27,7 +27,7 @@ import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
 
 export const AudioSpeedControlPanel: React.FC = () => { // No props received
-    const { t } = useTranslation();
+    const t = useTranslations();
     
     // 从 app store 获取数据和 actions
     const selectedFile = useAppStore(state => state.selectedFile);

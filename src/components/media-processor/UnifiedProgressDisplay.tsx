@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { ProcessingState } from '@/types/media-processor'; // Import ProcessingState
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface UnifiedProgressDisplayProps {
     // Make processingState optional. If not provided, it will read from useAppStore.
@@ -16,7 +16,7 @@ interface UnifiedProgressDisplayProps {
 export const UnifiedProgressDisplay: React.FC<UnifiedProgressDisplayProps> = ({
     processingState: propProcessingState, // Renamed to avoid conflict
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     // If prop is provided, use it. Otherwise, use from AppStore.
     const { processingState: appStoreProcessingState } = useAppStore();
     const currentProcessingState = propProcessingState || appStoreProcessingState;

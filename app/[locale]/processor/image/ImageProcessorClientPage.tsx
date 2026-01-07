@@ -9,10 +9,10 @@ import { ImageOutputPreview } from '@/components/media-processor/ImageOutputPrev
 import { ImageEditorPanel } from '@/components/media-processor/ImageEditorPanel';
 import { PageHeader } from '@/components/media-processor/PageHeader';
 import { ImageExifPanel } from '@/components/media-processor/ImageExifPanel';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 const ImageProcessorClientPage: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const {
         inputFile,
         processError

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react';
 import { ModeToggle } from 'src/components/ModeToggle';
-import { useTranslation } from '../src/components/TranslationProvider';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -17,14 +17,13 @@ import { LanguageSwitcher } from '../src/components/LanguageSwitcher';
 import { locales } from '../src/lib/i18n';
 
 export default function Header() {
-  const { t } = useTranslation();
+  const t = useTranslations();
+  const locale = useLocale();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 从路径中提取当前语言
-  const currentLocale = locales.find(locale =>
-    pathname?.startsWith(`/${locale}`)
-  ) || 'en';
+  // 使用 useLocale 获取当前语言
+  const currentLocale = locale;
 
   // 过滤菜单项（非中文环境隐藏摸鱼办）
   const filteredCategories = Categories.map(category => ({
@@ -42,9 +41,9 @@ export default function Header() {
 
   useEffect(() => {
     if (currentApp) {
-      document.title = currentApp.name;
+      document.title = t(currentApp.translationKey);
     }
-  }, [pathname, currentApp]);
+  }, [pathname, currentApp, t]);
 
   return (
     <header className="sticky left-0 right-0 top-0 z-50 bg-background border-b-0.5 border-border">
@@ -55,7 +54,7 @@ export default function Header() {
             <NavigationMenuList>
               {filteredCategories.map((category: CategoryItem) => {
                 const CategoryIcon = category.icon;
-                const categoryName = category.translationKey ? t(category.translationKey) : category.name;
+                const categoryName = t(category.translationKey);
                 return (
                   <NavigationMenuItem key={category.id}>
                     <NavigationMenuTrigger className="flex items-center gap-2">
@@ -84,8 +83,8 @@ export default function Header() {
                             isActive = pathname === `/${currentLocale}${item.url}` || pathname?.startsWith(`/${currentLocale}${item.url}/`);
                           }
 
-                          const itemName = item.translationKey ? t(item.translationKey) : item.name;
-                          const itemDesc = item.descriptionKey ? t(item.descriptionKey) : item.description;
+                          const itemName = t(item.translationKey);
+                          const itemDesc = t(item.descriptionKey);
                           return (
                             <Link
                               key={item.url}
@@ -98,11 +97,9 @@ export default function Header() {
                               <ItemIcon className="h-5 w-5" />
                               <div className="flex flex-col">
                                 <span className="font-medium">{itemName}</span>
-                                {itemDesc && (
-                                  <span className="text-xs text-muted-foreground mt-1">
-                                    {itemDesc}
-                                  </span>
-                                )}
+                                <span className="text-xs text-muted-foreground mt-1">
+                                  {itemDesc}
+                                </span>
                               </div>
                             </Link>
                           );

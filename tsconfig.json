@@ -45,7 +45,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next.config.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "src/i18n/global.d.ts"
   ],
   "exclude": [
     "node_modules",

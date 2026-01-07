@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { Categories } from '../RouterConfig'
 import { StructuredData, websiteStructuredData } from '@/components/structured-data'
-import { useTranslation } from '@/components/TranslationProvider'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function HomePage() {
-  const { t, locale } = useTranslation()
+  const t = useTranslations()
+  const locale = useLocale()
 
   // 根据语言过滤菜单项（隐藏非中文用户的摸鱼办）
   const filteredCategories = Categories.map(category => ({

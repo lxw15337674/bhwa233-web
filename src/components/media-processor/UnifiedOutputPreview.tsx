@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Play, Pause, FileAudio, FileVideo, FileText, ImageIcon } from 'lucide-react';
 import { downloadBlob } from '@/utils/audioConverter';
 import { useAppStore } from '@/stores/media-processor/app-store';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface UnifiedOutputPreviewProps {
   mediaType: 'audio' | 'video' | 'text' | 'image'; 
@@ -15,7 +15,7 @@ interface UnifiedOutputPreviewProps {
 export const UnifiedOutputPreview: React.FC<UnifiedOutputPreviewProps> = ({
   mediaType
 }) => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { processingState } = useAppStore();
   const { outputFile, outputFileName } = processingState;
 

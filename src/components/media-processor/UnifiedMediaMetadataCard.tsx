@@ -8,10 +8,10 @@ import { RefreshCw, FileVideo, FileAudio, AlertTriangle } from 'lucide-react';
 import { formatDuration, formatResolution, formatChannelLayout } from '@/utils/audioConverter';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const UnifiedMediaMetadataCard: React.FC = () => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const { 
     selectedFile, 
     mediaMetadata, 
@@ -136,7 +136,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
               <div>
                 <div className="text-muted-foreground">{t('mediaMetadata.card.overallBitrate')}</div>
                 <div className="font-medium">
-                  {mediaMetadata.overallBitrate > 0 ? `${mediaMetadata.overallBitrate} kbps` : t('common.unknown', 'Unknown')}
+                  {mediaMetadata.overallBitrate > 0 ? `${mediaMetadata.overallBitrate} kbps` : t('common.unknown')}
                 </div>
               </div>
             </div>
@@ -162,13 +162,13 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
                   <div>
                     <div className="text-muted-foreground">{t('mediaMetadata.card.frameRate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.video.frameRate > 0 ? `${mediaMetadata.video.frameRate} fps` : t('common.unknown', 'Unknown')}
+                      {mediaMetadata.video.frameRate > 0 ? `${mediaMetadata.video.frameRate} fps` : t('common.unknown')}
                     </div>
                   </div>
                   <div>
                     <div className="text-muted-foreground">{t('mediaMetadata.card.bitrate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.video.bitrate > 0 ? `${mediaMetadata.video.bitrate} kbps` : t('common.unknown', 'Unknown')}
+                      {mediaMetadata.video.bitrate > 0 ? `${mediaMetadata.video.bitrate} kbps` : t('common.unknown')}
                     </div>
                   </div>
                 </div>
@@ -190,7 +190,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
                   <div>
                     <div className="text-muted-foreground">{t('mediaMetadata.card.sampleRate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.audio.sampleRate > 0 ? `${mediaMetadata.audio.sampleRate} Hz` : t('common.unknown', 'Unknown')}
+                      {mediaMetadata.audio.sampleRate > 0 ? `${mediaMetadata.audio.sampleRate} Hz` : t('common.unknown')}
                     </div>
                   </div>
                   <div>
@@ -202,7 +202,7 @@ export const UnifiedMediaMetadataCard: React.FC = () => {
                   <div>
                     <div className="text-muted-foreground">{t('mediaMetadata.card.bitrate')}:</div>
                     <div className="font-medium">
-                      {mediaMetadata.audio.bitrate > 0 ? `${mediaMetadata.audio.bitrate} kbps` : t('common.unknown', 'Unknown')}
+                      {mediaMetadata.audio.bitrate > 0 ? `${mediaMetadata.audio.bitrate} kbps` : t('common.unknown')}
                     </div>
                   </div>
                 </div>

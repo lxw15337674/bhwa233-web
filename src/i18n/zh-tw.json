@@ -29,11 +29,11 @@
             "compressingVideo": "正在壓縮影片...",
             "processingGeneric": "正在處理中...",
             "finishing": "即將完成...",
-            "remainingSeconds": "剩餘約 {{seconds}}秒",
-            "remainingMinutes": "剩餘約 {{minutes}}分鐘",
-            "remainingMinutesSeconds": "剩餘約 {{minutes}}分{{seconds}}秒",
-            "remainingHours": "剩餘約 {{hours}}小時",
-            "remainingHoursMinutes": "剩餘約 {{hours}}小時{{minutes}}分",
+            "remainingSeconds": "剩餘約 {seconds}秒",
+            "remainingMinutes": "剩餘約 {minutes}分鐘",
+            "remainingMinutesSeconds": "剩餘約 {minutes}分{seconds}秒",
+            "remainingHours": "剩餘約 {hours}小時",
+            "remainingHoursMinutes": "剩餘約 {hours}小時{minutes}分",
             "title": "處理進度",
             "complete": "處理完成",
             "preparing": "準備中..."
@@ -53,7 +53,8 @@
         "categories": {
             "tools": "工具箱",
             "mediaProcessor": "圖片處理",
-            "audioTools": "音頻工具"
+            "videoTools": "影片工具",
+            "audioTools": "音訊工具"
         },
         "menuItems": {
             "fileUpload": "檔案上傳",
@@ -66,19 +67,23 @@
             "imageEditorDesc": "線上圖片編輯器，支援裁剪、旋轉、濾鏡等高級編輯",
             "batchProcess": "批量處理",
             "batchProcessDesc": "批量壓縮、格式轉換，高效處理多張圖片",
-            "audioFormatConvert": "音頻格式轉換",
-            "audioFormatConvertDesc": "將音頻檔案轉換為不同的格式和質量，支援多種音頻格式",
-            "audioSpeedChange": "音頻倍速調整",
-            "audioSpeedChangeDesc": "調整音頻的播放速度，同時保持音調不變",
+            "audioExtract": "音訊擷取",
+            "audioExtractDesc": "從影片檔案中快速擷取音訊軌道",
+            "videoToGif": "影片轉 GIF",
+            "videoToGifDesc": "將影片片段轉換為高品質的 GIF 動圖",
+            "audioFormatConvert": "音訊格式轉換",
+            "audioFormatConvertDesc": "將音訊檔案轉換為不同的格式和質量，支援多種音訊格式",
+            "audioSpeedChange": "音訊倍速調整",
+            "audioSpeedChangeDesc": "調整音訊的播放速度，同時保持音調不變",
             "speechToText": "語音轉文字",
-            "speechToTextDesc": "將音頻檔案轉換為文字，支援自動語言檢測"
+            "speechToTextDesc": "將音訊檔案轉換為文字，支援自動語言檢測"
         }
     },
     "home": {
         "title": "工具箱 - 線上生產力工具集合",
         "description": "整合摸魚辦熱榜、檔案上傳、媒體處理等多功能工具，一站式提升您的工作效率和娛樂體驗",
         "appNavigation": "應用導航",
-        "useToolTitle": "使用 {{name}} 工具"
+        "useToolTitle": "使用 {name} 工具"
     },
     "metadata": {
         "defaultTitle": "工具箱 - 線上生產力工具集合",
@@ -97,16 +102,16 @@
         "uploadFiles": "上傳檔案",
         "dragOrClick": "拖拽檔案到這裡或點擊選擇",
         "supportAnyFormat": "支援任意格式檔案，單個檔案最大50MB",
-        "selectedFiles": "已選擇 {{count}} 個檔案",
+        "selectedFiles": "已選擇 {count} 個檔案",
         "clickToReselect": "點擊重新選擇檔案",
         "uploading": "上傳中...",
         "copyLink": "複製連結",
         "uploadHistory": "上傳歷史記錄",
         "clearHistory": "清空歷史",
         "noHistory": "暫無上傳歷史記錄",
-        "fileSizeLabel": "{{size}} MB",
-        "oversizedFiltered": "以下檔案超過50MB限制已被過濾：{{files}}。其餘{{count}}個檔案可正常上傳。",
-        "allOversized": "所有檔案都超過50MB限制：{{files}}",
+        "fileSizeLabel": "{size} MB",
+        "oversizedFiltered": "以下檔案超過50MB限制已被過濾：{files}。其餘{count}個檔案可正常上傳。",
+        "allOversized": "所有檔案都超過50MB限制：{files}",
         "errors": {
             "maxFiles": "一次最多只能上傳10個檔案",
             "uploadFailed": "上傳失敗",
@@ -129,35 +134,35 @@
     },
     "imageUpload": {
         "validationFailed": "檔案驗證失敗",
-        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}",
-        "fileSizeExceeded": "檔案大小不能超過{{maxSize}}MB",
+        "unsupportedFormat": "不支援的檔案格式。支援的格式: {formats}",
+        "fileSizeExceeded": "檔案大小不能超過{maxSize}MB",
         "originalImage": "原圖",
         "originalImagePreview": "原圖預覽",
         "dimensions": "尺寸",
         "format": "格式",
         "dragOrClickImage": "拖曳圖片到此處，或點擊選擇檔案",
-        "maxFileSize": "最大檔案大小: {{maxSize}}MB"
+        "maxFileSize": "最大檔案大小: {maxSize}MB"
     },
     "mediaProcessor": {
         "title": "摸魚辦 - 假期薪資倒數計時工具",
         "subtitle": "上班族必備神器",
         "description": "專為上班族打造的摸魚神器，即時顯示假期倒數計時、薪資倒數計時、調休安排",
         "reminderTitle": "【摸魚辦】提醒您:",
-        "today": "今天是 {{year}}年{{month}}月{{day}}日，星期{{weekday}}。",
+        "today": "今天是 {year}年{month}月{day}日，星期{weekday}。",
         "salary": "【薪資】",
-        "salaryEndOfMonth": "距離【月底發薪資】: {{days}} 天",
-        "salaryDay5": "距離【05號發薪資】: {{days}} 天",
-        "salaryDay10": "距離【10號發薪資】: {{days}} 天",
-        "salaryDay15": "距離【15號發薪資】: {{days}} 天",
-        "salaryDay20": "距離【20號發薪資】: {{days}} 天",
+        "salaryEndOfMonth": "距離【月底發薪資】: {days} 天",
+        "salaryDay5": "距離【05號發薪資】: {days} 天",
+        "salaryDay10": "距離【10號發薪資】: {days} 天",
+        "salaryDay15": "距離【15號發薪資】: {days} 天",
+        "salaryDay20": "距離【20號發薪資】: {days} 天",
         "countdown": "【倒數計時】",
-        "weekEnd": "距離【本週結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
-        "monthEnd": "距離【本月結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
-        "yearEnd": "距離【本年結束】還有 {{remaining}} 天 (已過去 {{passed}} 天)",
+        "weekEnd": "距離【本週結束】還有 {remaining} 天 (已過去 {passed} 天)",
+        "monthEnd": "距離【本月結束】還有 {remaining} 天 (已過去 {passed} 天)",
+        "yearEnd": "距離【本年結束】還有 {remaining} 天 (已過去 {passed} 天)",
         "holiday": "【假期】",
-        "weekend": "距離【週六】還有 {{days}} 天",
-        "holidayCountdown": "距離【{{name}}】還有 {{days}} 天。",
-        "holidayDetail": "距離【{{name}}】還有 {{days}} 天。{{start}} 至 {{end}} 放假調休，共{{total}}天。"
+        "weekend": "距離【週六】還有 {days} 天",
+        "holidayCountdown": "距離【{name}】還有 {days} 天。",
+        "holidayDetail": "距離【{name}】還有 {days} 天。{start} 至 {end} 放假調休，共{total}天。"
     },
     "mediaProcessor": {
         "title": "媒體處理器",
@@ -165,7 +170,7 @@
         "functionSelect": "功能選擇",
         "selectFunction": "選擇功能...",
         "selectFunctionToStart": "選擇功能開始處理",
-        "unsupportedFormat": "不支援的檔案格式。支援的格式: {{formats}}",
+        "unsupportedFormat": "不支援的檔案格式。支援的格式: {formats}",
         "functions": {
             "audioConvert": {
                 "label": "音頻格式轉換",
@@ -271,12 +276,12 @@
         "rotation": "旋轉",
         "rotateCCW": "逆時針旋轉 90°",
         "rotateCW": "順時針旋轉 90°",
-        "currentRotation": "目前: 旋轉 {{degrees}}°",
+        "currentRotation": "目前: 旋轉 {degrees}°",
         "otherOptions": "其他選項",
         "stripExif": "去除 EXIF 資訊",
         "stripExifHint": "移除 GPS 位置、拍攝設備等隱私資訊",
         "outputFilename": "輸出檔案名",
-        "filenamePlaceholder": "例如: {{name}}_edited",
+        "filenamePlaceholder": "例如: {name}_edited",
         "customFilename": "自訂檔名",
         "autoProcess": "自動處理",
         "autoProcessHint": "調整參數後自動處理圖片",
@@ -483,6 +488,6 @@
     },
     "videoCompressor": {
         "unsupportedFormat": "不支援的影片格式，請選擇常見的影片檔案",
-        "fileSizeLimit": "檔案大小 {{size}} 超過 1.5GB 限制，請選擇較小的影片檔案"
+        "fileSizeLimit": "檔案大小 {size} 超過 1.5GB 限制，請選擇較小的影片檔案"
     }
 }

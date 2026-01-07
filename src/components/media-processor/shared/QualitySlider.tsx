@@ -1,7 +1,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface QualitySliderProps {
     value: number;
@@ -10,7 +10,7 @@ interface QualitySliderProps {
 }
 
 export const QualitySlider: React.FC<QualitySliderProps> = ({ value, onChange, disabled }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     
     return (
         <div className="space-y-3">

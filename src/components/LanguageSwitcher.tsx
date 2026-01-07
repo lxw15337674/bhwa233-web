@@ -1,6 +1,7 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { locales, type Locale } from '../lib/i18n'
 import { 
   Select, 
@@ -18,37 +19,24 @@ const languageNames: Record<Locale, string> = {
 }
 
 export function LanguageSwitcher() {
+  const locale = useLocale()
   const pathname = usePathname()
   const router = useRouter()
 
-  // 从路径中提取当前语言
-  const currentLocale = locales.find(locale => 
-    pathname.startsWith(`/${locale}`)
-  ) || 'en'
-
   const handleLanguageChange = (newLocale: string) => {
-    // 替换路径中的语言部分
-    const segments = pathname.split('/')
-    segments[1] = newLocale
-    const newPath = segments.join('/')
-    
-    // 设置 cookie
-    document.cookie = `locale=${newLocale}; path=/; max-age=31536000`
-    
-    // 导航到新路径
-    router.push(newPath)
+    router.replace(pathname, { locale: newLocale })
   }
 
   return (
-    <Select value={currentLocale} onValueChange={handleLanguageChange}>
+    <Select value={locale} onValueChange={handleLanguageChange}>
       <SelectTrigger className="w-[160px] gap-2">
         <Globe className="w-4 h-4" />
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {locales.map((locale) => (
-          <SelectItem key={locale} value={locale}>
-            {languageNames[locale]}
+        {locales.map((loc) => (
+          <SelectItem key={loc} value={loc}>
+            {languageNames[loc]}
           </SelectItem>
         ))}
       </SelectContent>

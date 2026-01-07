@@ -9,10 +9,10 @@ import { useAppStore } from '@/stores/media-processor/app-store';
 import { useSpeechToTextStore } from '@/stores/media-processor/speech-to-text-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store'; // To get ffmpegLoaded status
 import { Copy, Download, FileText, Loader2 } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const SpeechToTextControlPanel: React.FC = () => { // No props received
-  const { t } = useTranslation();
+  const t = useTranslations();
   
   // 从 app store 获取数据和 actions
   const selectedFile = useAppStore(state => state.selectedFile);

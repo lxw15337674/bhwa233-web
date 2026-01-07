@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Locale, getTranslations } from '@/lib/i18n';
+import { Locale } from '@/lib/i18n';
+import { getTranslations } from 'next-intl/server';
 import {
   generateToolBreadcrumbs,
   generateSoftwareAppSchema,
@@ -28,12 +29,12 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale, namespace: 'batchImageProcessor' });
   const safeLocale = (locale as SupportedLocale) || 'en';
 
   return generatePageMetadata({
-    title: t.batchImageProcessor.title,
-    description: t.batchImageProcessor.description,
+    title: t('title'),
+    description: t('description'),
     keywords: ['batch image', 'bulk image processor', 'batch convert', 'batch resize', '批量图片', '批量处理'],
     path: '/processor/batchimage',
     locale: safeLocale,
@@ -48,7 +49,7 @@ export default async function BatchImageProcessorLayout({
   params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale, namespace: 'batchImageProcessor' });
   const safeLocale = (locale as SupportedLocale) || 'en';
 
   const breadcrumbs = generateToolBreadcrumbs(
@@ -60,7 +61,7 @@ export default async function BatchImageProcessorLayout({
 
   const appSchema = generateSoftwareAppSchema({
     name: toolNames[safeLocale],
-    description: t.batchImageProcessor.description,
+    description: t('description'),
     url: `https://tools.bhwa233.com/${locale}/processor/batchimage`,
     applicationCategory: 'MultimediaApplication',
     datePublished: '2024-01-01',

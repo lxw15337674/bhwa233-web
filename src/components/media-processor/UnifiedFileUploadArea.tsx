@@ -7,7 +7,7 @@ import { Upload, X, FileAudio, ImageIcon, Film, Clipboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ProcessorCategory } from '@/types/media-processor';
 import { SUPPORTED_AUDIO_FORMATS, getMediaType } from '@/utils/audioConverter';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { useAppStore } from '@/stores/media-processor/app-store';
 
 interface UnifiedFileUploadAreaProps {
@@ -17,7 +17,7 @@ interface UnifiedFileUploadAreaProps {
 export const UnifiedFileUploadArea: React.FC<UnifiedFileUploadAreaProps> = ({
     category
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { 

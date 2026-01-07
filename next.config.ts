@@ -1,5 +1,8 @@
 import withSerwistInit from "@serwist/next";
+import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next'
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const withSerwist = withSerwistInit({
   // Note: This is only an example. If you use Pages Router,
@@ -9,7 +12,7 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
-const nextConfig: NextConfig = withSerwist({
+const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -152,6 +155,6 @@ const nextConfig: NextConfig = withSerwist({
       }
     ];
   },
-});
+};
 
-export default nextConfig;
+export default withSerwist(withNextIntl(nextConfig));

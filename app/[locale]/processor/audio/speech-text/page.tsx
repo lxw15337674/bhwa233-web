@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from '@/components/media-processor/UnifiedMediaMetadataCard';
@@ -15,7 +15,7 @@ import { ProcessingState } from '@/types/media-processor'; // Import ProcessingS
 import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
 export default function SpeechToTextPage() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   
   useFFmpegManager(); // Ensure FFmpeg is loaded for metadata analysis
 

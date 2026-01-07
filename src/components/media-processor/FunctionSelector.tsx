@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getFunctionById, getFunctionsByCategory } from '../../config/processor-functions';
 import { ProcessorCategory } from '../../types/media-processor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 
 interface FunctionSelectorProps {
@@ -13,7 +13,7 @@ interface FunctionSelectorProps {
 }
 
 export const FunctionSelector: React.FC<FunctionSelectorProps> = ({ disabled, category }) => {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

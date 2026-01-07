@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Locale, getTranslations } from '@/lib/i18n';
+import { Locale } from '@/lib/i18n';
+import { getTranslations } from 'next-intl/server';
 import BatchImageProcessorClientPage from './BatchImageProcessorClientPage';
 
 export async function generateMetadata({
@@ -8,13 +9,13 @@ export async function generateMetadata({
     params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
     const { locale } = await params;
-    const t = await getTranslations(locale);
+    const t = await getTranslations({ locale, namespace: 'batchImageProcessor' });
     const baseUrl = 'https://tools.bhwa233.com';
     const path = '/processor/batchimage';
 
     return {
-        title: t.batchImageProcessor?.title || 'Batch Image Processor',
-        description: t.batchImageProcessor?.description || 'Batch image processing tool',
+        title: t('title') || 'Batch Image Processor',
+        description: t('description') || 'Batch image processing tool',
         alternates: {
             canonical: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
             languages: {
@@ -24,8 +25,8 @@ export async function generateMetadata({
             }
         },
         openGraph: {
-            title: t.batchImageProcessor?.title || 'Batch Image Processor',
-            description: t.batchImageProcessor?.description || 'Batch image processing tool',
+            title: t('title') || 'Batch Image Processor',
+            description: t('description') || 'Batch image processing tool',
             type: 'website',
         },
     };

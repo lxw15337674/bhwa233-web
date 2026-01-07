@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Download, AlertCircle, Loader2 } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
 import {
@@ -21,7 +21,7 @@ import {
 import { downloadBlob } from '@/utils/audioConverter';
 
 export const AudioExtractControlPanel: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
 
     // Store 状态
     const selectedFile = useAppStore(state => state.selectedFile);

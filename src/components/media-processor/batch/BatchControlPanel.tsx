@@ -22,10 +22,10 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useClipboardPaste } from '@/hooks/useClipboardPaste';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 export const BatchControlPanel: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const {
         options,
         updateOptions,

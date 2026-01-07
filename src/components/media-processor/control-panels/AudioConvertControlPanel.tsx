@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Download, Play } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import {
   AUDIO_FORMATS,
   QUALITY_MODES,
@@ -25,7 +25,7 @@ import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
 
 export const AudioConvertControlPanel: React.FC = () => { // No props received
-  const { t } = useTranslation();
+  const t = useTranslations();
   
   // 从 app store 获取数据和 actions
   const selectedFile = useAppStore(state => state.selectedFile);

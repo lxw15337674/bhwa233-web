@@ -4,10 +4,10 @@ import React from 'react';
 import { BatchTaskGrid } from '@/components/media-processor/batch/BatchTaskGrid';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 import { PageHeader } from '@/components/media-processor/PageHeader';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 const BatchImageProcessorClientPage: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
 
     return (
         <div className=" container mx-auto px-4 py-8 ">

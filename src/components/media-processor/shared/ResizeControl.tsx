@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageMetadata, ImageProcessingOptions } from '@/utils/imageProcessor';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface ResizeControlProps {
     options: ImageProcessingOptions;
@@ -19,7 +19,7 @@ export const ResizeControl: React.FC<ResizeControlProps> = ({
     updateOptions,
     inputMetadata,
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [currentWidth, setCurrentWidth] = useState(0);
     const [currentHeight, setCurrentHeight] = useState(0);
     const [keepAspectRatioState, setKeepAspectRatioState] = useState(false);

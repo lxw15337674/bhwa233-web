@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
 import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
 import { UnifiedMediaMetadataCard } from '@/components/media-processor/UnifiedMediaMetadataCard';
@@ -13,7 +13,7 @@ import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
 
 export default function AudioExtractPage() {
-  const { t } = useTranslation();
+  const t = useTranslations();
   
   // FFmpeg 初始化
   useFFmpegManager();

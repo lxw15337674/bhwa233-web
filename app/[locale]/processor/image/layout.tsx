@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Locale, getTranslations } from '@/lib/i18n';
+import { Locale } from '@/lib/i18n';
+import { getTranslations } from 'next-intl/server';
 import {
   generateToolBreadcrumbs,
   generateSoftwareAppSchema,
@@ -28,12 +29,12 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale, namespace: 'imageProcessor' });
   const safeLocale = (locale as SupportedLocale) || 'en';
 
   return generatePageMetadata({
-    title: t.imageProcessor.title,
-    description: t.imageProcessor.description,
+    title: t('title'),
+    description: t('description'),
     keywords: ['image processor', 'image converter', 'resize image', 'compress image', '图片处理', '图片压缩'],
     path: '/processor/image',
     locale: safeLocale,
@@ -48,7 +49,7 @@ export default async function ImageProcessorLayout({
   params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale, namespace: 'imageProcessor' });
   const safeLocale = (locale as SupportedLocale) || 'en';
 
   const breadcrumbs = generateToolBreadcrumbs(
@@ -60,7 +61,7 @@ export default async function ImageProcessorLayout({
 
   const appSchema = generateSoftwareAppSchema({
     name: toolNames[safeLocale],
-    description: t.imageProcessor.description,
+    description: t('description'),
     url: `https://tools.bhwa233.com/${locale}/processor/image`,
     applicationCategory: 'MultimediaApplication',
     datePublished: '2024-01-01',

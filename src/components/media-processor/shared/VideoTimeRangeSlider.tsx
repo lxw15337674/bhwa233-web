@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface VideoTimeRangeSliderProps {
     /** 视频总时长（秒） */
@@ -33,7 +33,7 @@ export const VideoTimeRangeSlider: React.FC<VideoTimeRangeSliderProps> = ({
     onSeek,
     disabled = false
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const [localStart, setLocalStart] = useState(startTime);
     const [localEnd, setLocalEnd] = useState(endTime);
 

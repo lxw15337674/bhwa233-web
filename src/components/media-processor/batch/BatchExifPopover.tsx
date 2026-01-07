@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Camera, MapPin, Info } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import {
     Popover,
     PopoverContent,
@@ -150,7 +150,7 @@ export const BatchExifPopover: React.FC<BatchExifPopoverProps> = ({
     isLoading = false,
     onOpenChange,
 }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     const exif = exifMetadata;
 
     // 格式化数据

@@ -2,7 +2,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ShieldX } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 
 interface ExifSwitchProps {
     checked: boolean;
@@ -10,7 +10,7 @@ interface ExifSwitchProps {
 }
 
 export const ExifSwitch: React.FC<ExifSwitchProps> = ({ checked, onCheckedChange }) => {
-    const { t } = useTranslation();
+    const t = useTranslations();
     
     return (
         <div className="space-y-2">

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Play, Download, Settings2 } from 'lucide-react';
-import { useTranslation } from '@/components/TranslationProvider';
+import { useTranslations } from 'next-intl';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { useFFmpegStore } from '@/stores/ffmpeg-store';
 import { fetchFile } from '@ffmpeg/util';
@@ -32,7 +32,7 @@ const timeStringToSeconds = (timeString: string): number => {
 };
 
 export const VideoToGifControlPanel: React.FC = () => {
-    const { t } = useTranslation();
+    const t = useTranslations();
 
     // Store access
     const selectedFile = useAppStore(state => state.selectedFile);
