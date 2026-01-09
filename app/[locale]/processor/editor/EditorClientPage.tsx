@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploadArea } from '@/components/media-processor/ImageUploadArea';
 import { PageHeader } from '@/components/media-processor/PageHeader';
+import { SEOContentSection } from '@/components/SEOContentSection';
 import { useTranslations } from 'next-intl';
 
 // 动态导入 ImageCanvasEditor，禁用 SSR
@@ -75,25 +76,7 @@ const EditorClientPage: React.FC<EditorClientPageProps> = ({ seoContent }) => {
                 />
 
                 {/* SEO 内容区域 */}
-                {seoContent && (
-                    <article className="mt-12 prose prose-slate dark:prose-invert max-w-none bg-card rounded-xl p-8 border shadow-sm">
-                        <h2 className="text-2xl font-bold mb-4 text-primary">{seoContent.title}</h2>
-                        <p className="text-muted-foreground leading-relaxed mb-6">
-                            {seoContent.description}
-                        </p>
-
-                        {seoContent.features && seoContent.features.length > 0 && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {seoContent.features.map((feature, index) => (
-                                    <div key={index} className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                                        <span className="text-card-foreground">{feature}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </article>
-                )}
+                {seoContent && <SEOContentSection content={seoContent} />}
             </div>
         );
     }

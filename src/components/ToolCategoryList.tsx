@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
-import { Categories } from '@/app/RouterConfig';
 import { notFound } from 'next/navigation';
+import { Categories } from '../../app/RouterConfig';
 
 interface ToolCategoryListProps {
   categoryId: string;

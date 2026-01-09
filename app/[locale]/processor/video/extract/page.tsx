@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Locale } from '@/lib/i18n';
-import { generateToolMetadata } from '@/lib/seo';
+import { generateToolMetadata, generateToolBreadcrumbs } from '@/lib/seo';
 import { ToolPageStructuredData } from '@/components/structured-data';
-import { generateToolBreadcrumbs } from '@/lib/seo';
 import { TOOL_SEO_CONFIGS } from '@/lib/tool-seo-configs';
+import { getFullUrl } from '@/lib/site-config';
 import AudioExtractClientPage from './AudioExtractClientPage';
 
 export async function generateMetadata({
@@ -36,7 +36,7 @@ export default async function AudioExtractPage({
     const appConfig = {
         name: content.title.split(' - ')[0],
         description: content.description,
-        url: `https://tools.bhwa233.com/${locale}/processor/video/extract`,
+        url: getFullUrl('/processor/video/extract', locale),
         applicationCategory: 'MultimediaApplication' as const,
         featureList: content.features || [],
         browserRequirements: 'HTML5, JavaScript enabled',

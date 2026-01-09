@@ -4,6 +4,7 @@ import { Locale } from '@/lib/i18n';
 import { generateToolMetadata, generateToolBreadcrumbs } from '@/lib/seo';
 import { ToolPageStructuredData } from '@/components/structured-data';
 import { TOOL_SEO_CONFIGS } from '@/lib/tool-seo-configs';
+import { getFullUrl } from '@/lib/site-config';
 import EditorClientPage from './EditorClientPage';
 
 interface Props {
@@ -44,7 +45,7 @@ export default async function EditorPage({ params }: Props) {
     const appConfig = {
         name: content.title.split(' - ')[0],
         description: content.description,
-        url: `https://tools.bhwa233.com/${locale}/processor/editor`,
+        url: getFullUrl('/processor/editor', locale as Locale),
         applicationCategory: 'DesignApplication' as const,
         featureList: content.features || [],
         browserRequirements: 'HTML5, JavaScript enabled',

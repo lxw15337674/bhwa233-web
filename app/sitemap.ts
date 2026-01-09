@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
 import { Categories } from './RouterConfig'
+import { SITE_CONFIG } from '@/lib/site-config'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://tools.bhwa233.com'
-    const locales = ['en', 'zh', 'zh-tw']
+    const { baseUrl, locales } = SITE_CONFIG
     const lastModified = new Date()
 
     // 从 RouterConfig 动态生成所有工具页面路径

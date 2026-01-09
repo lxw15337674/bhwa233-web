@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEOContentSection } from '@/components/SEOContentSection';
 
 interface ProcessorLayoutProps {
   title: string;
@@ -45,25 +46,7 @@ export const ProcessorLayout: React.FC<ProcessorLayoutProps> = ({
         </div>
 
         {/* SEO 内容区域 */}
-        {seoContent && (
-          <article className="prose prose-slate dark:prose-invert max-w-none bg-card rounded-xl p-8 border shadow-sm">
-            <h2 className="text-2xl font-bold mb-4 text-primary">{seoContent.title}</h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              {seoContent.description}
-            </p>
-            
-            {seoContent.features && seoContent.features.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {seoContent.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
-                    <span className="text-card-foreground">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </article>
-        )}
+        {seoContent && <SEOContentSection content={seoContent} className="mb-0" />}
       </div>
     </div>
   );

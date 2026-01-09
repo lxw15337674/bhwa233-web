@@ -1,6 +1,7 @@
 import { ToolCategoryList } from '@/components/ToolCategoryList';
 import { getTranslations } from 'next-intl/server';
 import { Locale } from '@/lib/i18n';
+import { SITE_CONFIG, getFullUrl, getAlternateLanguages } from '@/lib/site-config';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -10,7 +11,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'navigation.categories' });
-  const baseUrl = 'https://tools.bhwa233.com';
   const path = '/processor/video';
 
   const title = t('videoTools') || 'Video Tools';
@@ -24,12 +24,8 @@ export async function generateMetadata({
     title: `${title} | Toolbox`,
     description,
     alternates: {
-      canonical: locale === 'en' ? `${baseUrl}${path}` : `${baseUrl}/${locale}${path}`,
-      languages: {
-        'en': `${baseUrl}${path}`,
-        'zh': `${baseUrl}/zh${path}`,
-        'zh-tw': `${baseUrl}/zh-tw${path}`,
-      }
+      canonical: getFullUrl(path, locale),
+      languages: getAlternateLanguages(path)
     },
     openGraph: {
       title: `${title} | Toolbox`,

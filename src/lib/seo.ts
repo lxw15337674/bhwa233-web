@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import { SITE_CONFIG } from './site-config';
 
 // 基础配置
 export const SEO_CONFIG = {
   siteName: 'Toolbox',
   siteNameCn: '工具箱',
-  baseUrl: 'https://tools.bhwa233.com',
+  baseUrl: SITE_CONFIG.baseUrl,
   logo: '/icons/icon-256.png',
   author: '233tools',
   defaultImage: '/icons/icon-256.png',
