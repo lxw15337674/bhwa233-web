@@ -12,7 +12,15 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
 
-export default function VideoGifClientPage() {
+interface VideoGifClientPageProps {
+    seoContent?: {
+        title: string;
+        description: string;
+        features: string[];
+    };
+}
+
+export default function VideoGifClientPage({ seoContent }: VideoGifClientPageProps) {
     const t = useTranslations();
 
     // FFmpeg initialization
@@ -48,6 +56,7 @@ export default function VideoGifClientPage() {
             description={t('mediaProcessor.functions.videoGif.description')}
             leftColumn={leftColumn}
             rightColumn={rightColumn}
+            seoContent={seoContent}
         />
     );
 }

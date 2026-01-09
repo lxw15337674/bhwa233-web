@@ -46,7 +46,7 @@ export default async function AudioSpeedPage({
   return (
     <>
       <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
-      <AudioSpeedClientPage />
+      <AudioSpeedClientPage seoContent={content} />
     </>
   );
 }

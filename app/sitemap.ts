@@ -18,6 +18,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // 定义所有页面路径（包括首页和从 RouterConfig 提取的工具页面）
     const pages = [
         { path: '', priority: 1, changeFreq: 'daily' as const }, // 首页最高优先级
+        // 分类页面
+        { path: '/processor/video', priority: 0.8, changeFreq: 'weekly' as const },
+        { path: '/processor/audio', priority: 0.8, changeFreq: 'weekly' as const },
         ...toolPages,
         // 可以添加其他静态页面
     ]

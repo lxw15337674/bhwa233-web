@@ -333,4 +333,250 @@ export const TOOL_SEO_CONFIGS = {
             ]
         }
     } as ToolSEOConfig,
+
+    // 图片处理（格式转换/压缩）
+    imageProcess: {
+        en: {
+            title: 'Image Converter & Compressor - Free Online Image Tool | Toolbox',
+            description: 'Convert and compress images online. Support PNG, JPG, WEBP, AVIF formats. Resize images, adjust quality, and convert formats. Fast, free, and privacy-protected.',
+            keywords: [
+                'image converter',
+                'image compressor',
+                'convert image online',
+                'compress JPG',
+                'PNG to JPG',
+                'WEBP converter',
+                'reduce image size',
+                'image resize online',
+                'photo converter',
+                'free image tool'
+            ],
+            features: [
+                'Convert between JPG, PNG, WEBP, AVIF',
+                'Compress images without quality loss',
+                'Resize and scale images',
+                'Bulk processing support',
+                'Adjust image quality',
+                'Fast processing',
+                'Privacy protected',
+                'No upload limit'
+            ]
+        },
+        zh: {
+            title: '图片格式转换与压缩 - 免费在线图片处理工具 | 工具箱',
+            description: '在线图片转换和压缩工具。支持 PNG、JPG、WEBP、AVIF 等格式。调整图片大小、质量和格式。快速、免费、隐私保护。',
+            keywords: [
+                '图片格式转换',
+                '图片压缩',
+                '在线图片转换',
+                'JPG压缩',
+                'PNG转JPG',
+                'WEBP转换',
+                '缩小图片体积',
+                '图片调整大小',
+                '照片转换器',
+                '免费图片工具'
+            ],
+            features: [
+                '支持 JPG, PNG, WEBP, AVIF 互转',
+                '无损压缩图片',
+                '调整图片尺寸',
+                '支持批量处理',
+                '自定义图片质量',
+                '快速处理',
+                '隐私保护',
+                '无上传限制'
+            ]
+        },
+        'zh-tw': {
+            title: '圖片格式轉換與壓縮 - 免費線上圖片處理工具 | 工具箱',
+            description: '線上圖片轉換和壓縮工具。支援 PNG、JPG、WEBP、AVIF 等格式。調整圖片大小、品質和格式。快速、免費、隱私保護。',
+            keywords: [
+                '圖片格式轉換',
+                '圖片壓縮',
+                '線上圖片轉換',
+                'JPG壓縮',
+                'PNG轉JPG',
+                'WEBP轉換',
+                '縮小圖片體積',
+                '圖片調整大小',
+                '照片轉換器',
+                '免費圖片工具'
+            ],
+            features: [
+                '支援 JPG, PNG, WEBP, AVIF 互轉',
+                '無損壓縮圖片',
+                '調整圖片尺寸',
+                '支援批次處理',
+                '自訂圖片品質',
+                '快速處理',
+                '隱私保護',
+                '無上傳限制'
+            ]
+        }
+    } as ToolSEOConfig,
+
+    // 图片编辑器
+    imageEditor: {
+        en: {
+            title: 'Online Image Editor - Edit Photos in Browser Free | Toolbox',
+            description: 'Powerful online image editor. Crop, resize, rotate, and adjust images. Add filters, text, and effects. No software installation required. Free and easy to use.',
+            keywords: [
+                'online image editor',
+                'photo editor online',
+                'edit pictures free',
+                'crop image online',
+                'resize photo',
+                'image filters',
+                'add text to photo',
+                'browser photo editor',
+                'free photo editing',
+                'web image editor'
+            ],
+            features: [
+                'Crop, rotate, and resize images',
+                'Adjust brightness and contrast',
+                'Apply artistic filters',
+                'Add text and shapes',
+                'Draw on images',
+                'Support layers',
+                'Export in multiple formats',
+                'Privacy protected'
+            ]
+        },
+        zh: {
+            title: '在线图片编辑器 - 免费浏览器端修图工具 | 工具箱',
+            description: '强大的在线图片编辑器。裁剪、调整大小、旋转图片。添加滤镜、文字和特效。无需安装软件。免费易用。',
+            keywords: [
+                '在线图片编辑器',
+                '图片编辑在线',
+                '免费修图',
+                '在线裁剪图片',
+                '图片调整大小',
+                '图片滤镜',
+                '图片添加文字',
+                '浏览器修图',
+                '免费图片编辑',
+                'Web图片编辑器'
+            ],
+            features: [
+                '裁剪、旋转和调整大小',
+                '调整亮度和对比度',
+                '应用艺术滤镜',
+                '添加文字和形状',
+                '自由绘制',
+                '图层支持',
+                '多种格式导出',
+                '隐私保护'
+            ]
+        },
+        'zh-tw': {
+            title: '線上圖片編輯器 - 免費瀏覽器端修圖工具 | 工具箱',
+            description: '強大的線上圖片編輯器。裁剪、調整大小、旋轉圖片。添加濾鏡、文字和特效。無需安裝軟體。免費易用。',
+            keywords: [
+                '線上圖片編輯器',
+                '圖片編輯線上',
+                '免費修圖',
+                '線上裁剪圖片',
+                '圖片調整大小',
+                '圖片濾鏡',
+                '圖片添加文字',
+                '瀏覽器修圖',
+                '免費圖片編輯',
+                'Web圖片編輯器'
+            ],
+            features: [
+                '裁剪、旋轉和調整大小',
+                '調整亮度和對比度',
+                '應用藝術濾鏡',
+                '添加文字和形狀',
+                '自由繪製',
+                '圖層支援',
+                '多種格式匯出',
+                '隱私保護'
+            ]
+        }
+    } as ToolSEOConfig,
+
+    // 批量图片处理
+    batchImage: {
+        en: {
+            title: 'Batch Image Processor - Convert & Resize Multiple Images | Toolbox',
+            description: 'Process multiple images at once online. Batch convert formats, resize dimensions, and rename files. Save time with automated bulk processing. Fast and free.',
+            keywords: [
+                'batch image processor',
+                'bulk image converter',
+                'batch resize images',
+                'mass image processing',
+                'multiple image converter',
+                'batch rename photos',
+                'bulk photo editor',
+                'batch image optimization',
+                'online batch tool',
+                'free bulk processor'
+            ],
+            features: [
+                'Process hundreds of images at once',
+                'Batch format conversion',
+                'Batch resizing and scaling',
+                'Batch renaming',
+                'Custom output settings',
+                'Zip archive download',
+                'Client-side processing',
+                'Privacy protected'
+            ]
+        },
+        zh: {
+            title: '批量图片处理 - 在线批量转换与缩放图片 | 工具箱',
+            description: '在线一次处理多张图片。批量转换格式、调整尺寸和重命名文件。自动化批量处理节省时间。快速免费。',
+            keywords: [
+                '批量图片处理',
+                '图片批量转换',
+                '批量调整图片大小',
+                '大量图片处理',
+                '多图转换器',
+                '批量重命名照片',
+                '批量图片编辑',
+                '批量图片优化',
+                '在线批量工具',
+                '免费批量处理'
+            ],
+            features: [
+                '一次处理数百张图片',
+                '批量格式转换',
+                '批量调整大小和缩放',
+                '批量重命名',
+                '自定义输出设置',
+                'Zip 压缩包下载',
+                '客户端处理',
+                '隐私保护'
+            ]
+        },
+        'zh-tw': {
+            title: '批次圖片處理 - 線上批次轉換與縮放圖片 | 工具箱',
+            description: '線上一次處理多張圖片。批次轉換格式、調整尺寸和重新命名檔案。自動化批次處理節省時間。快速免費。',
+            keywords: [
+                '批次圖片處理',
+                '圖片批次轉換',
+                '批次調整圖片大小',
+                '大量圖片處理',
+                '多圖轉換器',
+                '批次重新命名照片',
+                '批次圖片編輯',
+                '批次圖片優化',
+                '線上批次工具',
+                '免費批次處理'
+            ],
+            features: [
+                '一次處理數百張圖片',
+                '批次格式轉換',
+                '批次調整大小和縮放',
+                '批次重新命名',
+                '自訂輸出設定',
+                'Zip 壓縮包下載',
+                '用戶端處理',
+                '隱私保護'
+            ]
+        }
+    } as ToolSEOConfig,
 };

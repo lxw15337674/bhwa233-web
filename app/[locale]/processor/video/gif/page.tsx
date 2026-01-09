@@ -46,7 +46,7 @@ export default async function VideoGifPage({
   return (
     <>
       <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
-      <VideoGifClientPage />
+      <VideoGifClientPage seoContent={content} />
     </>
   );
 }

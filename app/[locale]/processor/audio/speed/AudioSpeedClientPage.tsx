@@ -12,7 +12,15 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
-export default function AudioSpeedClientPage() {
+interface AudioSpeedClientPageProps {
+    seoContent?: {
+        title: string;
+        description: string;
+        features: string[];
+    };
+}
+
+export default function AudioSpeedClientPage({ seoContent }: AudioSpeedClientPageProps) {
     const t = useTranslations();
 
     useFFmpegManager();
@@ -47,6 +55,7 @@ export default function AudioSpeedClientPage() {
             description={t('mediaProcessor.functions.audioSpeedChange.description')}
             leftColumn={leftColumn}
             rightColumn={rightColumn}
+            seoContent={seoContent}
         />
     );
 }

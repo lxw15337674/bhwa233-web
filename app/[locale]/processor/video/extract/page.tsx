@@ -46,7 +46,7 @@ export default async function AudioExtractPage({
     return (
         <>
           <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
-          <AudioExtractClientPage />
+          <AudioExtractClientPage seoContent={content} />
       </>
   );
 }

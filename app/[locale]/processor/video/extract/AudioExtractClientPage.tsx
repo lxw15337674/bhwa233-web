@@ -12,7 +12,15 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
-export default function AudioExtractClientPage() {
+interface AudioExtractClientPageProps {
+    seoContent?: {
+        title: string;
+        description: string;
+        features: string[];
+    };
+}
+
+export default function AudioExtractClientPage({ seoContent }: AudioExtractClientPageProps) {
     const t = useTranslations();
 
     // FFmpeg 初始化
@@ -52,6 +60,7 @@ export default function AudioExtractClientPage() {
             description={t('mediaProcessor.functions.audioExtract.description')}
             leftColumn={leftColumn}
             rightColumn={rightColumn}
+            seoContent={seoContent}
         />
     );
 }

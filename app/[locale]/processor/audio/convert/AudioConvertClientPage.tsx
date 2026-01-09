@@ -12,7 +12,15 @@ import { useFFmpegManager } from '@/hooks/useFFmpeg';
 import { useAppStore } from '@/stores/media-processor/app-store';
 import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
 
-export default function AudioConvertClientPage() {
+interface AudioConvertClientPageProps {
+    seoContent?: {
+        title: string;
+        description: string;
+        features: string[];
+    };
+}
+
+export default function AudioConvertClientPage({ seoContent }: AudioConvertClientPageProps) {
     const t = useTranslations();
 
     // FFmpeg 初始化 (确保 FFmpeg 在页面加载时开始加载)
@@ -52,6 +60,7 @@ export default function AudioConvertClientPage() {
             description={t('mediaProcessor.functions.audioConvert.description')}
             leftColumn={leftColumn}
             rightColumn={rightColumn}
+            seoContent={seoContent}
         />
     );
 }

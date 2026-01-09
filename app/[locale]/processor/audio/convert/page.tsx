@@ -46,7 +46,7 @@ export default async function AudioConvertPage({
   return (
     <>
       <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
-      <AudioConvertClientPage />
+      <AudioConvertClientPage seoContent={content} />
     </>
   );
 }

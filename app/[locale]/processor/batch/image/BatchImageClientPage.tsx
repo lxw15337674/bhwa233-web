@@ -6,7 +6,15 @@ import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLa
 import { BatchTaskGrid } from '@/components/media-processor/batch/BatchTaskGrid';
 import { BatchControlPanel } from '@/components/media-processor/batch/BatchControlPanel';
 
-export default function BatchImageClientPage() {
+interface BatchImageClientPageProps {
+    seoContent?: {
+        title: string;
+        description: string;
+        features: string[];
+    };
+}
+
+export default function BatchImageClientPage({ seoContent }: BatchImageClientPageProps) {
     const t = useTranslations();
 
     const leftColumn = (
@@ -23,6 +31,7 @@ export default function BatchImageClientPage() {
             description={t('mediaProcessor.functions.imageBatch.description')}
             leftColumn={leftColumn}
             rightColumn={rightColumn}
+            seoContent={seoContent}
         />
     );
 }
