@@ -1,63 +1,52 @@
-'use client';
+import type { Metadata } from 'next';
+import { Locale } from '@/lib/i18n';
+import { generateToolMetadata } from '@/lib/seo';
+import { ToolPageStructuredData } from '@/components/structured-data';
+import { generateToolBreadcrumbs } from '@/lib/seo';
+import { TOOL_SEO_CONFIGS } from '@/lib/tool-seo-configs';
+import AudioConvertClientPage from './AudioConvertClientPage';
 
-import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
-import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
-import { UnifiedMediaMetadataCard } from '@/components/media-processor/UnifiedMediaMetadataCard';
-import { UnifiedProgressDisplay } from '@/components/media-processor/UnifiedProgressDisplay';
-import { UnifiedOutputPreview } from '@/components/media-processor/UnifiedOutputPreview';
-import { AudioConvertControlPanel } from '@/components/media-processor/control-panels/AudioConvertControlPanel';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return generateToolMetadata(TOOL_SEO_CONFIGS.audioConvert, '/processor/audio/convert', locale);
+}
 
-// import { useFileSelection } from '@/hooks/audio-convert/useFileSelection'; // No longer needed
-// import { useUnifiedMediaAnalysis } from '@/hooks/audio-convert/useUnifiedMediaAnalysis'; // No longer needed
-import { useFFmpegManager } from '@/hooks/useFFmpeg'; // Still needed for FFmpeg initialization
-// import { ProcessingState } from '@/types/media-processor'; // No longer needed
-// import { useClipboardPaste } from '@/hooks/useClipboardPaste'; // Now handled internally by UnifiedFileUploadArea
+export default async function AudioConvertPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const content = TOOL_SEO_CONFIGS.audioConvert[locale];
 
-import { useAppStore } from '@/stores/media-processor/app-store';
-import { FunctionSelector } from '../../../../../src/components/media-processor/FunctionSelector';
-
-export default function AudioConvertPage() {
-  const t = useTranslations();
-  
-  // FFmpeg 初始化 (确保 FFmpeg 在页面加载时开始加载)
-  useFFmpegManager();
-
-  // 从 AppStore 获取 reset action
-  const resetAppStore = useAppStore(state => state.reset);
-  
-  // 页面卸载时重置 Store
-  useEffect(() => {
-    return () => {
-      resetAppStore();
-    };
-  }, [resetAppStore]);
-
-  // 左侧内容：上传 + 元数据
-  const leftColumn = (
-    <>
-      <UnifiedFileUploadArea category="audio" />
-      <UnifiedMediaMetadataCard />
-    </>
+  const breadcrumbs = generateToolBreadcrumbs(
+    locale,
+    content.title.split(' - ')[0],
+    '/processor/audio/convert',
+    {
+      name: locale === 'en' ? 'Audio Tools' : locale === 'zh' ? '音频工具' : '音訊工具',
+      path: '/processor/audio'
+    }
   );
 
-  // 右侧内容：控制面板 + 进度 + 预览
-  const rightColumn = (
-    <>
-      <FunctionSelector />
-      <AudioConvertControlPanel />
-      <UnifiedProgressDisplay />
-      <UnifiedOutputPreview mediaType="audio" />
-    </>
-  );
+  const appConfig = {
+    name: content.title.split(' - ')[0],
+    description: content.description,
+    url: `https://tools.bhwa233.com/${locale}/processor/audio/convert`,
+    applicationCategory: 'MultimediaApplication' as const,
+    featureList: content.features || [],
+    browserRequirements: 'HTML5, JavaScript enabled',
+    operatingSystem: 'Any'
+  };
 
   return (
-    <ProcessorLayout
-      title={t('mediaProcessor.functions.audioConvert.label')}
-      description={t('mediaProcessor.functions.audioConvert.description')}
-      leftColumn={leftColumn}
-      rightColumn={rightColumn}
-    />
+    <>
+      <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
+      <AudioConvertClientPage />
+    </>
   );
 }

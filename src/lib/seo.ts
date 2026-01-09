@@ -296,3 +296,86 @@ export function generateToolBreadcrumbs(
 
   return items;
 }
+
+// ==================== 工具页面 Metadata 配置 ====================
+
+/**
+ * 工具页面 SEO 内容类型
+ */
+export interface ToolSEOContent {
+  title: string;
+  description: string;
+  keywords: string[];
+  features?: string[];
+}
+
+/**
+ * 多语言工具 SEO 配置
+ */
+export interface ToolSEOConfig {
+  en: ToolSEOContent;
+  zh: ToolSEOContent;
+  'zh-tw': ToolSEOContent;
+}
+
+/**
+ * 生成工具页面 Metadata（使用多语言配置）
+ */
+export function generateToolMetadata(
+  config: ToolSEOConfig,
+  path: string,
+  locale: SupportedLocale
+): Metadata {
+  const content = config[locale];
+  const canonicalUrl = locale === 'en'
+    ? `${SEO_CONFIG.baseUrl}${path}`
+    : `${SEO_CONFIG.baseUrl}/${locale}${path}`;
+
+  return {
+    title: content.title,
+    description: content.description,
+    keywords: content.keywords,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        'en': `${SEO_CONFIG.baseUrl}${path}`,
+        'zh': `${SEO_CONFIG.baseUrl}/zh${path}`,
+        'zh-tw': `${SEO_CONFIG.baseUrl}/zh-tw${path}`,
+        'x-default': `${SEO_CONFIG.baseUrl}${path}`,
+      },
+    },
+    openGraph: {
+      title: content.title,
+      description: content.description,
+      url: canonicalUrl,
+      siteName: locale === 'en' ? SEO_CONFIG.siteName : SEO_CONFIG.siteNameCn,
+      locale: OG_LOCALES[locale],
+      type: 'website',
+      images: [
+        {
+          url: `${SEO_CONFIG.baseUrl}${SEO_CONFIG.defaultImage}`,
+          width: 256,
+          height: 256,
+          alt: content.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: content.title,
+      description: content.description,
+      images: [`${SEO_CONFIG.baseUrl}${SEO_CONFIG.defaultImage}`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}

@@ -1,54 +1,52 @@
-'use client';
+import type { Metadata } from 'next';
+import { Locale } from '@/lib/i18n';
+import { generateToolMetadata } from '@/lib/seo';
+import { ToolPageStructuredData } from '@/components/structured-data';
+import { generateToolBreadcrumbs } from '@/lib/seo';
+import { TOOL_SEO_CONFIGS } from '@/lib/tool-seo-configs';
+import VideoGifClientPage from './VideoGifClientPage';
 
-import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { ProcessorLayout } from '@/components/media-processor/layout/ProcessorLayout';
-import { UnifiedFileUploadArea } from '@/components/media-processor/UnifiedFileUploadArea';
-import { UnifiedMediaMetadataCard } from '@/components/media-processor/UnifiedMediaMetadataCard';
-import { UnifiedProgressDisplay } from '@/components/media-processor/UnifiedProgressDisplay';
-import { UnifiedOutputPreview } from '@/components/media-processor/UnifiedOutputPreview';
-import { VideoToGifControlPanel } from '@/components/media-processor/control-panels/VideoToGifControlPanel';
-import { VideoPreviewCard } from '@/components/media-processor/VideoPreviewCard';
-import { useFFmpegManager } from '@/hooks/useFFmpeg';
-import { useAppStore } from '@/stores/media-processor/app-store';
-import { FunctionSelector } from '@/components/media-processor/FunctionSelector';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return generateToolMetadata(TOOL_SEO_CONFIGS.videoToGif, '/processor/video/gif', locale);
+}
 
-export default function VideoGifPage() {
-  const t = useTranslations();
+export default async function VideoGifPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const content = TOOL_SEO_CONFIGS.videoToGif[locale];
   
-  // FFmpeg initialization
-  useFFmpegManager();
-
-  const resetAppStore = useAppStore(state => state.reset);
-  
-  useEffect(() => {
-    return () => {
-      resetAppStore();
-    };
-  }, [resetAppStore]);
-
-  const leftColumn = (
-    <>
-      <UnifiedFileUploadArea category="video" />
-      <VideoPreviewCard />
-      <UnifiedMediaMetadataCard />
-    </>
+  const breadcrumbs = generateToolBreadcrumbs(
+    locale,
+    content.title.split(' - ')[0],
+    '/processor/video/gif',
+    {
+      name: locale === 'en' ? 'Video Tools' : locale === 'zh' ? '视频工具' : '影片工具',
+      path: '/processor/video'
+    }
   );
 
-  const rightColumn = (
-    <>
-      <FunctionSelector />
-      <VideoToGifControlPanel />
-      <UnifiedProgressDisplay />
-    </>
-  );
+  const appConfig = {
+    name: content.title.split(' - ')[0],
+    description: content.description,
+    url: `https://tools.bhwa233.com/${locale}/processor/video/gif`,
+    applicationCategory: 'MultimediaApplication' as const,
+    featureList: content.features || [],
+    browserRequirements: 'HTML5, JavaScript enabled',
+    operatingSystem: 'Any'
+  };
 
   return (
-    <ProcessorLayout
-      title={t('mediaProcessor.functions.videoGif.label')}
-      description={t('mediaProcessor.functions.videoGif.description')}
-      leftColumn={leftColumn}
-      rightColumn={rightColumn}
-    />
+    <>
+      <ToolPageStructuredData breadcrumbs={breadcrumbs} appConfig={appConfig} />
+      <VideoGifClientPage />
+    </>
   );
 }
