@@ -29,7 +29,7 @@ export async function generateMetadata({
       default: t('title') || 'Toolbox - Online Productivity Tools',
       template: `%s | ${t('title')?.split(' - ')[0] || 'Toolbox'}`
     },
-    description: t('description') || 'Integrated file upload, media processing and other multi-functional online toolbox',
+    description: t('description') || 'Integrated media processing and other multi-functional online toolbox',
     alternates: {
       canonical: locale === 'en' ? baseUrl : `${baseUrl}/${locale}`,
       languages: {

@@ -106,7 +106,7 @@ export const websiteStructuredData = {
   '@type': 'WebApplication',
   name: '工具箱',
   url: 'https://tools.bhwa233.com',
-  description: '集成摸鱼办、热榜资讯、文件上传、媒体处理等多功能的在线工具箱',
+  description: '集成摸鱼办、热榜资讯、媒体处理等多功能的在线工具箱',
   applicationCategory: 'Utility',
   operatingSystem: 'Web',
   offers: {

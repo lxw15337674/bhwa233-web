@@ -5,11 +5,11 @@ import { StructuredData, websiteStructuredData } from '@/components/structured-d
 
 export const metadata: Metadata = {
   title: '工具箱 - 在线生产力工具集合',
-  description: '集成摸鱼办热榜、在线聊天、文件上传、媒体处理等多功能工具，一站式提升您的工作效率和娱乐体验',
+  description: '集成摸鱼办热榜、在线聊天、媒体处理等多功能工具，一站式提升您的工作效率和娱乐体验',
   keywords: ['在线工具箱', '摸鱼办', '热榜资讯', '生产力工具'],
   openGraph: {
     title: '工具箱 - 在线生产力工具集合',
-    description: '集成摸鱼办热榜、在线聊天、文件上传、媒体处理等多功能工具',
+    description: '集成摸鱼办热榜、在线聊天、媒体处理等多功能工具',
     url: 'https://tools.bhwa233.com',
     type: 'website',
   },
@@ -23,7 +23,7 @@ export default function Home() {
         <header>
           <h1 className="text-2xl font-bold mb-4">在线工具箱 - 生产力与娱乐工具集合</h1>
           <p className="text-muted-foreground mb-6">
-            集成摸鱼办热榜、在线聊天、文件上传、媒体处理等实用工具，助您提升效率、享受娱乐
+            集成摸鱼办热榜、在线聊天、媒体处理等实用工具，助您提升效率、享受娱乐
           </p>
         </header>
 

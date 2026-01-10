@@ -125,11 +125,6 @@ const nextConfig: NextConfig = {
   },
   rewrites: async () => {
     return [
-      // 支持带 locale 前缀的请求（例如 /en/telegraph-upload）
-      {
-        source: '/:locale/telegraph-upload',
-        destination: 'https://cloudflare-imgbed-76v.pages.dev/upload',
-      },
       {
         source: '/:locale/jiaqi',
         destination:

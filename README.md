@@ -1,58 +1,43 @@
-# Todo Web 应用
+# Toolbox Web
 
-一个基于 Next.js 构建的功能丰富的 Web 应用，集成了生产力工具和娱乐功能。使用 Bun 作为运行时和包管理器，提供更快的开发体验。
+一个基于 Next.js 构建的在线工具箱，包含媒体处理（图片/音频/视频）与部分娱乐小工具，支持多语言（`next-intl`）与 PWA（`serwist`）。
 
 ## 开发环境
 
 ### 环境要求
-- [Bun](https://bun.sh/) >= 1.0.0
+- Node.js 20+（建议）
+- pnpm
 
 ### 快速开始
 ```bash
 # 安装依赖
-bun install
+pnpm install
 
 # 开发环境运行
-bun dev
+pnpm dev
 
 # 构建
-bun run build
+pnpm build
 
 # 生产环境运行
-bun start
+pnpm start
 ```
 
 ## 功能特性
 
-### 核心功能
-- **用户认证**
-  - 安全的登录和登出功能
-  - 用户会话管理
+### 媒体工具
+- 图片处理（转换/压缩/裁剪/EXIF 读取等）
+- 图片编辑（基于 `react-filerobot-image-editor`）
+- 批量图片处理
+- 音频提取、格式转换、倍速调整
+- 视频转 GIF
 
-- **待办事项管理**
-  - 待办事项的增删改查
-  - 用户自定义待办类型
-  - 高级筛选功能
-  - 任务组织与管理
-
-- **计数系统**
-  - 计数器的跟踪和管理
-  - 数据统计和可视化
-  - 数据追踪功能
-
-### 娱乐与工具
-- **游戏功能**
-  - 云顶之弈助手
-    - 羁绊可视化
-    - 装备合成指南
-  
-- **社交功能**
-  - 今日热榜
-  - 摸鱼办公区
+### 其他
+- 摸鱼办 / FishingTime（部分中文内容）
 
 ## 技术栈
 
-
-## 开发计划
-- 待办事项排序功能
-- 阅后即焚消息功能
+- Next.js（App Router）
+- React + TypeScript
+- Tailwind CSS
+- Zustand

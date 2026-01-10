@@ -13,11 +13,11 @@ export const metadata: Metadata = {
     default: 'Toolbox - Online Productivity Tools Collection | 工具箱',
     template: '%s | Toolbox'
   },
-  description: 'Integrated file upload, media processing, audio converter, image editor and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience. 集成文件上传、媒体处理、音频转换、图片编辑等多功能在线工具箱。',
+  description: 'Integrated media processing, audio converter, image editor and other multi-functional online toolbox. Features tools to enhance your productivity and entertainment experience. 集成媒体处理、音频转换、图片编辑等多功能在线工具箱。',
   keywords: [
-    'online tools', 'toolbox', 'file upload', 'media processing', 'productivity tools',
+    'online tools', 'toolbox', 'media processing', 'productivity tools',
     'audio converter', 'image editor', 'batch processing', 'format converter',
-    '在线工具', '工具箱', '文件上传', '媒体处理', '音频转换', '图片编辑',
+    '在线工具', '工具箱', '媒体处理', '音频转换', '图片编辑',
     '摸鱼办', 'Chinese tools', '生产力工具'
   ],
   authors: [{ name: '233tools', url: 'https://tools.bhwa233.com' }],
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     url: 'https://tools.bhwa233.com',
     siteName: 'Toolbox | 工具箱',
     title: 'Toolbox - Online Productivity Tools Collection | 工具箱',
-    description: 'Integrated file upload, media processing and other multi-functional online toolbox with tools to enhance productivity. 集成多功能在线工具箱，提升生产力。',
+    description: 'Integrated media processing and other multi-functional online toolbox with tools to enhance productivity. 集成多功能在线工具箱，提升生产力。',
     images: [
       {
         url: '/icons/icon-256.png',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Toolbox - Online Productivity Tools Collection',
-    description: 'Integrated file upload, media processing and other multi-functional online toolbox with productivity tools',
+    description: 'Integrated media processing and other multi-functional online toolbox with productivity tools',
     images: ['/icons/icon-256.png'],
   },
   verification: {
